@@ -1,0 +1,15 @@
+name: dispatch-echo
+on:
+  repository_dispatch:
+    types: [bit-export, bit-lane-export, bit-main-export, bit-lane-removed]
+jobs:
+  echo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo the bit.cloud dispatch payload
+        env:
+          EVENT_TYPE: ${{ github.event.action }}
+          PAYLOAD: ${{ toJSON(github.event.client_payload) }}
+        run: |
+          echo "event_type: $EVENT_TYPE"
+          echo "client_payload: $PAYLOAD"
