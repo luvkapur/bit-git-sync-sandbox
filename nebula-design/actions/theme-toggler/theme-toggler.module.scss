@@ -1,0 +1,127 @@
+.themeTogglerContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-default, 8px); // Use theme token or fallback
+  padding: var(--spacing-half, 4px); // Use theme token or fallback
+  background-color: var(--fill-secondary-default, #f0f0f0); // Use theme token or fallback
+  border-radius: var(--border-radius, 20px); // Use theme token or fallback
+  // Consider a subtle shadow if appropriate, e.g., var(--effects-shadows-small)
+  border: 1px solid var(--border-default, #cccccc); // Use theme token or fallback
+  transition: box-shadow 0.2s ease-in-out;
+  box-sizing: border-box;
+}
+
+.themeTogglerContainer:hover {
+  // Consider var(--effects-shadows-medium)
+}
+
+.modeToggler {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: var(--spacing-half, 4px); // Use theme token or fallback
+  background-color: var(--fill-default, #ffffff); // Use theme token or fallback
+  border: 1px solid var(--border-default, #cccccc); // Use theme token or fallback
+  border-radius: var(--border-radius, 50%); // Assuming circular button
+  color: var(--content-default, #333333); // Use theme token or fallback
+  cursor: pointer; // var(--interactions-cursor-pointer)
+  transition: background-color 0.2s ease-in-out,
+              border-color 0.2s ease-in-out,
+              transform 0.2s ease-in-out;
+  width: 32px;  // Adjust size as needed
+  height: 32px; // Adjust size as needed
+  box-sizing: border-box;
+  overflow: hidden;
+  flex-shrink: 0; // Prevent shrinking if container is too small
+}
+
+.modeToggler:hover {
+  background-color: var(--fill-secondary-hover, #e0e0e0); // Use theme token or fallback
+  border-color: var(--border-focus, #aaaaaa); // Use theme token or fallback
+  transform: scale(1.05);
+}
+
+.modeToggler:active {
+  transform: scale(0.95);
+  background-color: var(--fill-secondary-default, #f0f0f0); // Use theme token or fallback
+}
+
+.modeTogglerIcon {
+  width: 18px;  // Adjust icon size
+  height: 18px; // Adjust icon size
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transition-property: opacity, transform;
+  transition-duration: 0.3s; // var(--interactions-transitions-duration-medium)
+  transition-timing-function: ease-in-out; // var(--interactions-transitions-easing-ease-in-out)
+}
+
+.lightIconActive,
+.darkIconActive {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1);
+}
+
+.lightIconInactive,
+.darkIconInactive {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(90deg) scale(0.3);
+}
+
+.lightIconInactive {
+  transform: translate(-50%, -50%) rotate(-90deg) scale(0.3); // Differentiate rotation direction
+}
+
+
+.themeSelector {
+  min-width: 100px; // Ensure enough space for theme names
+  padding: var(--spacing-half, 6px) var(--spacing-default, 8px); // Use theme token or fallback
+  font-family: inherit; // Or var(--typography-body-default-font-family)
+  font-size: var(--typography-body-default, 1rem); // Use theme token or fallback
+  color: var(--content-default, #333333); // Use theme token or fallback
+  background-color: var(--fill-default, #ffffff); // Use theme token or fallback
+  border: 1px solid var(--border-default, #cccccc); // Use theme token or fallback
+  border-radius: var(--border-radius, 4px); // Use theme token or fallback
+  cursor: pointer; // var(--interactions-cursor-pointer)
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  flex-grow: 1; // Allow it to take available space if needed
+  box-sizing: border-box;
+  appearance: none; // Basic reset for native select
+  background-image: linear-gradient(45deg, transparent 50%, var(--content-default, #333) 50%),
+                    linear-gradient(135deg, var(--content-default, #333) 50%, transparent 50%);
+  background-position: calc(100% - 20px) calc(1em + 2px),
+                       calc(100% - 15px) calc(1em + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: var(--spacing-x4, 30px); // Space for custom arrow
+}
+
+.themeSelector:hover {
+  border-color: var(--border-focus, #aaaaaa); // Use theme token or fallback
+}
+
+.themeSelector:focus {
+  outline: none;
+  border-color: var(--border-focus, #007bff); // Use theme token or fallback for focus
+  box-shadow: 0 0 0 2px var(--border-focus, #007bff30); // Example focus ring
+}
+
+
+// Responsive adjustments
+@media (max-width: 480px) { // $tablet breakpoint
+  .themeTogglerContainer {
+    flex-direction: column;
+    align-items: stretch; // Make children full width
+  }
+
+  .modeToggler {
+    width: 100%; 
+  }
+
+  .themeSelector {
+    width: 100%;
+    min-width: unset;
+  }
+}

@@ -1,0 +1,57 @@
+---
+description: Displays a message when a user hovers over or focuses on an element.
+labels: ['tooltip', 'ui', 'feedback']
+---
+
+The Tooltip component provides contextual information on hover or focus, styled according to the Nebula theme.
+
+## Basic Tooltip
+
+A simple tooltip that appears on top of the trigger element by default.
+It inherits styling from the Nebula theme.
+
+```jsx
+<Tooltip content="Hello from Nebula! This is a basic tooltip.">
+  <button type="button">Hover or Focus Me</button>
+</Tooltip>
+```
+## Tooltip Positions
+Demonstrates tooltips in different positions relative to their trigger element: top, bottom, left, and right.
+The position is controlled by the `position` prop.
+```jsx
+<div style={{ display: 'flex', gap: '20px' }}>
+  <Tooltip content="Tooltip on the Top" position="top">
+    <span>Top Tooltip</span>
+  </Tooltip>
+  <Tooltip content="Tooltip on the Bottom" position="bottom">
+    <span>Bottom Tooltip</span>
+  </Tooltip>
+  <Tooltip content="Tooltip on the Left" position="left">
+    <span>Left Tooltip</span>
+  </Tooltip>
+  <Tooltip content="Tooltip on the Right" position="right">
+    <span>Right Tooltip</span>
+  </Tooltip>
+</div>
+```
+## Rich Content and Delayed Tooltip
+A tooltip with custom HTML content, enter and leave delays.
+```jsx
+<Tooltip
+  content={
+    <div>
+      <h3>Nebula Info Card</h3>
+      <p>
+        This tooltip demonstrates <strong>rich HTML content</strong>.
+        
+
+        It appears after <em>500ms</em> and hides after <em>300ms</em>.
+      </p>
+    </div>
+  }
+  position="bottom"
+  enterDelay={500}
+  leaveDelay={300}
+>
+  <button type="button">Hover for Rich Content (Delayed)</button>
+</Tooltip>

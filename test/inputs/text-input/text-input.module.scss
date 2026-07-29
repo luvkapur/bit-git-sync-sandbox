@@ -1,0 +1,32 @@
+.textInput {
+  font-family: var(--typography-font-family);
+  color: var(--colors-text-primary);
+  background-color: var(--colors-surface-primary);
+  border: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+  border-radius: var(--borders-radius-medium);
+  padding: var(--spacing-small) var(--spacing-default);
+  font-size: var(--typography-sizes-body-default);
+  line-height: var(--typography-line-height-base);
+  box-sizing: border-box;
+  width: 100%;
+  transition: border-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out),
+              box-shadow var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out);
+
+  &::placeholder {
+    color: var(--colors-text-secondary);
+    opacity: var(--effects-opacity-semi-opaque);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--colors-border-interactive-default);
+    box-shadow: 0 0 0 var(--borders-focus-offset) var(--colors-border-interactive-default);
+  }
+
+  &:disabled {
+    background-color: var(--colors-surface-secondary); // Example disabled state
+    color: var(--colors-text-secondary);
+    cursor: var(--interactions-cursor-disabled);
+    opacity: var(--effects-opacity-disabled);
+  }
+}

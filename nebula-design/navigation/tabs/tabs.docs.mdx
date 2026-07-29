@@ -1,0 +1,57 @@
+---
+description: Tabs component renders a container for content, optionally with a title. It supports different visual variants ('default', 'minimal') to suit various UI contexts. This component is designed to be a flexible building block for tabbed interfaces or sectioned content, styled according to the Nebula theme.
+labels: ['tabs', 'ui', 'container']
+---
+
+## Basic Nebula Tabs
+
+This example demonstrates the basic usage of the `Tabs` component within the Nebula Theme.
+It showcases the default appearance with a subtle purple tint background and rounded corners.
+
+```jsx
+<NebulaTheme>
+  <div style={{ padding: 'var(--spacing-l)', backgroundColor: 'var(--colors-surface-background)', minHeight: '200px' }}>
+    <Tabs>
+      <div style={{ padding: 'var(--spacing-m)', border: '1px dashed var(--colors-border-subtle)', borderRadius: 'var(--borders-radius-medium)', backgroundColor: 'var(--colors-surface-secondary)', color: 'var(--colors-text-default)', fontFamily: 'var(--typography-font-family)' }}>
+        <p>This is the content of the tab panel within the Nebula Theme.</p>
+        <p>It uses the <strong>default</strong> variant which provides a container with a subtle purple tint background and rounded corners as defined by Nebula.</p>
+      </div>
+    </Tabs>
+  </div>
+</NebulaTheme>
+```
+
+## Nebula Tabs With Title
+
+This example shows how to add a title to the `Tabs` component.
+The title font and color are styled according to the Nebula theme, using the 'Inter' font.
+
+```jsx
+<NebulaTheme>
+  <div style={{ padding: 'var(--spacing-l)', backgroundColor: 'var(--colors-surface-background)', minHeight: '200px' }}>
+    <Tabs title="Nebula Section Title">
+      <div style={{ padding: 'var(--spacing-m)', border: '1px dashed var(--colors-border-subtle)', borderRadius: 'var(--borders-radius-medium)', backgroundColor: 'var(--colors-surface-secondary)', color: 'var(--colors-text-default)', fontFamily: 'var(--typography-font-family)' }}>
+        <p>This tab container has a title: "Nebula Section Title".</p>
+        <p>The title font and color are styled according to Nebula theme (Inter font).</p>
+      </div>
+    </Tabs>
+  </div>
+</NebulaTheme>
+```
+
+## Minimal Nebula Tabs
+
+This example demonstrates the "minimal" variant of the `Tabs` component within the Nebula theme.
+It features a simpler design, typically with a top border, without a distinct background.
+
+```jsx
+<NebulaTheme>
+  <div style={{ padding: 'var(--spacing-l)', backgroundColor: 'var(--colors-surface-background)', minHeight: '200px' }}>
+    <Tabs variant="minimal">
+      <div style={{ padding: 'var(--spacing-m)', border: '1px dashed var(--colors-border-subtle)', borderRadius: 'var(--borders-radius-medium)', backgroundColor: 'transparent', borderTop: 'none', paddingTop: 0, color: 'var(--colors-text-default)', fontFamily: 'var(--typography-font-family)' }}>
+        <p>This tab container uses the <strong>minimal</strong> variant in Nebula Theme.</p>
+        <p>It features a simpler design, typically a top border, without a distinct background. Content background here is transparent.</p>
+      </div>
+    </Tabs>
+  </div>
+</NebulaTheme>

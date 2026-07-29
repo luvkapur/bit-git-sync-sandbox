@@ -1,0 +1,65 @@
+.pageLayoutContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--colors-surface-background);
+  color: var(--colors-text-primary);
+  font-family: var(--typography-font-family);
+}
+
+.contentWrapper {
+  flex-grow: 1;
+  width: 100%;
+  max-width: var(--layout-max-page-width, 1440px); // Modern, wide layout with fallback
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: var(--spacing-xl, 48px);
+  padding-bottom: var(--spacing-xl, 48px);
+  padding-left: var(--layout-gutter, var(--spacing-large, 32px));
+  padding-right: var(--layout-gutter, var(--spacing-large, 32px));
+  box-sizing: border-box;
+}
+
+.innerNavigationTabs {
+  // Styles for the Tabs component when used as the main content container
+  width: 100%; // Ensure Tabs takes full width of the contentWrapper
+  // The Tabs component itself handles its internal padding and styling based on its variant.
+  // No specific overrides needed here unless to adjust its fit within PageLayout.
+}
+
+.directContentContainer {
+  // Container for children when not wrapped by Tabs.
+  // Ensures consistent width handling.
+  width: 100%;
+}
+
+// Responsive adjustments
+// $laptop: 1024px
+@media (max-width: 1024px) {
+  .contentWrapper {
+    padding-top: var(--spacing-large, 32px);
+    padding-bottom: var(--spacing-large, 32px);
+    padding-left: var(--layout-gutter, var(--spacing-default, 24px));
+    padding-right: var(--layout-gutter, var(--spacing-default, 24px));
+  }
+}
+
+// $tablet: 768px
+@media (max-width: 768px) {
+  .contentWrapper {
+    padding-left: var(--layout-gutter, var(--spacing-default, 24px)); // Adjusted for typical tablet view
+    padding-right: var(--layout-gutter, var(--spacing-default, 24px));
+  }
+}
+
+// $mobile: 480px
+@media (max-width: 480px) {
+  .contentWrapper {
+    padding-top: var(--spacing-default, 24px);
+    padding-bottom: var(--spacing-default, 24px);
+    padding-left: var(--layout-gutter, var(--spacing-medium, 16px)); // Further reduced for mobile
+    padding-right: var(--layout-gutter, var(--spacing-medium, 16px));
+  }
+}

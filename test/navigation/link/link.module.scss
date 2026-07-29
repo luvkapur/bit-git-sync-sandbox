@@ -1,0 +1,19 @@
+.link {
+  color: var(--colors-text-interactive-default);
+  text-decoration: none;
+  cursor: var(--interactions-cursor-pointer);
+  font-family: var(--typography-font-family);
+  transition: color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out);
+}
+
+.link:hover,
+.link:focus {
+  text-decoration: underline;
+  // If a specific hover color for interactive text is defined in theme, use it here.
+  // Example: color: var(--colors-text-interactive-hover);
+}
+
+.link:active {
+  // If a specific active color for interactive text is defined in theme, use it here.
+  // Example: color: var(--colors-text-interactive-active);
+}

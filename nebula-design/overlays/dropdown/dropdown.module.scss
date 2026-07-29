@@ -1,0 +1,69 @@
+.dropdownRoot {
+  display: inline-block; // Ensures proper layout for the trigger and panel
+  position: relative; // Establishes a positioning context for the dropdown panel
+}
+
+.dropdownContent {
+  box-sizing: border-box; // Prevents padding/border from increasing element size
+  background-color: var(--colors-surface-primary); // Nebula theme: container background
+  color: var(--colors-text-default); // Nebula theme: default text color
+  border: 1px solid var(--colors-border-subtle); // Subtle border for definition
+  border-radius: var(--borders-radius-container); // Nebula theme: 8px container radius
+  box-shadow: var(--shadows-large); // Adds depth for a modern feel
+  padding: var(--spacing-s); // Internal spacing for content
+  min-width: 200px; // Ensures a usable width
+  max-width: calc(100vw - var(--spacing-m) * 2); // Prevents overflow on small screens
+  z-index: 1000; // Ensures visibility above other page elements
+
+  // Reset for unordered lists commonly used in dropdowns
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+// Styles for interactive elements (buttons, links) within the dropdown content
+.dropdownContent :global(button),
+.dropdownContent :global(a) {
+  box-sizing: border-box; // Ensures padding/border don't increase element size with width: 100%
+  display: block; // Ensures items take full width
+  width: 100%;
+  padding: var(--spacing-s) var(--spacing-m); // Comfortable padding for items
+  margin-bottom: var(--spacing-xs); // Spacing between items
+  color: var(--colors-text-default);
+  text-decoration: none; // Remove default link underline
+  border-radius: var(--borders-radius-medium); // Slightly rounded corners for items
+  cursor: var(--interactions-cursor-pointer);
+  background-color: transparent; // Default transparent background
+  border: none; // Remove default button borders
+  text-align: left; // Align text to the left
+  font-family: var(--typography-font-family); // Use theme's font family
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out; // Smooth transitions
+
+  &:last-child {
+    margin-bottom: 0; // Remove margin from the last item
+  }
+
+  &:hover,
+  &:focus,
+  &:focus-visible {
+    background-color: var(--colors-surface-secondary); // Subtle background change on hover/focus
+    color: var(--colors-text-interactive-default); // Nebula theme: primary interactive color for text
+    outline: none; // Remove default browser outline
+  }
+
+  &:active {
+    background-color: var(--colors-primary-active); // Nebula theme: active primary color
+    color: var(--colors-text-inverse) !important; // Ensure text is readable on active background
+  }
+}
+
+// Specific style for links on hover/focus to add underline
+.dropdownContent :global(a) {
+  &:hover,
+  &:focus,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+}

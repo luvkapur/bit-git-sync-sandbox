@@ -1,0 +1,47 @@
+---
+description: The AuraTheme component provides the Aura Design System's tokens, fonts, and general styling to its component tree. It supports light and dark modes and allows for token overrides.
+labels: ['react', 'design', 'theme', 'aura']
+---
+
+The `AuraTheme` component is a foundational component for applying the Aura Design System to your application. It provides a consistent look and feel by wrapping your component tree with the necessary styles and tokens.
+It supports switching between light and dark modes and allows for customization through token overrides.
+
+## Basic Usage
+
+Wrap your application or a section of your application with the `AuraTheme` component to apply the default Aura Design System styles.
+
+```jsx
+<AuraTheme>
+  <h1>Hello Aura!</h1>
+  <p>This is a basic example using the Aura theme.</p>
+</AuraTheme>
+```
+## Theme Switching
+The `AuraTheme` component supports switching between light and dark themes. Use the `initialTheme` prop to set the initial theme mode. The `useThemeController` hook can be used to programmatically toggle or set the theme mode.
+```jsx
+<AuraTheme initialTheme="light">
+  <div>
+    <p>Current Theme: Light</p>
+    <button>Toggle Theme</button>
+  </div>
+</AuraTheme>
+```
+## Overriding Tokens
+The `overrides` prop allows you to customize specific design tokens. This is useful for creating variations of the Aura theme or applying custom branding.
+```jsx
+const themeOverrides = {
+  colors: {
+    primary: {
+      default: '#C48CFF', // Purple
+    },
+  },
+  borders: {
+    radius: {
+      container: '8px',
+    },
+  },
+};
+<AuraTheme overrides={themeOverrides}>
+  <h1>Customized Aura Theme</h1>
+  <p>This theme has a purple primary color and smaller container border radius.</p>
+</AuraTheme>

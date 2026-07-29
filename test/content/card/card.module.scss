@@ -1,0 +1,103 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--colors-surface-primary);
+  color: var(--colors-text-primary);
+  border-radius: var(--borders-radius-container);
+  overflow: hidden;
+  box-sizing: border-box;
+  transition-property: transform, box-shadow;
+  transition-duration: var(--interactions-transitions-duration-fast);
+  transition-timing-function: var(--interactions-transitions-easing-ease-in-out);
+}
+
+.defaultVariant {
+  box-shadow: var(--effects-shadows-xs);
+}
+
+.elevatedVariant {
+  box-shadow: var(--effects-shadows-medium);
+}
+
+.outlinedVariant {
+  border: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+  box-shadow: none;
+}
+
+.interactiveState {
+  cursor: var(--interactions-cursor-pointer);
+
+  &:hover,
+  &:focus-within {
+    transform: var(--interactions-hover-effect-scale);
+  }
+}
+
+.interactiveState.elevatedVariant {
+  &:hover,
+  &:focus-within {
+    box-shadow: var(--effects-shadows-large);
+  }
+}
+
+.imageContainer {
+  width: 100%;
+  line-height: 0; /* Removes potential space below image if it's inline-block by UA */
+}
+
+.imageElement {
+  width: 100%;
+  height: auto; /* Maintain aspect ratio, can be overridden by user CSS for fixed height */
+  object-fit: cover; /* Covers the container, might crop */
+  display: block; /* Prevents extra space under inline images */
+}
+
+.headerSection {
+  padding: var(--spacing-large);
+  box-sizing: border-box;
+  border-bottom: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+}
+
+.contentSection {
+  padding: var(--spacing-large);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-default); /* Space between title and bodySection */
+  box-sizing: border-box;
+}
+
+.titleElement {
+  font-family: var(--typography-font-family);
+  font-size: var(--typography-sizes-heading-h4);
+  font-weight: var(--typography-font-weight-bold);
+  line-height: var(--typography-line-height-heading);
+  color: var(--colors-text-primary); /* Explicitly set, though likely inherited */
+  margin: 0; /* Reset browser default heading margin */
+}
+
+.bodySection {
+  /* Styles for the main children container if needed */
+  /* For example, to ensure proper text wrapping or layout */
+  width: 100%;
+}
+
+.footerSection {
+  padding: var(--spacing-large);
+  box-sizing: border-box;
+  border-top: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+}
+
+/* Basic responsiveness: ensure padding and gaps are not excessive on very small screens */
+/* This is a generic approach; specific designs might need more detailed breakpoints */
+@media (max-width: 480px) {
+  .headerSection,
+  .contentSection,
+  .footerSection {
+    padding: var(--spacing-default); /* Reduce padding on smaller screens */
+  }
+
+  .contentSection {
+    gap: var(--spacing-small); /* Reduce gap between title and body on smaller screens */
+  }
+}

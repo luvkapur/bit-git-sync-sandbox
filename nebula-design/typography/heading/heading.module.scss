@@ -1,0 +1,54 @@
+.baseHeading {
+  // Uses the theme-provided font family. Nebula theme sets this to 'Inter'.
+  font-family: var(--typography-font-family);
+  // Uses the theme-provided primary text color.
+  color: var(--colors-text-primary);
+  // Assumes --typography-font-weight-bold is provided by the theme.
+  font-weight: var(--typography-font-weight-bold);
+  // Assumes --typography-line-height-heading is provided by the theme.
+  line-height: var(--typography-line-height-heading);
+  margin-block-start: 0;
+  // Assumes --spacing-default is provided by the theme.
+  margin-block-end: var(--spacing-default);
+  box-sizing: border-box;
+}
+
+// Visual styles for heading levels
+// Levels 1-3 use headline tokens
+.h1Style {
+  // Assumes --typography-sizes-heading-h1 is provided by the theme.
+  font-size: var(--typography-sizes-heading-h1);
+  // Assumes --typography-letter-spacing-tight is provided by the theme.
+  letter-spacing: var(--typography-letter-spacing-tight); // Enhance larger headings
+}
+
+.h2Style {
+  // Assumes --typography-sizes-heading-h2 is provided by the theme.
+  font-size: var(--typography-sizes-heading-h2);
+  // Assumes --typography-letter-spacing-tight is provided by the theme.
+  letter-spacing: var(--typography-letter-spacing-tight); // Enhance larger headings
+}
+
+.h3Style {
+  // Assumes --typography-sizes-heading-h3 is provided by the theme.
+  font-size: var(--typography-sizes-heading-h3);
+}
+
+// Levels 4-6 use body tokens as per requirement
+.h4Style {
+  // Assumes --typography-sizes-body-large is provided by the theme.
+  font-size: var(--typography-sizes-body-large);
+  // Heading characteristics like bold weight and line height are inherited from .baseHeading or should be maintained by theme tokens.
+}
+
+.h5Style {
+  // Assumes --typography-sizes-body-medium is provided by the theme.
+  font-size: var(--typography-sizes-body-medium);
+  // Heading characteristics like bold weight and line height are inherited from .baseHeading or should be maintained by theme tokens.
+}
+
+.h6Style {
+  // Assumes --typography-sizes-body-default is provided by the theme.
+  font-size: var(--typography-sizes-body-default);
+  // Heading characteristics like bold weight and line height are inherited from .baseHeading or should be maintained by theme tokens.
+}

@@ -9,6 +9,375 @@
  */
 
 {
+    "actions/button": {
+        "name": "actions/button",
+        "scope": "luvktest.test",
+        "version": "b6692a43d4c81f4f9413b6154687949c1274b45b",
+        "mainFile": "index.ts",
+        "rootDir": "test/actions/button",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "aura-theme": {
+        "name": "aura-theme",
+        "scope": "luvktest.test",
+        "version": "013b625576694d90cd7782698189717f8e6319e3",
+        "mainFile": "index.ts",
+        "rootDir": "test/aura-theme",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "content/logo": {
+        "name": "content/logo",
+        "scope": "luvktest.test",
+        "version": "93d9109717c1dc0bf97f4830909b4657dd3793fd",
+        "mainFile": "index.ts",
+        "rootDir": "test/content/logo",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "envs/aura-env": {
+        "name": "envs/aura-env",
+        "scope": "luvktest.test",
+        "version": "1553ce242b00b01665b0d824b92adfc1dd107f9b",
+        "mainFile": "index.ts",
+        "rootDir": "test/envs/aura-env",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "envs/nebula-env": {
+        "name": "envs/nebula-env",
+        "scope": "luvktest.nebula-design",
+        "version": "6e539d83d2acb1cae41afcf70001fa2a59c6546f",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/envs/nebula-env",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "layouts/page-layout": {
+        "name": "layouts/page-layout",
+        "scope": "luvktest.test",
+        "version": "cc4be1a7afc2a300c581a3d73f25d8902723d9ef",
+        "mainFile": "index.ts",
+        "rootDir": "test/layouts/page-layout",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "layouts/section-layout": {
+        "name": "layouts/section-layout",
+        "scope": "luvktest.test",
+        "version": "fafdbc7b02a577a47bd3938570e687382d6e71f2",
+        "mainFile": "index.ts",
+        "rootDir": "test/layouts/section-layout",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/actions/theme-toggler": {
+        "name": "actions/theme-toggler",
+        "scope": "luvktest.nebula-design",
+        "version": "95180fc19f39aaa3cc61f56dc7473f1faddcabac",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/actions/theme-toggler",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/content/avatar": {
+        "name": "content/avatar",
+        "scope": "luvktest.nebula-design",
+        "version": "9bc2057824ef9df3681997ef3a1984d685e25f75",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/content/avatar",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/content/badge": {
+        "name": "content/badge",
+        "scope": "luvktest.nebula-design",
+        "version": "d329ad58c4792883739d857f23bcd34cd1547c51",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/content/badge",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/content/card": {
+        "name": "content/card",
+        "scope": "luvktest.nebula-design",
+        "version": "fff6e76e8d76747a09583b96eaa320daf4831582",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/content/card",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/content/icon": {
+        "name": "content/icon",
+        "scope": "luvktest.nebula-design",
+        "version": "f43608d096ef3ffde92df006d8b028eab8b8d3ab",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/content/icon",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/content/image": {
+        "name": "content/image",
+        "scope": "luvktest.nebula-design",
+        "version": "e992cf9c17abcfe89c33b6629b4ba43e94f008c1",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/content/image",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/inputs/select-list": {
+        "name": "inputs/select-list",
+        "scope": "luvktest.nebula-design",
+        "version": "37f9b9e1e8d72e702d187664152542bbe95f2829",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/inputs/select-list",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/inputs/text-input": {
+        "name": "inputs/text-input",
+        "scope": "luvktest.nebula-design",
+        "version": "258ea5fcbb00342478c54db666e992b4d7cb2068",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/inputs/text-input",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/layouts/flex": {
+        "name": "layouts/flex",
+        "scope": "luvktest.nebula-design",
+        "version": "3783d9aebb4a18e7946c68d75514d3a5fa345f9a",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/layouts/flex",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/loaders/spinner": {
+        "name": "loaders/spinner",
+        "scope": "luvktest.nebula-design",
+        "version": "1c49c3b5b7b500b566e32e47ada8c18f3fb5247d",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/loaders/spinner",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/navigation/link": {
+        "name": "navigation/link",
+        "scope": "luvktest.nebula-design",
+        "version": "ba979680ba8b9b55371a3968954a7db558ce0cd0",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/navigation/link",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/navigation/tabs": {
+        "name": "navigation/tabs",
+        "scope": "luvktest.nebula-design",
+        "version": "4d55bbfa2176a7f839a4a2233a6373326b140903",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/navigation/tabs",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/overlays/dropdown": {
+        "name": "overlays/dropdown",
+        "scope": "luvktest.nebula-design",
+        "version": "53c802d9a1b4a517cb597b5bbd6450fa8bdd1703",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/overlays/dropdown",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/overlays/tooltip": {
+        "name": "overlays/tooltip",
+        "scope": "luvktest.nebula-design",
+        "version": "f77f45c9f1c5e8181bdbf259b20a4e6b097c7064",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/overlays/tooltip",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/typography/heading": {
+        "name": "typography/heading",
+        "scope": "luvktest.nebula-design",
+        "version": "1cca4a4a09ec267489c648a786140cbb3c13dc7a",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/typography/heading",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.nebula-design/typography/paragraph": {
+        "name": "typography/paragraph",
+        "scope": "luvktest.nebula-design",
+        "version": "574b1190c6706ccad42726e79867838c8bf3fe5e",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/typography/paragraph",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/actions/theme-toggler": {
+        "name": "actions/theme-toggler",
+        "scope": "luvktest.test",
+        "version": "e7157c24baf8fd9ecd5980f1c666c6c10d0565e4",
+        "mainFile": "index.ts",
+        "rootDir": "test/actions/theme-toggler",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/content/avatar": {
+        "name": "content/avatar",
+        "scope": "luvktest.test",
+        "version": "fdfd45efe4ac71fbd7615929762df24557eed730",
+        "mainFile": "index.ts",
+        "rootDir": "test/content/avatar",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/content/badge": {
+        "name": "content/badge",
+        "scope": "luvktest.test",
+        "version": "2456eb2d1ce46fb8ec7a30bf30c37e39a48f667d",
+        "mainFile": "index.ts",
+        "rootDir": "test/content/badge",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/content/card": {
+        "name": "content/card",
+        "scope": "luvktest.test",
+        "version": "8779a33fbd1c23cdb1299ba607316c52270d6127",
+        "mainFile": "index.ts",
+        "rootDir": "test/content/card",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/content/icon": {
+        "name": "content/icon",
+        "scope": "luvktest.test",
+        "version": "a0ee515061c538db4df81ab93ebf6debb46ebc48",
+        "mainFile": "index.ts",
+        "rootDir": "test/content/icon",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/content/image": {
+        "name": "content/image",
+        "scope": "luvktest.test",
+        "version": "82b4ad54a0f4d4455fe77fb3f05e4e3cbf6e581d",
+        "mainFile": "index.ts",
+        "rootDir": "test/content/image",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/inputs/select-list": {
+        "name": "inputs/select-list",
+        "scope": "luvktest.test",
+        "version": "7d89d306065293fda8b9aecf0eb2f5cca5e790df",
+        "mainFile": "index.ts",
+        "rootDir": "test/inputs/select-list",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/inputs/text-input": {
+        "name": "inputs/text-input",
+        "scope": "luvktest.test",
+        "version": "ae1b57659f8a3287ac88afd46585d70a81eafa3e",
+        "mainFile": "index.ts",
+        "rootDir": "test/inputs/text-input",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/layouts/flex": {
+        "name": "layouts/flex",
+        "scope": "luvktest.test",
+        "version": "a258d8f973279f1e844b15050101d0f28f699bd1",
+        "mainFile": "index.ts",
+        "rootDir": "test/layouts/flex",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/loaders/spinner": {
+        "name": "loaders/spinner",
+        "scope": "luvktest.test",
+        "version": "4187c3405961a45e93953f13f632b0f2b1a4b004",
+        "mainFile": "index.ts",
+        "rootDir": "test/loaders/spinner",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/navigation/link": {
+        "name": "navigation/link",
+        "scope": "luvktest.test",
+        "version": "3797d702bc647f37843941e1b2648340a816a1f2",
+        "mainFile": "index.ts",
+        "rootDir": "test/navigation/link",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/navigation/tabs": {
+        "name": "navigation/tabs",
+        "scope": "luvktest.test",
+        "version": "ddb8e9118364442332d944ae0065e73f6b61ce28",
+        "mainFile": "index.ts",
+        "rootDir": "test/navigation/tabs",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/overlays/dropdown": {
+        "name": "overlays/dropdown",
+        "scope": "luvktest.test",
+        "version": "cfe89c04f24f1cd6f3b650470e07ba747b43a195",
+        "mainFile": "index.ts",
+        "rootDir": "test/overlays/dropdown",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/overlays/tooltip": {
+        "name": "overlays/tooltip",
+        "scope": "luvktest.test",
+        "version": "59da1226399c10e977661f6aaa644705b99cc882",
+        "mainFile": "index.ts",
+        "rootDir": "test/overlays/tooltip",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/typography/heading": {
+        "name": "typography/heading",
+        "scope": "luvktest.test",
+        "version": "61f625e62ec56eeb44549482a3168d1d7031afea",
+        "mainFile": "index.ts",
+        "rootDir": "test/typography/heading",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "luvktest.test/typography/paragraph": {
+        "name": "typography/paragraph",
+        "scope": "luvktest.test",
+        "version": "013f17be3d2c5616f4dc3009b8155b54505c9c8b",
+        "mainFile": "index.ts",
+        "rootDir": "test/typography/paragraph",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "nebula-design": {
+        "name": "nebula-design",
+        "scope": "luvktest.nebula-design",
+        "version": "453cadeb6d6375c7da5dcc577c81ca96b300eede",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/nebula-design",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "nebula-theme": {
+        "name": "nebula-theme",
+        "scope": "luvktest.nebula-design",
+        "version": "8f59d9900f92bf64cd9af3fb276e27dcd4e85797",
+        "mainFile": "index.ts",
+        "rootDir": "nebula-design/nebula-theme",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
@@ -16,5 +385,12 @@
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
     },
-    "$schema-version": "17.0.0"
+    "$schema-version": "17.0.0",
+    "_bit_lane": {
+        "id": {
+            "name": "composed-design",
+            "scope": "luvktest.test"
+        },
+        "exported": true
+    }
 }

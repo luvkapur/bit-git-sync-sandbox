@@ -1,0 +1,104 @@
+---
+description: A theme providing a futuristic and vibrant identity, composed from Aura's dark mode with specific overrides like Inter font and unique accent colors.
+labels: ['react', 'design', 'theme', 'nebula', 'aura-composed', 'dark-mode-extended']
+---
+
+NebulaTheme is a specialized React theme component designed to work on top of the `@luvktest/test.aura-theme`. It establishes a distinct "Nebula" visual identity by applying a set of predefined token overrides, primarily targeting a sophisticated dark mode aesthetic. Key characteristics include the 'Inter' font, a primary accent color of `#C48CFF`, and specific adjustments to background and status colors.
+
+## Core Concept
+
+NebulaTheme acts as a configuration layer for `AuraTheme`. It:
+
+1.  Defaults to using Aura's 'dark' mode as its base.
+2.  Applies a specific set of `AuraThemeOverrides` to define the Nebula look and feel.
+3.  Allows for further runtime overrides to customize Nebula itself.
+4.  Makes all resolved tokens available as CSS custom properties on its root element.
+
+## Get started
+
+To use the Nebula theme in your app, ensure you have `@luvktest/test.aura-theme` and this Nebula theme package installed.
+
+```bash
+$ bit install @luvktest/test.aura-theme
+$ bit install @your-org/your-scope.nebula-theme # Replace with actual installation path
+```
+Then, apply it to your component tree, typically at the root:
+```jsx
+import { NebulaTheme } from '@your-org/your-scope.nebula-theme'; // Adjust import path
+export function MyApp() {
+  return (
+    <NebulaTheme>
+      <Homepage />
+    </NebulaTheme>
+  );
+}
+```
+## Key Overrides by Nebula
+NebulaTheme sets the following defaults on top of Aura's dark mode:
+-   **Container Background:** `colors.surface.primary` (used for main content areas) is set to `#22212C`.
+-   **Container Border:** `colors.border.default` (used for top borders of containers) is set to `#22212C` to blend with the background.
+-   **Primary Accent:** `colors.primary.default` is `#C48CFF`.
+-   **Success Status:** `colors.status.success.default` (for text and borders) is `#22D3EE`.
+-   **Base Font:** `typography.fontFamily` is `'Inter', sans-serif`.
+-   **Container Radius:** `borders.radius.container` is `8px`.
+Many other tokens are also defined by Nebula to create a cohesive theme, see `nebula-theme.tsx` for the full `defaultNebulaTokens`.
+## Examples
+### Basic Usage (Default Nebula)
+This demonstrates applying NebulaTheme. It will use Aura's dark mode as a base and apply all Nebula default tokens.
+```jsx
+import { NebulaTheme } from '@your-org/your-scope.nebula-theme'; // Adjust import path
+const MyComponent = () => (
+  <div style={{ padding: '20px', border: '1px solid var(--colors-border-default)', borderRadius: 'var(--borders-radius-container)', backgroundColor: 'var(--colors-surface-primary)'}}>
+    <h1 style={{ color: 'var(--colors-primary-default)', fontFamily: 'var(--typography-font-family)' }}>
+      Welcome to Nebula
+    </h1>
+    <p style={{ color: 'var(--colors-text-primary)'}}>This component is styled by Nebula's defaults.</p>
+    <p style={{ color: 'var(--colors-status-success-default)', border: '1px solid var(--colors-status-success-default)', padding: '5px' }}>
+      This is a success message using Nebula's success color.
+    </p>
+  </div>
+);
+export const BasicNebula = () => (
+  <NebulaTheme>
+    <MyComponent />
+  </NebulaTheme>
+);
+```
+### Nebula on Aura's Light Mode
+You can instruct NebulaTheme to use Aura's 'light' mode as its base. Nebula's characteristic overrides will still apply.
+```jsx
+import { NebulaTheme } from '@your-org/your-scope.nebula-theme'; // Adjust import path
+export const NebulaOnLightAura = () => (
+  <NebulaTheme initialTheme="light">
+    {/* Your components here will have Nebula overrides on an Aura light base */}
+    <div style={{ padding: '20px', backgroundColor: 'var(--colors-surface-background)'}}>
+      <h1 style={{color: 'var(--colors-primary-default)', fontFamily: 'var(--typography-font-family)'}}>Nebula on Light Aura</h1>
+      <p style={{color: 'var(--colors-text-primary)'}}>Text color on light background.</p>
+    </div>
+  </NebulaTheme>
+);
+```
+### Runtime Overrides for Nebula
+You can further customize Nebula by passing your own `overrides` prop. These will be merged with Nebula's defaults.
+```jsx
+import { NebulaTheme } from '@your-org/your-scope.nebula-theme'; // Adjust import path
+const customRuntimeOverrides = {
+  colors: {
+    primary: {
+      default: '#FF6347', // Tomato Red
+    },
+  },
+  typography: {
+    fontFamily: "'Georgia', serif",
+  }
+};
+export const CustomizedNebula = () => (
+  <NebulaTheme overrides={customRuntimeOverrides}>
+     <div style={{ padding: '20px' }}>
+      <h1 style={{ color: 'var(--colors-primary-default)', fontFamily: 'var(--typography-font-family)' }}>
+        Customized Nebula Theme
+      </h1>
+      <p style={{color: 'var(--colors-text-primary)'}}>Primary color is now Tomato Red and font is Georgia.</p>
+    </div>
+  </NebulaTheme>
+);

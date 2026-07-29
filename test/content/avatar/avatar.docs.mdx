@@ -1,0 +1,51 @@
+---
+description: An avatar component that displays a user's profile picture or initials.
+labels: ['avatar', 'ui', 'image', 'user']
+---
+
+The `Avatar` component is a versatile element for representing users or entities with an image, initials, and status indicators. It supports various sizes, shapes, and interaction options.
+
+## Basic Usage
+
+The avatar component can display a user's profile picture using the `src` prop. If no `src` is provided, it can display the user's initials, generated from the `name` prop.
+
+```jsx
+<Avatar src="https://example.com/user.jpg" alt="User Avatar" />
+```
+
+```jsx
+<Avatar name="John Doe" alt="User Avatar" />
+```
+
+## Sizes and Shapes
+
+The `Avatar` component supports different sizes and shapes, allowing you to adapt it to various contexts in your application.
+
+```jsx
+<div style={{ display: 'flex', gap: '16px' }}>
+  <Avatar name="Small" size="small" alt="Small Avatar" />
+  <Avatar name="Medium" size="medium" alt="Medium Avatar" />
+  <Avatar name="Large" size="large" alt="Large Avatar" />
+  <Avatar name="XLarge" size="xlarge" alt="XLarge Avatar" />
+</div>
+```
+
+```jsx
+<div style={{ display: 'flex', gap: '16px' }}>
+  <Avatar src="https://example.com/user.jpg" shape="circle" alt="Circle Avatar" />
+  <Avatar src="https://example.com/user.jpg" shape="rounded" alt="Rounded Avatar" />
+  <Avatar src="https://example.com/user.jpg" shape="square" alt="Square Avatar" />
+</div>
+```
+
+## Status Indicators
+
+You can display a status indicator on the `Avatar` to show the user's current status (e.g., online, offline, busy).
+
+```jsx
+<div style={{ display: 'flex', gap: '16px' }}>
+  <Avatar src="https://example.com/user.jpg" status="online" alt="Online User" />
+  <Avatar src="https://example.com/user.jpg" status="offline" alt="Offline User" />
+  <Avatar src="https://example.com/user.jpg" status="busy" alt="Busy User" />
+  <Avatar src="https://example.com/user.jpg" status="away" alt="Away User" />
+</div>

@@ -1,0 +1,72 @@
+.tabsContainer {
+  box-sizing: border-box;
+  padding: var(--spacing-large);
+  font-family: var(--typography-font-family);
+  color: var(--colors-text-primary);
+  transition: background-color var(--interactions-transitions-duration-medium) var(--interactions-transitions-easing-ease-in-out),
+              box-shadow var(--interactions-transitions-duration-medium) var(--interactions-transitions-easing-ease-in-out);
+}
+
+.title {
+  font-size: var(--typography-sizes-heading-h3);
+  font-weight: var(--typography-font-weight-semi-bold);
+  color: var(--colors-text-primary);
+  margin-top: 0; // Reset margin for consistency
+  margin-bottom: var(--spacing-default);
+  font-family: var(--typography-font-family); // Explicitly set for heading context
+}
+
+.contentArea {
+  // Styles for the content area if any specific layout is needed
+  // For now, it's a simple wrapper
+}
+
+.defaultVariant {
+  background-color: var(--colors-surface-primary);
+  border-radius: var(--borders-radius-container);
+  box-shadow: var(--effects-shadows-medium);
+}
+
+.defaultVariant:hover {
+  box-shadow: var(--effects-shadows-large);
+}
+
+.minimalVariant {
+  background-color: transparent;
+  border-top: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+  padding-top: var(--spacing-default); // Space between border and title/content
+  // Minimal variant might have different padding requirements for left/right if it's flush
+  // For now, it inherits horizontal padding from .tabsContainer
+}
+
+// Responsive adjustments
+@media (max-width: 768px) { // Tablet breakpoint
+  .tabsContainer {
+    padding: var(--spacing-default);
+  }
+
+  .title {
+    font-size: var(--typography-sizes-heading-h4);
+  }
+
+  .minimalVariant {
+    padding-top: var(--spacing-small);
+  }
+}
+
+@media (max-width: 480px) { // Mobile breakpoint
+  .tabsContainer {
+    padding: var(--spacing-small);
+    padding-left: var(--spacing-default); // Ensure some padding on very small screens
+    padding-right: var(--spacing-default);
+  }
+
+  .title {
+    font-size: var(--typography-sizes-heading-h5);
+    margin-bottom: var(--spacing-small);
+  }
+
+  .minimalVariant {
+    padding-top: var(--spacing-small);
+  }
+}

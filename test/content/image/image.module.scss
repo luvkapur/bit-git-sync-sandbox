@@ -1,0 +1,10 @@
+.image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--borders-radius-medium);
+  box-shadow: var(--effects-shadows-small);
+  background-color: var(--colors-surface-secondary);
+  // object-fit is applied via inline style in the component for dynamic control
+  box-sizing: border-box;
+}

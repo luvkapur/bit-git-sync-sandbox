@@ -1,0 +1,46 @@
+---
+description: A layout component for arranging elements in rows or columns with flexible space distribution and alignment.
+labels: ['flex', 'layout', 'aura', 'nebula']
+---
+
+The `Flex` component is a versatile layout tool that uses CSS flexbox to arrange and align its children. It allows for easy management of space distribution, alignment, and direction of elements within a container.
+
+## Basic Usage
+
+The most basic use of the `Flex` component involves wrapping child elements to arrange them in a row.
+
+```jsx
+<Flex>
+  <div>Item 1</div>
+  <div>Item 2</div>
+  <div>Item 3</div>
+</Flex>
+```
+This will arrange the `div` elements in a row, using the default flexbox settings.
+## Column Layout with Nebula Theme
+The `flexDirection` prop can be used to change the direction of the flex container to a column.
+```jsx
+<Flex flexDirection="column" gap="var(--spacing-s)">
+  <div>Item A</div>
+  <div>Item B</div>
+  <div>Item C</div>
+</Flex>
+```
+This example demonstrates a column layout, styled with Nebula theme spacing for gaps between the items.
+## Justify Content and Align Items
+Control the alignment of items within the `Flex` container using `justifyContent` and `alignItems`.
+```jsx
+<Flex
+  justifyContent="space-around"
+  alignItems="center"
+  style={{
+    height: '200px',
+    border: '1px dashed var(--colors-border-interactive)',
+  }}
+>
+  <div>Aligned Center</div>
+  <div>Align Self: Start</div>
+  <div>Order: -1 (End)</div>
+</Flex>
+```
+This showcases how to distribute items evenly and align them to the center of the container, with some items overriding their individual alignment.

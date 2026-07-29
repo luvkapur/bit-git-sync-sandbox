@@ -1,0 +1,64 @@
+.tabsContainer {
+  box-sizing: border-box;
+  padding: var(--spacing-l);
+  font-family: var(--typography-font-family);
+  color: var(--colors-text-default);
+  transition: background-color 250ms ease-in-out, box-shadow 250ms ease-in-out;
+}
+
+.title {
+  font-size: 1.75rem; // Using rem for responsive typography
+  font-weight: 600; // Standard semi-bold
+  color: var(--colors-text-default);
+  margin-top: 0;
+  margin-bottom: var(--spacing-m);
+  font-family: var(--typography-font-family); // Nebula theme provides 'Inter' for headings
+}
+
+.contentArea {
+  // Specific styles for the content area can be added here if needed
+}
+
+.defaultVariant {
+  background-color: var(--colors-surface-primary); // Nebula: tinted purple background
+  border-radius: var(--borders-radius-container); // Nebula: 8px
+  box-shadow: var(--shadows-medium);
+}
+
+.defaultVariant:hover {
+  box-shadow: var(--shadows-large);
+}
+
+.minimalVariant {
+  background-color: transparent;
+  border-top: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+  padding-top: var(--spacing-m); 
+}
+
+/* Tablet and larger mobile devices */
+@media (max-width: 768px) {
+  .tabsContainer {
+    padding: var(--spacing-m);
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .minimalVariant {
+    padding-top: var(--spacing-s);
+  }
+}
+
+/* Smaller mobile devices */
+@media (max-width: 480px) {
+  .tabsContainer {
+    padding: var(--spacing-s);
+  }
+
+  .title {
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-s);
+  }
+  /* .minimalVariant padding-top remains var(--spacing-s) from tablet breakpoint */
+}

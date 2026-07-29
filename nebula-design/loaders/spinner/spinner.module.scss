@@ -1,0 +1,33 @@
+.spinner {
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  border-radius: 50%;
+  border-style: solid;
+  border-width: var(--spinner-thickness);
+  border-color: var(--spinner-track-color);
+  border-top-color: var(--spinner-color); /* Active part of the spinner */
+  animation: spin 0.8s linear infinite;
+  box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* For accessibility: hide text visually but keep it available for screen readers */
+.visuallyHidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  white-space: nowrap; /* For screen reader compatibility, ensures content is read as a single line */
+}

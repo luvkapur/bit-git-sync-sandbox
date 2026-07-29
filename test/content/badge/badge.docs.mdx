@@ -1,0 +1,53 @@
+---
+description: A versatile and visually distinct badge component for displaying statuses, labels, or categories.
+labels: ['badge', 'ui', 'label']
+---
+
+The `Badge` component is a flexible way to highlight statuses, categories, or labels. It supports various styles, sizes, colors, and an optional icon.
+
+## Usage
+
+### Basic Badge
+
+The most basic usage of the `Badge` component involves providing a label.
+
+```jsx
+<Badge label="Default Badge" />
+```
+
+### Colored Badges
+
+The `Badge` component supports different predefined color schemes to reflect status or category.
+
+```jsx
+<Badge label="Primary" color="primary" />
+<Badge label="Secondary" color="secondary" />
+<Badge label="Success" color="success" />
+<Badge label="Warning" color="warning" />
+<Badge label="Danger" color="danger" />
+<Badge label="Info" color="info" />
+```
+
+### Outline Badges with different sizes and icon
+
+Badges can be displayed using an outline style with different sizes and include an icon.
+
+```jsx
+const StarIcon = ({ className }) => (
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+  </svg>
+);
+
+// Example usage:
+<>
+  <Badge label="Small Outline" variant="outline" color="primary" size="small"/>
+  <Badge label="Large Outline with Icon" variant="outline" color="danger" size="large" icon={StarIcon} />
+</>

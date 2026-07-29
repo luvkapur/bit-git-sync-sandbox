@@ -1,0 +1,142 @@
+---
+description: A versatile component for toggling UI themes (light/dark) and selecting brand styles (e.g., Aura/Nova).
+labels: ['theme', 'toggle', 'select', 'dark mode', 'ui']
+---
+
+The `ThemeToggler` component allows users to switch between light and dark UI modes and select from a list of available brand themes. It dynamically updates the `data-theme` attribute on the root HTML element, enabling CSS to apply the correct styling.
+
+It integrates with `@luvktest/test.aura-theme`'s `useThemeController` to manage the light/dark mode aspect, while handling brand theme selection internally.
+
+## Basic Usage
+
+Place the `ThemeToggler` within an `AuraTheme` provider. The `AuraTheme` component sets up the context for `useThemeController`.
+
+```tsx
+import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import { AuraTheme } from '@luvktest/test.aura-theme';
+import { ThemeToggler } from './theme-toggler.js'; // Adjust path as per your project
+
+function AppWithThemeToggler() {
+  return (
+    <MemoryRouter>
+      <AuraTheme initialTheme="light">
+        <div style={{ padding: '20px' }}>
+          <ThemeToggler />
+        </div>
+      </AuraTheme>
+    </MemoryRouter>
+  );
+}
+
+export default AppWithThemeToggler;
+```
+
+This renders a theme toggler with default settings:
+*   Aura theme (`aura`) selected by default for branding.
+*   Light mode enabled by default (from `AuraTheme`'s `initialTheme`).
+*   The `data-theme` attribute on `<html>` will be `aura-light`.
+*   Default Sun and Moon icons for mode toggling.
+*   A dropdown to select between "Aura" and "Nova" brand themes.
+
+## Theme Selection
+
+The `ThemeToggler` component includes a dropdown menu to select a brand theme. The available themes can be customized using the `availableThemes` prop, and a default brand can be set with `defaultThemeName`.
+
+```tsx
+import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import { AuraTheme } from '@luvktest/test.aura-theme';
+import { ThemeToggler, type ThemeDefinition } from './theme-toggler.js';
+
+const myThemes: ThemeDefinition[] = [
+  { value: 'aura-enterprise', label: 'Aura Enterprise' },
+  { value: 'nova-fresh', label: 'Nova Fresh Look' },
+  { value: 'retro', label: 'Retro Style', disabled: true },
+];
+
+function AppWithCustomThemes() {
+  return (
+    <MemoryRouter>
+      <AuraTheme initialTheme="dark">
+        <div style={{ padding: '20px' }}>
+          <ThemeToggler
+            availableThemes={myThemes}
+            defaultThemeName="nova-fresh"
+          />
+        </div>
+      </AuraTheme>
+    </MemoryRouter>
+  );
+}
+
+export default AppWithCustomThemes;
+```
+In this example, `data-theme` would initially be `nova-fresh-dark`.
+
+## Custom Icons and Labels
+
+You can customize the icons for light/dark mode and the ARIA labels for accessibility.
+
+```tsx
+import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import { AuraTheme } from '@luvktest/test.aura-theme';
+import { ThemeToggler, type IconProps } from './theme-toggler.js';
+
+// Example custom icon components
+const MySunIcon = (props: IconProps) => <span {...props} role="img" aria-label="sun icon">☀️</span>;
+const MyMoonIcon = (props: IconProps) => <span {...props} role="img" aria-label="moon icon">🌙</span>;
+
+function AppWithCustomIcons() {
+  return (
+    <MemoryRouter>
+      <AuraTheme initialTheme="light">
+        <div style={{ padding: '20px' }}>
+          <ThemeToggler
+            lightIcon={MySunIcon}
+            darkIcon={MyMoonIcon}
+            ariaLabelLight="Switch to Dark Mode"
+            ariaLabelDark="Switch to Light Mode"
+            themeSelectorAriaLabel="Choose a visual theme brand"
+          />
+        </div>
+      </AuraTheme>
+    </MemoryRouter>
+  );
+}
+
+export default AppWithCustomIcons;
+```
+
+## Styling
+
+The component and its parts can be styled using `className` and `style` props for the main container, mode toggle button, and theme selector. CSS Modules are used internally, but these props allow for overrides.
+
+```tsx
+import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import { AuraTheme } from '@luvktest/test.aura-theme';
+import { ThemeToggler } from './theme-toggler.js';
+// import './custom-toggler-styles.css'; // Example: if you have global CSS overrides
+
+function AppWithStyledToggler() {
+  return (
+    <MemoryRouter>
+      <AuraTheme initialTheme="light">
+        <div style={{ padding: '20px', background: '#eee' }}>
+          <ThemeToggler
+            className="my-custom-toggler-container"
+            modeTogglerClassName="my-custom-mode-button"
+            themeSelectorClassName="my-custom-theme-select"
+            style={{ border: '2px solid blue', borderRadius: '30px' }}
+            modeTogglerStyle={{ background: 'lightblue' }}
+            themeSelectorStyle={{ borderColor: 'green' }}
+          />
+        </div>
+      </AuraTheme>
+    </MemoryRouter>
+  );
+}
+
+export default AppWithStyledToggler;

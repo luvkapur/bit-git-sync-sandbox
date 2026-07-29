@@ -1,0 +1,99 @@
+.themeTogglerContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-default);
+  padding: var(--spacing-small);
+  background-color: var(--colors-surface-secondary);
+  border-radius: var(--borders-radius-large);
+  box-shadow: var(--effects-shadows-small);
+  border: 1px solid var(--colors-border-default);
+  transition: box-shadow var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out);
+}
+
+.themeTogglerContainer:hover {
+  box-shadow: var(--effects-shadows-medium);
+}
+
+.modeToggler {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; 
+  padding: var(--spacing-small);
+  background-color: var(--colors-surface-primary);
+  border: 1px solid var(--colors-border-default);
+  border-radius: var(--borders-radius-circle);
+  color: var(--colors-text-interactive-default);
+  cursor: var(--interactions-cursor-pointer);
+  transition: background-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out),
+              border-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out),
+              transform var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out);
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  overflow: hidden; 
+}
+
+.modeToggler:hover {
+  background-color: var(--colors-surface-background); // Slightly different hover
+  border-color: var(--colors-primary-default);
+  transform: scale(var(--interactions-hover-effect-scale, 1.05));
+}
+
+.modeToggler:active {
+  transform: scale(0.95);
+  background-color: var(--colors-surface-secondary); // Slightly different active
+}
+
+.modeTogglerIcon {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transition-property: var(--interactions-transitions-property-all);
+  transition-duration: var(--interactions-transitions-duration-medium);
+  transition-timing-function: var(--interactions-transitions-easing-ease-in-out);
+}
+
+.lightIconActive {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1);
+}
+
+.lightIconInactive {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-90deg) scale(0.3);
+}
+
+.darkIconActive {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1);
+}
+
+.darkIconInactive {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(90deg) scale(0.3);
+}
+
+.themeSelector {
+  min-width: 120px;
+  flex-grow: 1; // Allow it to take available space if container is wider
+}
+
+// Responsive adjustments
+@media (max-width: 480px) { // $tablet breakpoint
+  .themeTogglerContainer {
+    flex-direction: column;
+    align-items: stretch; // Make children full width
+  }
+
+  .modeToggler {
+    width: 100%; // Make button full width
+  }
+
+  .themeSelector {
+    width: 100%; // Make select full width
+    min-width: unset; // Remove min-width on mobile
+  }
+}

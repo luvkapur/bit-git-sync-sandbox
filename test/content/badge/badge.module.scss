@@ -1,0 +1,165 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-x4) var(--spacing-x8);
+  font-family: var(--typography-font-family);
+  font-weight: var(--typography-font-weight-semi-bold);
+  border-radius: var(--borders-radius-medium);
+  box-sizing: border-box;
+  text-transform: uppercase;
+  letter-spacing: var(--typography-letter-spacing-wide);
+  transition: background-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out),
+              color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out),
+              border-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out);
+  white-space: nowrap;
+  vertical-align: middle; // Ensures proper alignment with surrounding text/elements
+}
+
+// Variants
+.solidVariant {
+  // Default text color for custom solid backgrounds if not specified by a color class or style prop
+  // This ensures better default contrast for user-provided custom background colors.
+  color: var(--colors-text-inverse);
+}
+
+.outlineVariant {
+  background-color: transparent;
+  border-width: var(--borders-default-width, 1px); // Fallback if CSS var is not defined
+  border-style: var(--borders-default-style, solid); // Fallback
+}
+
+.ghostVariant {
+  background-color: transparent;
+  border: none;
+}
+
+// Sizes
+.smallSize {
+  padding: var(--spacing-x4) var(--spacing-x8);
+  font-size: var(--typography-sizes-caption-default);
+  border-radius: var(--borders-radius-small);
+}
+
+.smallSize .badgeIcon {
+  font-size: calc(var(--typography-sizes-caption-default) * 1.1); // Slightly larger than text
+  margin-right: var(--spacing-x4);
+}
+
+.mediumSize {
+  padding: var(--spacing-x4) var(--spacing-x8);
+  font-size: var(--typography-sizes-body-small);
+  border-radius: var(--borders-radius-medium);
+}
+
+.mediumSize .badgeIcon {
+  font-size: calc(var(--typography-sizes-body-small) * 1.1);
+  margin-right: var(--spacing-x4);
+}
+
+.largeSize {
+  padding: var(--spacing-x8) var(--spacing-default);
+  font-size: var(--typography-sizes-body-default);
+  border-radius: var(--borders-radius-large);
+}
+
+.largeSize .badgeIcon {
+  font-size: calc(var(--typography-sizes-body-default) * 1.1);
+  margin-right: var(--spacing-x8);
+}
+
+// Icon and Label styling
+.badgeIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  // margin-right is set per size
+  flex-shrink: 0; // Prevent icon from shrinking
+}
+
+.badgeLabel {
+  line-height: var(--typography-line-height-base);
+  text-overflow: ellipsis; // Add ellipsis for very long labels if badge width is constrained
+  overflow: hidden;      // Required for text-overflow
+}
+
+// Color Schemes
+// These classes define colors for predefined color names
+
+// Primary
+.primaryColor.solidVariant {
+  background-color: var(--colors-primary-default);
+  color: var(--colors-text-inverse);
+}
+.primaryColor.outlineVariant {
+  border-color: var(--colors-primary-default);
+  color: var(--colors-primary-default);
+}
+.primaryColor.ghostVariant {
+  color: var(--colors-primary-default);
+}
+
+// Secondary
+.secondaryColor.solidVariant {
+  background-color: var(--colors-secondary-default);
+  color: var(--colors-text-primary); // Assuming secondary needs primary text. Adjust if secondary has a dark bg.
+}
+.secondaryColor.outlineVariant {
+  border-color: var(--colors-secondary-default);
+  color: var(--colors-secondary-default);
+}
+.secondaryColor.ghostVariant {
+  color: var(--colors-secondary-default);
+}
+
+// Success
+.successColor.solidVariant {
+  background-color: var(--colors-status-positive-default);
+  color: var(--colors-text-inverse);
+}
+.successColor.outlineVariant {
+  border-color: var(--colors-status-positive-default);
+  color: var(--colors-status-positive-default);
+}
+.successColor.ghostVariant {
+  color: var(--colors-status-positive-default);
+}
+
+// Warning
+.warningColor.solidVariant {
+  background-color: var(--colors-status-warning-default);
+  color: var(--colors-text-primary); // Warning colors (yellows/oranges) often need dark text
+}
+.warningColor.outlineVariant {
+  border-color: var(--colors-status-warning-default);
+  color: var(--colors-status-warning-default);
+}
+.warningColor.ghostVariant {
+  color: var(--colors-status-warning-default);
+}
+
+// Danger
+.dangerColor.solidVariant {
+  background-color: var(--colors-status-negative-default);
+  color: var(--colors-text-inverse);
+}
+.dangerColor.outlineVariant {
+  border-color: var(--colors-status-negative-default);
+  color: var(--colors-status-negative-default);
+}
+.dangerColor.ghostVariant {
+  color: var(--colors-status-negative-default);
+}
+
+// Info
+.infoColor.solidVariant {
+  background-color: var(--colors-status-info-default);
+  color: var(--colors-text-inverse);
+}
+.infoColor.outlineVariant {
+  border-color: var(--colors-status-info-default);
+  color: var(--colors-status-info-default);
+}
+.infoColor.ghostVariant {
+  color: var(--colors-status-info-default);
+}

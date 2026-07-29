@@ -1,0 +1,42 @@
+---
+description: Displays an image with various styling and sizing options.
+labels: ['image', 'ui', 'media']
+---
+
+The `Image` component allows you to display images with control over source, alt text, sizing, and object fit. It supports Nebula theme tokens for consistent styling.
+
+## Basic Image
+
+This example shows the default image with the default `alt` text.
+Styled with Nebula theme tokens for border radius and shadow.
+The background color of the image element itself (surface-secondary) is visible if the image is transparent or during load.
+
+```jsx
+<Image />
+```
+
+## Image with Custom Source and Alt Text
+
+This example demonstrates how to use a custom image source and `alt` text.
+
+```jsx
+<Image
+  src="https://images.unsplash.com/photo-1646315026047-c424f211e5bd?ixid=M3w3MDc2NDF8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGJsdWUlMjBnZW9tZXRyaWN8ZW58MXwwfHxibHVlfDE3NDk3NzYzNzR8MA&ixlib=rb-4.1.0"
+  alt="Futuristic blue and purple abstract design"
+/>
+```
+
+## Image Sizing and Object Fit
+
+This example shows how to control the sizing and `objectFit` properties of the `Image` component.
+
+```jsx
+<div style={{ width: '300px', height: '200px' }}>
+  <Image
+    src="https://images.unsplash.com/photo-1653897221847-43eac640ddf8?ixid=M3w3MDc2NDF8MHwxfHNlYXJjaHwzfHxhYnN0cmFjdCUyMGJsdWUlMjBnZW9tZXRyaWN8ZW58MXwwfHxibHVlfDE3NDk3NzYzNzR8MA&ixlib=rb-4.1.0"
+    alt="Geometric structure with blue and yellow tones - Cover"
+    width="100%"
+    height="100%"
+    objectFit="cover"
+  />
+</div>

@@ -1,0 +1,111 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--colors-surface-primary);
+  color: var(--colors-text-default); // Updated from text-primary to text-default for Nebula mapping
+  border-radius: var(--borders-radius-container); // Nebula: 8px
+  overflow: hidden;
+  box-sizing: border-box;
+  transition-property: transform, box-shadow;
+  transition-duration: 0.25s; // Hardcoded: --interactions-transitions-duration-fast not in list
+  transition-timing-function: ease-in-out; // Hardcoded: --interactions-transitions-easing-ease-in-out not in list
+}
+
+.defaultVariant {
+  box-shadow: var(--shadows-small); // Mapped from --effects-shadows-xs
+}
+
+.elevatedVariant {
+  box-shadow: var(--shadows-medium); // Mapped from --effects-shadows-medium
+}
+
+.outlinedVariant {
+  border: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+  box-shadow: none;
+}
+
+.interactiveState {
+  cursor: var(--interactions-cursor-pointer);
+
+  &:hover,
+  &:focus-within {
+    // Hardcoded: --interactions-hover-effect-scale not in list
+    transform: scale(1.02);
+  }
+}
+
+.interactiveState.elevatedVariant {
+  &:hover,
+  &:focus-within {
+    box-shadow: var(--shadows-large); // Mapped from --effects-shadows-large
+  }
+}
+
+.imageContainer {
+  width: 100%;
+  line-height: 0; // Removes potential space below image if it's inline-block by UA
+}
+
+.imageElement {
+  width: 100%;
+  height: auto; // Maintain aspect ratio
+  object-fit: cover; // Covers the container, might crop
+  display: block; // Prevents extra space under inline images
+}
+
+.headerSection {
+  padding: var(--spacing-l); // Mapped from --spacing-large
+  box-sizing: border-box;
+  border-bottom: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+}
+
+.contentSection {
+  padding: var(--spacing-l); // Mapped from --spacing-large
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-m); // Mapped from --spacing-default
+  box-sizing: border-box;
+}
+
+.titleElement {
+  font-family: var(--typography-font-family); // Nebula: 'Inter'
+  // Hardcoded: --typography-sizes-heading-h4 not in provided list
+  font-size: 1.25rem; // ~20px
+  // Hardcoded: --typography-font-weight-bold not in provided list
+  font-weight: 600; // semibold
+  // Hardcoded: --typography-line-height-heading not in provided list
+  line-height: 1.4;
+  color: var(--colors-text-default); // Ensure title also uses default text color
+  margin: 0; // Reset browser default heading margin
+}
+
+.bodySection {
+  width: 100%;
+  // Styles for the main children container if needed
+  font-size: 1rem; // Standard body font size
+  line-height: 1.6; // Standard body line height
+}
+
+.footerSection {
+  padding: var(--spacing-l); // Mapped from --spacing-large
+  box-sizing: border-box;
+  border-top: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+  .headerSection,
+  .contentSection,
+  .footerSection {
+    padding: var(--spacing-m); // Mapped from --spacing-default (original media query)
+  }
+
+  .contentSection {
+    gap: var(--spacing-s); // Mapped from --spacing-small (original media query)
+  }
+
+  .titleElement {
+    font-size: 1.125rem; // Slightly smaller title on mobile
+  }
+}

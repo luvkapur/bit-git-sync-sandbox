@@ -1,0 +1,47 @@
+---
+description: A versatile and accessible paragraph component that prioritizes readability and consistent typography.
+labels: ['paragraph', 'typography', 'accessible']
+---
+
+The `Paragraph` component is designed to render text content with a consistent typographic style, ensuring readability and a unified design language across applications. It supports various HTML elements and custom styling.
+
+## Basic Usage
+
+This example demonstrates the basic usage of the `Paragraph` component with the default 'p' element.
+
+```jsx
+<Paragraph>
+  This is a standard paragraph. It uses the default 'p' HTML element and showcases the base typography for body text within the design system. Readability and clarity are key.
+</Paragraph>
+```
+
+## Paragraphs as Various Elements
+
+The `element` prop allows the `Paragraph` component to render as different HTML elements. This is useful for semantic correctness and flexibility in different contexts.
+
+```jsx
+<Paragraph element="p">
+  This is a standard <strong>paragraph (p)</strong> element. It's the most common use case for displaying blocks of text.
+</Paragraph>
+<Paragraph element="div">
+  This content is rendered as a <strong>div</strong>. It can be useful when you need a block-level container with paragraph styling but 'p' is not semantically appropriate.
+</Paragraph>
+<Paragraph element="span">
+  This content is rendered as a <strong>span</strong>. Note that while it's a span, it receives base paragraph styling. Vertical margins from the <code>.paragraph</code> class might not apply as typically expected for inline elements.
+</Paragraph>
+<Paragraph element="label">
+  This is a <strong>label</strong> element using paragraph styling. Useful for form field labels that require consistent text appearance.
+</Paragraph>
+```
+
+## Paragraph with Custom Styling in Dark Mode
+
+This example demonstrates how to apply custom styling to the `Paragraph` component, including using inline styles and CSS classes, and shows how it adapts to dark mode.
+
+```jsx
+<Paragraph className="custom-paragraph-appearance">
+  This paragraph, shown in dark mode, has a custom CSS class (<code>custom-paragraph-appearance</code>) applied. This class provides specific styling like a different text color, font weight, a dashed border, padding, and a subtle background.
+</Paragraph>
+<Paragraph style={{ fontSize: 'var(--typography-sizes-body-large)', color: 'var(--colors-text-interactive-default)', marginTop: 'var(--spacing-default)' }}>
+  This paragraph uses the inline <code>style</code> prop to apply a larger font size and the interactive text color. Inline styles are useful for one-off adjustments.
+</Paragraph>

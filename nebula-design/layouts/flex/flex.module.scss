@@ -1,0 +1,7 @@
+.flex {
+  display: flex;
+  // Ensures that padding and border do not increase the element's total width or height.
+  // This is a general best practice for layout components and aligns with modern CSS reset philosophies.
+  // It is not directly tied to a specific Nebula theme token but supports overall layout consistency.
+  box-sizing: border-box;
+}

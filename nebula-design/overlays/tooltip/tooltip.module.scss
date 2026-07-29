@@ -1,0 +1,122 @@
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex; // Aligns well with button-like children
+  cursor: var(--interactions-cursor-pointer, pointer); // Default cursor, can be overridden by child
+  box-sizing: border-box;
+}
+
+.tooltipContent {
+  position: absolute;
+  background-color: var(--colors-surface-secondary, #22212C); // Nebula: #22212C
+  color: var(--colors-text-default, #d1d5db); // Nebula/Aura Dark: #d1d5db
+  padding: var(--spacing-s, 8px) var(--spacing-m, 12px); // Standardized spacing tokens
+  border-radius: var(--borders-radius-medium, 6px); // Nebula: Sharper corners, e.g. 6px or 8px
+  box-shadow: var(--shadows-medium, 0 4px 12px rgba(0, 0, 0, 0.15)); // Standardized shadow token
+  z-index: 1070; //  Standard high z-index for tooltips, var(--interactions-z-index-tooltip, 1070) if available
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease-out,
+              visibility 0s linear 0.15s, // Delay visibility transition for exit
+              transform 0.15s ease-out;
+  white-space: nowrap; // Common for tooltips; adjust if multi-line is needed
+  font-family: var(--typography-font-family, 'Noto Sans', sans-serif); // Base font family
+  font-size: var(--typography-sizes-body-small, 0.875rem); // Assumed token or hardcoded value
+  line-height: 1.5; // var(--typography-line-height-base, 1.5) if available
+  transform-origin: center; // For scaling or other transform animations
+  pointer-events: none; // Tooltip itself should not be interactive unless specifically designed
+  box-sizing: border-box;
+  min-width: 30px; // Minimum width to prevent collapse with very short content
+  text-align: center;
+}
+
+.tooltipContent.visible {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s, 0s, 0s; // Reset delay for entry
+}
+
+.tooltipArrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: transparent; // Base color for borders
+  box-sizing: border-box;
+}
+
+$arrow-size: 6px; // Size of the arrow's base/height
+
+// Positioning and arrow styles
+.top {
+  bottom: calc(100% + #{$arrow-size});
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px); // Slight offset for visual appeal
+}
+.top.visible {
+   transform: translateX(-50%) translateY(0);
+}
+.top .tooltipArrow {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: $arrow-size $arrow-size 0 $arrow-size;
+  border-top-color: var(--colors-surface-secondary, #22212C); // Nebula: #22212C
+}
+
+.bottom {
+  top: calc(100% + #{$arrow-size});
+  left: 50%;
+  transform: translateX(-50%) translateY(4px); // Slight offset for visual appeal
+}
+.bottom.visible {
+  transform: translateX(-50%) translateY(0);
+}
+.bottom .tooltipArrow {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 $arrow-size $arrow-size $arrow-size;
+  border-bottom-color: var(--colors-surface-secondary, #22212C); // Nebula: #22212C
+}
+
+.left {
+  right: calc(100% + #{$arrow-size});
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px); // Slight offset for visual appeal
+}
+.left.visible {
+  transform: translateY(-50%) translateX(0);
+}
+.left .tooltipArrow {
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: $arrow-size 0 $arrow-size $arrow-size;
+  border-left-color: var(--colors-surface-secondary, #22212C); // Nebula: #22212C
+}
+
+.right {
+  left: calc(100% + #{$arrow-size});
+  top: 50%;
+  transform: translateY(-50%) translateX(4px); // Slight offset for visual appeal
+}
+.right.visible {
+  transform: translateY(-50%) translateX(0);
+}
+.right .tooltipArrow {
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: $arrow-size $arrow-size $arrow-size 0;
+  border-right-color: var(--colors-surface-secondary, #22212C); // Nebula: #22212C
+}
+
+// Inherit box-sizing for all children within tooltip components
+.tooltipWrapper *,
+.tooltipWrapper *::before,
+.tooltipWrapper *::after,
+.tooltipContent *,
+.tooltipContent *::before,
+.tooltipContent *::after {
+  box-sizing: inherit;
+}

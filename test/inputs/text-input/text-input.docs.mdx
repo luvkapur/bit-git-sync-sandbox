@@ -1,0 +1,60 @@
+---
+description: A customizable text input component for collecting user input.
+labels: ['text-input', 'form', 'ui']
+---
+
+A `TextInput` component allows users to enter and edit text, supporting various types and styles.
+
+## Basic Text Input
+
+A simple text input field for general text entry.
+
+```jsx
+<TextInput
+  id="basic-input"
+  value="Enter text here"
+  onChange={(value) => console.log(value)}
+  placeholder="Enter text"
+/>
+```
+
+## Password Input
+
+An input field specifically for passwords, masking the entered text.
+
+```jsx
+<TextInput
+  id="password-input"
+  type="password"
+  value="password123"
+  onChange={(value) => console.log(value)}
+  placeholder="Enter your password"
+  name="password"
+/>
+```
+
+## Input with Initial Value
+
+An input field that starts with a predefined value.
+
+```jsx
+<TextInput
+  id="initial-value-input"
+  value="Initial Value"
+  onChange={(value) => console.log(value)}
+  placeholder="Edit the text"
+/>
+```
+
+## Disabled Input
+
+A text input field that is disabled and cannot be interacted with.
+
+```jsx
+<TextInput
+  id="disabled-input"
+  value="Cannot edit this"
+  onChange={(value) => console.log(value)}
+  placeholder="Disabled input"
+  disabled={true}
+/>

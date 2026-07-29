@@ -1,0 +1,105 @@
+---
+description: A generic base component for rendering SVG icons.
+labels: ['icon', 'ui', 'svg']
+---
+
+A generic base component for rendering SVG icons.
+It provides a consistent way to handle size, color, viewBox, and accessibility for icons.
+To use it, pass SVG path data or other SVG elements as children.
+The `color` prop defaults to `currentColor` for the `fill` attribute,
+making it seamlessly integrate with themed text colors or accept specific theme color variables.
+
+## Basic Icons
+
+This example demonstrates how to render basic icons with default and Nebula theme colors.
+The icons are displayed using the `Icon` component with different SVG paths and titles.
+
+```jsx
+<>
+  <Icon title="Home Icon (default color)">
+    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+  </Icon>
+  <Icon title="Star Icon (default color)">
+    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+  </Icon>
+  <Icon title="Heart Icon (default color)">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+  </Icon>
+  <Icon title="Settings Icon (default color)">
+    <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24-.42.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22-.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" />
+  </Icon>
+</>
+```
+
+## Styled Icons
+
+This example showcases how to style icons using the `size` and `color` props.
+The sizes are specified in pixels and em units, and the colors are set using CSS variables from the Nebula theme.
+
+```jsx
+<>
+  <Icon size={16} color="var(--colors-primary-default)" title="Small Primary Home">
+    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+  </Icon>
+  <Icon size={32} color="var(--colors-status-success-default)" title="Medium Success Star">
+    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+  </Icon>
+  <Icon size="3em" color="var(--colors-text-interactive-default)" title="Large Interactive Heart">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+  </Icon>
+  <Icon size={40} color="var(--colors-secondary-default)" title="X-Large Secondary Settings">
+    <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19-.15-.24-.42.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22-.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" />
+  </Icon>
+</>
+```
+
+## Clickable Icons
+
+This example demonstrates how to make icons clickable by using the `onClick` prop.
+When an icon is clicked, an alert message is displayed, and the event is logged to the console.
+
+```jsx
+() => {
+  const handleClick = (iconName) => {
+    // eslint-disable-next-line no-alert
+    alert(`${iconName} icon clicked! Check console for event details.`);
+    console.log(`${iconName} icon click handled by handleClick.`);
+  };
+
+  return (
+    <>
+      <Icon
+        size={30}
+        color="var(--colors-text-interactive-default)"
+        onClick={(e) => {
+          console.log('Home icon clicked, event object:', e);
+          handleClick('Home');
+        }}
+        title="Clickable Home Icon"
+      >
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+      </Icon>
+      <Icon
+        size={30}
+        color="var(--colors-primary-default)"
+        onClick={(e) => {
+          console.log('Star icon clicked, event object:', e);
+          handleClick('Star');
+        }}
+        title="Clickable Star Icon"
+      >
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+      </Icon>
+      <Icon
+        size={30}
+        onClick={(e) => {
+          console.log('Settings icon clicked, event object:', e);
+          handleClick('Settings');
+        }}
+        title="Clickable Settings Icon (Nebula default color)"
+      >
+        <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19-.15-.24-.42.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22-.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" />
+      </Icon>
+    </>
+  );
+}

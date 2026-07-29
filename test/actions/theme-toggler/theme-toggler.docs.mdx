@@ -1,0 +1,83 @@
+---
+description: A component that allows users to toggle between light/dark modes and select different themes like Aura or Nova.
+labels: ['theme', 'toggle', 'ui', 'mode', 'aura', 'nova']
+---
+
+## ThemeToggler Component
+
+The `ThemeToggler` component provides a user interface for switching between:
+
+1.  **Light and Dark Modes**: For the currently selected theme family (e.g., Aura or Nova).
+2.  **Theme Families**: Such as 'Aura' and 'Nova', selected via a dropdown.
+
+It updates the `data-theme` attribute on the root HTML element (e.g., `data-theme="aura-light"` or `data-theme="nova-dark"`). This attribute can then be used by your application's CSS to apply theme-specific styles.
+
+The component relies on `AuraTheme` (or a similar provider) higher in the component tree to provide the `useThemeController` hook for light/dark mode management.
+
+## Usage
+
+### Basic Theme Toggling
+
+This example demonstrates the `ThemeToggler` with default settings. It will show a light/dark mode toggle and a dropdown to select between 'Aura' and 'Nova' themes.
+
+```jsx
+<AuraTheme initialTheme="light">
+  <ThemeToggler />
+</AuraTheme>
+```
+
+### Defining Available Themes and Default Theme
+
+You can customize the list of available themes and set a default selected theme.
+
+```jsx
+const myThemes = [
+  { value: 'aura-classic', label: 'Aura Classic' },
+  { value: 'nova-futuristic', label: 'Nova Futuristic' },
+  { value: 'ocean-breeze', label: 'Ocean Breeze' }
+];
+
+<AuraTheme initialTheme="dark">
+  <ThemeToggler
+    availableThemes={myThemes}
+    defaultThemeName="nova-futuristic"
+  />
+</AuraTheme>
+```
+
+### Custom ARIA Labels and Styling
+
+Customize ARIA labels for accessibility and apply custom styling.
+
+```jsx
+<AuraTheme initialTheme="light">
+  <ThemeToggler
+    ariaLabelLight="Switch to Night Vision"
+    ariaLabelDark="Switch to Day Mode"
+    themeSelectorAriaLabel="Select Visual Style"
+    className="my-custom-toggler-container"
+    modeTogglerClassName="my-custom-mode-button"
+    themeSelectorClassName="my-custom-theme-dropdown"
+  />
+</AuraTheme>
+```
+
+## Props
+
+| Prop                     | Type                                    | Default                                                     | Description                                                                                                                              |
+| ------------------------ | --------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `className`              | `string`                                | `undefined`                                                 | Optional CSS class for the root `div` container of the toggler.                                                                          |
+| `style`                  | `React.CSSProperties`                   | `undefined`                                                 | Optional inline styles for the root `div` container.                                                                                     |
+| `modeTogglerClassName`   | `string`                                | `undefined`                                                 | Optional CSS class for the light/dark mode toggle button.                                                                                |
+| `modeTogglerStyle`       | `React.CSSProperties`                   | `undefined`                                                 | Optional inline styles for the light/dark mode toggle button.                                                                            |
+| `themeSelectorClassName` | `string`                                | `undefined`                                                 | Optional CSS class for the theme selection dropdown (`SelectList`).                                                                        |
+| `themeSelectorStyle`     | `React.CSSProperties`                   | `undefined`                                                 | Optional inline styles for the theme selection dropdown (`SelectList`).                                                                    |
+| `lightIcon`              | `React.ComponentType<IconProps>`        | `SunIcon`                                                   | Custom icon for the light theme.                                                                                                         |
+| `darkIcon`               | `React.ComponentType<IconProps>`        | `MoonIcon`                                                  | Custom icon for the dark theme.                                                                                                          |
+| `ariaLabelLight`         | `string`                                | `'Switch to dark theme'`                                    | ARIA label for the mode toggle when current theme is light.                                                                              |
+| `ariaLabelDark`          | `string`                                | `'Switch to light theme'`                                   | ARIA label for the mode toggle when current theme is dark.                                                                               |
+| `availableThemes`        | `ThemeDefinition[]`                     | `[{ value: 'aura', label: 'Aura' }, { value: 'nova', label: 'Nova' }]` | Array of theme definitions for the dropdown.                                                                                           |
+| `defaultThemeName`       | `string`                                | `'aura'`                                                    | The `value` of the initially selected theme from `availableThemes`.                                                                      |
+| `themeSelectorAriaLabel` | `string`                                | `'Select theme'`                                            | ARIA label for the theme selection dropdown.                                                                                             |
+
+Refer to `ThemeDefinition` and `IconProps` types for more details on their structures.

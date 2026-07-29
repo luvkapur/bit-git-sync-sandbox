@@ -1,0 +1,41 @@
+/* Styles for spinner compositions */
+.pageContainer {
+  padding: var(--spacing-large, 24px); /* Fallback values for spacing */
+  background-color: var(--colors-surface-background, #121212); /* Fallback color */
+  color: var(--colors-text-primary, #FFFFFF); /* Fallback color */
+  font-family: var(--typography-font-family, 'Inter', sans-serif); /* Fallback font */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl, 32px); /* Fallback value for spacing */
+}
+
+.compositionContainer {
+  padding: var(--spacing-default, 16px); /* Fallback value */
+  border: 1px solid var(--colors-border-default, #333333); /* Fallback color */
+  border-radius: var(--borders-radius-medium, 8px); /* Fallback value */
+  background-color: var(--colors-surface-primary, #1E1E1E); /* Fallback color */
+}
+
+.compositionTitle {
+  font-size: var(--typography-sizes-heading-h5, 1.25rem); /* Fallback size */
+  color: var(--colors-text-primary, #FFFFFF); /* Fallback color */
+  margin-bottom: var(--spacing-default, 16px); /* Fallback value */
+  border-bottom: 1px solid var(--colors-border-default, #333333); /* Fallback color */
+  padding-bottom: var(--spacing-small, 8px); /* Fallback value */
+}
+
+.spinnerWrapper {
+  display: flex;
+  gap: var(--spacing-large, 24px); /* Fallback value */
+  align-items: center;
+  justify-content: flex-start;
+  padding: var(--spacing-default, 16px); /* Fallback value */
+  flex-wrap: wrap;
+}
+
+.customSpinner {
+  /* Example of a custom class that could add more styles or overrides */
+  /* border-style: dashed; -> This would be overridden by spinner's own border logic */
+  /* The filter style is applied via inline style in the composition example. */
+  /* This class can be used for margins, layout tweaks if needed. */
+}

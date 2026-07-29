@@ -1,0 +1,47 @@
+---
+description: 'A client-side demo app showcasing Aura and Nova themes with Nebula Design components.'
+labels: ['app', 'react', 'theme', 'showcase', 'nebula']
+---
+
+## Nebula Design
+
+This application showcases the ability to switch between two themes, Aura and Nova, using the same React components. It demonstrates the use of composable design tokens for adapting the UI to different brand identities.
+
+### Landing Page Example
+The landing page features a hero section with a call to action to explore the demo.
+
+```jsx
+<div className={styles.heroSection}>
+  <Heading level={1} visualLevel={1} className={styles.heroTitle}>Nebula Design Showcase</Heading>
+  <Paragraph className={styles.heroParagraph}>
+    Instantly switch between Aura and Nova themes, built on the same React components. Witness the power of composable design tokens and see how easily UI can adapt to different brand identities.
+  </Paragraph>
+  <Button appearance="primary" size="large" onClick={() => navigate('/gallery')} className={styles.heroButton}>
+    Explore the Demo
+  </Button>
+</div>
+```
+### Component Gallery Example
+The component gallery displays various UI elements rendered with both the Aura and Nova themes.
+```jsx
+<Card title="Buttons" variant="outlined" className={styles.galleryItemCard}>
+  <Heading level={3}>Button States & Styles</Heading>
+  <div className={styles.componentExampleContainer}>
+    <Button appearance="primary">Primary Button</Button>
+    <Button appearance="secondary">Secondary Button</Button>
+    <Button appearance="tertiary">Tertiary Button</Button>
+  </div>
+</Card>
+```
+### Theme Toggler Example
+A sticky theme toggler allows users to switch between Aura/Nova and light/dark modes.
+```jsx
+<div className={styles.fixedThemeToggler}>
+  <ThemeToggler
+    defaultThemeName="aura"
+    availableThemes={availableThemes}
+    ariaLabelLight="Switch to dark theme"
+    ariaLabelDark="Switch to light theme"
+    themeSelectorAriaLabel="Select brand theme"
+  />
+</div>

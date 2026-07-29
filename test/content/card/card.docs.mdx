@@ -1,0 +1,45 @@
+---
+description: A versatile and visually engaging card component that serves as a flexible container for various content types, including an optional header, footer, image, and title.
+labels: ['card', 'ui', 'container']
+---
+
+The Card component is a flexible container for displaying various types of content. It supports a variety of features like headers, footers, images, and different visual styles.
+
+## Basic Card
+
+This example shows a simple card with a title and some content.
+
+```jsx
+<Card title="Simple Card">
+  <p>This is the content of a basic card. It's simple and clean.</p>
+</Card>
+```
+## Card with Header and Footer
+Cards can include headers and footers for more structured content.
+```jsx
+<Card
+  header={<h4>Featured Article</h4>}
+  title="Article Title"
+  footer={<button>Read More</button>}
+>
+  <p>This card demonstrates the header and footer sections, perfect for previews or summaries.</p>
+</Card>
+```
+## Interactive Card with Image
+This example demonstrates an interactive card with an image, header and footer, enhancing user engagement.
+```jsx
+<Card
+  image="https://images.unsplash.com/photo-1650406262076-c3444b5be6f6?ixid=M3w3MDc2NDF8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGdlb21ldHJpYyUyMHB1cnBsZXxlbnwxfDJ8fHB1cnBsZXwxNzQ5Nzc2MzcxfDA&ixlib=rb-4.1.0"
+  imageAlt="Purple fabric texture"
+  header={<h5>Product Spotlight</h5>}
+  title="Amazing Product"
+  interactive
+  footer={
+    <div>
+      <span>$99.99</span>
+      <button>Add to Cart</button>
+    </div>
+  }
+>
+  <p>A full-featured card with image, header, footer, and interactive state.</p>
+</Card>

@@ -1,0 +1,42 @@
+---
+description: A versatile and accessible button component that prioritizes user experience and visual consistency.
+labels: ['button', 'ui', 'navigation']
+---
+
+A versatile and accessible button component that can render as a standard HTML button or as a navigational link.
+
+## Component usage
+
+Use the component:
+
+```jsx
+<Button onClick={() => alert('Clicked!')}>Click me</Button>
+```
+
+## Button Appearances
+
+The `appearance` prop defines the button's visual style. Available options are `primary`, `secondary`, and `tertiary`.
+
+```jsx
+<Button appearance="primary">Primary</Button>
+<Button appearance="secondary">Secondary</Button>
+<Button appearance="tertiary">Tertiary</Button>
+```
+
+## Disabled Buttons
+
+The `disabled` prop disables the button, preventing user interaction.
+
+```jsx
+<Button appearance="primary" disabled>Primary Disabled</Button>
+<Button appearance="secondary" disabled>Secondary Disabled</Button>
+<Button appearance="tertiary" disabled>Tertiary Disabled</Button>
+```
+
+## Buttons as Links
+
+When the `href` prop is provided, the button renders as a link, navigating to the specified URL.
+
+```jsx
+<Button appearance="primary" href="/home">Go Home</Button>
+<Button appearance="secondary" href="https://example.com" external>External Link</Button>

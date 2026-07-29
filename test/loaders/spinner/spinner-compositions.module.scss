@@ -1,0 +1,39 @@
+// Styles for spinner compositions
+.pageContainer {
+  padding: var(--spacing-large);
+  background-color: var(--colors-surface-background);
+  color: var(--colors-text-primary);
+  font-family: var(--typography-font-family);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.compositionContainer {
+  padding: var(--spacing-default);
+  border: 1px solid var(--colors-border-default);
+  border-radius: var(--borders-radius-medium);
+  background-color: var(--colors-surface-primary);
+}
+
+.compositionTitle {
+  font-size: var(--typography-sizes-heading-h5);
+  color: var(--colors-text-primary);
+  margin-bottom: var(--spacing-default);
+  border-bottom: 1px solid var(--colors-border-default);
+  padding-bottom: var(--spacing-small);
+}
+
+.spinnerWrapper {
+  display: flex;
+  gap: var(--spacing-large);
+  align-items: center;
+  justify-content: flex-start; // Align items to the start
+  padding: var(--spacing-default);
+  flex-wrap: wrap; // Allow spinners to wrap if many
+}
+
+.customSpinner {
+  // Example of a custom class potentially adding more styles or overrides
+  border-style: dashed; // Example custom style, though border-style is managed by spinner
+}

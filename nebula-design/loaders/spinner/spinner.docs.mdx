@@ -1,0 +1,101 @@
+---
+description: 'A customizable spinner component to indicate loading states.'
+labels: ['spinner', 'loader', 'loading indicator', 'ui component']
+---
+
+## Overview
+
+The `Spinner` component provides a visual indication of an ongoing process or loading state. It's designed to be flexible and integrate seamlessly with themed applications.
+
+Key features:
+- Customizable size and thickness.
+- Settable colors for the spinner track and active segment.
+- Uses CSS custom properties for easy theming and dynamic styling.
+- Accessible, with a default ARIA label "Loading" and appropriate roles.
+
+## Basic Usage
+
+Import the `Spinner` component and use it in your application:
+
+```tsx
+// Assuming the component is imported from its Bit ID
+import { Spinner } from '@luvktest/test.loaders.spinner';
+
+// In your component
+function MyComponentLoading() {
+  return <Spinner />;
+}
+```
+
+## Compositions
+
+The following examples demonstrate various configurations of the `Spinner`. These compositions are interactive.
+
+### Default Spinner
+
+This is the default appearance of the spinner. It will use theme-defined colors for `--colors-primary-default` and `--colors-border-default` if they are available in the environment.
+
+```tsx live
+<DefaultSpinner />
+```
+
+### Sized Spinners
+
+The `size` (diameter) and `thickness` (ring thickness) props control the dimensions of the spinner.
+
+```tsx live
+<SizedSpinner />
+```
+
+### Colored Spinners
+
+Customize the `color` (active segment) and `trackColor` (background ring) of the spinner. These can be direct CSS color values (e.g., `#FF0000`, `rgb(255,0,0)`) or CSS variables from your theme (e.g., `var(--colors-status-positive-default)`).
+
+```tsx live
+<ColoredSpinner />
+```
+
+### Spinner with Custom Class & Style
+
+Apply additional CSS classes via the `className` prop or inline styles via the `style` prop for further customization. The `style` prop is primarily used by the component to set its CSS custom properties but can also accept other standard CSS properties.
+
+```tsx live
+<SpinnerWithCustomizations />
+```
+
+## Props
+
+{/*
+  The PropsTable component should be configured in the MDX environment
+  to display props for the `Spinner` component.
+  For Bit, this is often handled by resolving the component from the current scope.
+  Example: <PropsTable of={Spinner} />
+  Assuming 'Spinner' is available in the MDX rendering context.
+*/}
+<PropsTable of={Spinner} />
+
+## Accessibility
+
+The `Spinner` includes the following accessibility features:
+- `role="status"`: Indicates that the element contains advisory information that is not essential for the user's current task.
+- `aria-live="polite"`: Announces updates to screen readers politely, without interrupting the user.
+- `aria-label="Loading"`: Provides a default accessible name for the spinner. This is fixed to "Loading".
+- A visually hidden `<span>` containing the ARIA label text is included for broader screen reader compatibility.
+
+## CSS Custom Properties
+
+The spinner's appearance is primarily controlled by the following CSS custom properties, which are set dynamically based on its props:
+
+- `--spinner-size`: (string) Controls the width and height of the spinner (e.g., `24px`). Derived from the `size` prop.
+- `--spinner-thickness`: (string) Controls the border thickness of the spinner ring (e.g., `3px`). Derived from the `thickness` prop.
+- `--spinner-color`: (string) Color of the active, rotating part of the spinner. Defaults to `var(--colors-primary-default, currentColor)`. Derived from the `color` prop.
+- `--spinner-track-color`: (string) Color of the static background ring of the spinner. Defaults to `var(--colors-border-default, transparent)`. Derived from the `trackColor` prop.
+
+These can be overridden globally or per instance for advanced theming scenarios if needed, though using the component props is the recommended way for customization.
+
+```scss
+/* Example SCSS/CSS override (use with caution, prefer props) */
+.my-custom-spinner-context .spinner { /* Assuming .spinner is the class on the Spinner's root div */
+  --spinner-color: green;
+  --spinner-thickness: 5px;
+}

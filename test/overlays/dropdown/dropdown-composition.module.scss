@@ -1,0 +1,153 @@
+.compositionContainer {
+  padding: var(--spacing-large);
+  display: flex; /* For alignment in some compositions */
+  gap: var(--spacing-x8);
+  min-height: 150px; /* Ensure space for dropdown to open without clipping */
+  background-color: var(--colors-surface-background); /* Added for better visual context */
+}
+
+.placeholderButton {
+  padding: var(--spacing-small) var(--spacing-default);
+  background-color: var(--colors-surface-secondary);
+  color: var(--colors-text-primary);
+  border: 1px solid var(--colors-border-default);
+  border-radius: var(--borders-radius-medium);
+  cursor: var(--interactions-cursor-pointer);
+  font-family: var(--typography-font-family);
+  font-size: var(--typography-sizes-body-default);
+  display: inline-flex;
+  align-items: center;
+  transition: background-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-out);
+}
+
+.placeholderButton:hover {
+  background-color: var(--colors-primary-hover);
+  color: var(--colors-text-inverse) !important; /* Ensure text is readable on hover */
+}
+
+.placeholderButton:focus-visible {
+  outline: var(--borders-focus-width) var(--borders-focus-style) var(--colors-border-interactive-default);
+  outline-offset: var(--borders-focus-offset);
+}
+
+
+.dropdownMenuList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdownMenuItem {
+  padding: var(--spacing-small) var(--spacing-default);
+  color: var(--colors-text-primary);
+  cursor: var(--interactions-cursor-pointer);
+  border-radius: var(--borders-radius-small);
+  transition: background-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-out);
+  font-size: var(--typography-sizes-body-default);
+}
+
+.dropdownMenuItem:hover,
+.dropdownMenuItem:focus {
+  background-color: var(--colors-surface-secondary); /* A slightly different shade for hover/focus */
+  color: var(--colors-text-interactive-default);
+  outline: none;
+}
+
+.dropdownMenuItem + .dropdownMenuItem {
+  /* No border needed, spacing is enough */
+}
+
+
+.compositionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-x8) var(--spacing-x4); /* More vertical gap */
+  padding: var(--spacing-large);
+  min-height: 400px;
+  background-color: var(--colors-surface-background);
+}
+
+.gridItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-default);
+  border: 1px solid var(--colors-border-default);
+  border-radius: var(--borders-radius-medium);
+  background-color: var(--colors-surface-primary);
+  position: relative; /* For label positioning if needed */
+}
+
+.positionLabel {
+  font-size: var(--typography-sizes-caption-default);
+  color: var(--colors-text-secondary);
+  margin-bottom: var(--spacing-default);
+  font-weight: var(--typography-font-weight-medium);
+}
+
+.simpleContent {
+  padding: var(--spacing-small);
+  color: var(--colors-text-primary);
+  font-size: var(--typography-sizes-body-small);
+}
+
+.simpleContent p {
+  margin: 0 0 var(--spacing-small) 0;
+}
+
+.contentButton {
+  padding: var(--spacing-small) var(--spacing-default);
+  background-color: var(--colors-primary-default);
+  color: var(--colors-text-inverse) !important;
+  border: none;
+  border-radius: var(--borders-radius-small);
+  cursor: var(--interactions-cursor-pointer);
+  font-size: var(--typography-sizes-body-small);
+}
+
+.contentButton:hover {
+  background-color: var(--colors-primary-hover);
+}
+
+/* Custom styling example */
+.customPlaceholder {
+  background-color: var(--colors-status-positive-default);
+  color: var(--colors-text-inverse) !important;
+  padding: var(--spacing-default) var(--spacing-large);
+  border-radius: var(--borders-radius-large);
+  font-weight: var(--typography-font-weight-bold);
+  border: none;
+  cursor: var(--interactions-cursor-pointer);
+  box-shadow: var(--effects-shadows-small);
+}
+
+.customPlaceholder:hover {
+  background-color: var(--colors-status-positive-subtle); /* Lighter shade for hover */
+  color: var(--colors-status-positive-default) !important;
+}
+
+.customDropdownContainer {
+  /* No specific styles here for now, just to show it's applied */
+}
+
+.customDropdownContent {
+  background-color: var(--colors-surface-secondary);
+  border: 2px dashed var(--colors-primary-default);
+  border-radius: var(--borders-radius-small);
+  box-shadow: var(--effects-shadows-x-large);
+}
+
+.contentLink {
+  color: var(--colors-text-interactive-default);
+  text-decoration: none;
+  display: inline-block;
+  margin-top: var(--spacing-small);
+  font-weight: var(--typography-font-weight-medium);
+}
+
+.contentLink:hover {
+  text-decoration: underline;
+}

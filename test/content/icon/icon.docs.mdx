@@ -1,0 +1,34 @@
+---
+description: A generic icon component for composing consistent icon components.
+labels: ['icon', 'ui', 'svg']
+---
+
+A generic icon component that accepts SVG path data as children, allowing for the creation of a wide variety of icons with consistent styling and accessibility.
+
+## Basic Icon
+
+This example demonstrates the basic usage of the `Icon` component with a simple SVG path.
+The icon will inherit the default size and color.
+
+```jsx
+<Icon>
+  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+</Icon>
+```
+## Sized and Colored Icon
+This example shows how to customize the size and color of the `Icon` component.
+You can use pixel values for size, or CSS units like `em`.
+The color can be any valid CSS color value.
+```jsx
+<Icon size={32} color="blue">
+  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+</Icon>
+```
+## Clickable Icon
+This example demonstrates how to make the `Icon` component clickable by passing an `onClick` handler.
+When an `onClick` handler is provided, the component visually indicates interactivity.
+It also adds accessibility attributes to ensure it is usable by everyone.
+```jsx
+<Icon onClick={() => alert('Icon clicked!')} title="Clickable Icon">
+  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+</Icon>

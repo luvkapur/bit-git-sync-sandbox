@@ -1,0 +1,162 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs) var(--spacing-s); // Mapped from x4, x8
+  font-family: var(--typography-font-family);
+  font-weight: 600; // Hardcoded: --typography-font-weight-semi-bold not in Nebula list
+  border-radius: var(--borders-radius-medium);
+  box-sizing: border-box;
+  text-transform: uppercase;
+  letter-spacing: 0.5px; // Hardcoded: --typography-letter-spacing-wide not in Nebula list
+  transition: background-color 0.2s ease-in-out,
+              color 0.2s ease-in-out,
+              border-color 0.2s ease-in-out; // Hardcoded: transition vars not in Nebula list
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+// Variants
+.solidVariant {
+  // Default text color for custom solid backgrounds, ensures contrast.
+  color: var(--colors-text-inverse) !important; // Added !important as per instruction for text on primary-like surfaces
+}
+
+.outlineVariant {
+  background-color: transparent;
+  border-width: var(--borders-default-width, 1px);
+  border-style: var(--borders-default-style, solid);
+}
+
+.ghostVariant {
+  background-color: transparent;
+  border: none;
+}
+
+// Sizes
+.smallSize {
+  padding: var(--spacing-xs) var(--spacing-s); // Mapped from x4, x8
+  font-size: 10px; // Hardcoded: --typography-sizes-caption-default not in Nebula list
+  border-radius: var(--borders-radius-small);
+}
+
+.smallSize .badgeIcon {
+  font-size: calc(10px * 1.1); // Adjusted to hardcoded font-size
+  margin-right: var(--spacing-xs); // Mapped from x4
+}
+
+.mediumSize {
+  // Default padding and font-size are from .badge, this class mainly for icon if different
+  // padding: var(--spacing-xs) var(--spacing-s); Default from .badge
+  font-size: 12px; // Hardcoded: --typography-sizes-body-small not in Nebula list
+  // border-radius: var(--borders-radius-medium); Default from .badge
+}
+
+.mediumSize .badgeIcon {
+  font-size: calc(12px * 1.1); // Adjusted to hardcoded font-size
+  margin-right: var(--spacing-xs); // Mapped from x4
+}
+
+.largeSize {
+  padding: var(--spacing-s) var(--spacing-m); // Mapped from x8, default
+  font-size: 14px; // Hardcoded: --typography-sizes-body-default not in Nebula list
+  border-radius: var(--borders-radius-large);
+}
+
+.largeSize .badgeIcon {
+  font-size: calc(14px * 1.1); // Adjusted to hardcoded font-size
+  margin-right: var(--spacing-s); // Mapped from x8
+}
+
+// Icon and Label styling
+.badgeIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.badgeLabel {
+  line-height: 1.4; // Hardcoded: --typography-line-height-base not in Nebula list
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+// Color Schemes using Nebula Theme Variables
+// Primary
+.primaryColor.solidVariant {
+  background-color: var(--colors-primary-default);
+  color: var(--colors-text-inverse) !important;
+}
+.primaryColor.outlineVariant {
+  border-color: var(--colors-primary-default);
+  color: var(--colors-primary-default);
+}
+.primaryColor.ghostVariant {
+  color: var(--colors-primary-default);
+}
+
+// Secondary
+.secondaryColor.solidVariant {
+  background-color: var(--colors-secondary-default);
+  color: var(--colors-text-default); // Nebula dark theme default text is light, suitable for dark secondary
+}
+.secondaryColor.outlineVariant {
+  border-color: var(--colors-secondary-default);
+  color: var(--colors-secondary-default);
+}
+.secondaryColor.ghostVariant {
+  color: var(--colors-secondary-default);
+}
+
+// Success
+.successColor.solidVariant {
+  background-color: var(--colors-status-success-default); // Nebula success color
+  color: var(--colors-text-inverse) !important;
+}
+.successColor.outlineVariant {
+  border-color: var(--colors-status-success-default);
+  color: var(--colors-status-success-default);
+}
+.successColor.ghostVariant {
+  color: var(--colors-status-success-default);
+}
+
+// Warning
+.warningColor.solidVariant {
+  background-color: var(--colors-status-warning-default);
+  color: var(--colors-text-default); // Nebula dark theme default text is light
+}
+.warningColor.outlineVariant {
+  border-color: var(--colors-status-warning-default);
+  color: var(--colors-status-warning-default);
+}
+.warningColor.ghostVariant {
+  color: var(--colors-status-warning-default);
+}
+
+// Danger (maps to Error in Nebula status colors)
+.dangerColor.solidVariant {
+  background-color: var(--colors-status-error-default);
+  color: var(--colors-text-inverse) !important;
+}
+.dangerColor.outlineVariant {
+  border-color: var(--colors-status-error-default);
+  color: var(--colors-status-error-default);
+}
+.dangerColor.ghostVariant {
+  color: var(--colors-status-error-default);
+}
+
+// Info
+.infoColor.solidVariant {
+  background-color: var(--colors-status-info-default);
+  color: var(--colors-text-inverse) !important;
+}
+.infoColor.outlineVariant {
+  border-color: var(--colors-status-info-default);
+  color: var(--colors-status-info-default);
+}
+.infoColor.ghostVariant {
+  color: var(--colors-status-info-default);
+}

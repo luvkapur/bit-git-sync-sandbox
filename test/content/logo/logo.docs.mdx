@@ -1,0 +1,58 @@
+---
+description: A versatile and brand-conscious logo component.
+labels: ['logo', 'ui', 'brand']
+---
+
+A versatile and brand-conscious logo component tailored for Acme, with the ability to adapt to diverse presentation needs. Displays the Acme logo by default. Allows override with props for name, href, logo size (in pixels), slogan and optional SVG logo.
+Uses the Link component to navigate to `href` upon click.
+
+## Component Usage
+
+### Default Acme Logo
+
+Displays the default Acme logo with a slogan.
+
+```jsx
+<Logo slogan="Your Trusted Partner" />
+```
+
+### Custom Logo with Link
+
+Shows how to use a custom name, slogan, and link for the logo.
+
+```jsx
+<Logo name="Nova Corp" slogan="Innovate. Integrate. Inspire." href="/nova-corp" />
+```
+
+### Minimal Logo
+
+Demonstrates the minimal mode, which displays only the SVG logo.
+
+```jsx
+<Logo name="Acme Minimal" minimal href="/minimal" />
+```
+
+### Custom SVG Logo
+
+```jsx
+const CustomBrandIcon = ({ className, style, color = 'currentColor' }) => (
+  <svg
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={style}
+    fill={color}
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
+  </svg>
+);
+
+<Logo
+  name="Brand X"
+  slogan="The Future is X"
+  svgLogo={CustomBrandIcon}
+  href="/brand-x"
+  logoSize={36}
+/>

@@ -1,0 +1,28 @@
+---
+description: A visually appealing and subtle spinner component for indicating loading states.
+labels: ['spinner', 'ui', 'loading']
+---
+
+The Spinner component provides a visual cue to users that a process is ongoing in the background. It is designed to be subtle yet noticeable, enhancing user experience during loading times or while processing data.
+
+## Basic Usage
+
+The default spinner provides a simple, animated loading indicator.
+
+```jsx
+<Spinner />
+```
+## Customizing Size and Thickness
+You can adjust the `size` and `thickness` of the spinner to fit different contexts.
+```jsx
+<Spinner size={32} thickness={4} />
+<Spinner size={48} thickness={6} />
+```
+`size` determines the diameter of the spinner, and `thickness` sets the width of the spinning border.
+## Themed Spinners
+The `color` and `trackColor` props allow you to match the spinner to your application's theme.
+```jsx
+<Spinner color="var(--colors-status-positive-default)" trackColor="var(--colors-status-positive-subtle)" />
+<Spinner color="#C48CFF" trackColor="rgba(196, 140, 255, 0.3)" />
+```
+Use theme variables or any valid CSS color value for a cohesive look.

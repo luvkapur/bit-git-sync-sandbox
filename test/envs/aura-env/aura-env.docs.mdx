@@ -1,0 +1,67 @@
+---
+description: A React development environment configured for building components with the Aura Design System and the Nebula theme.
+labels: ['env', 'react', 'dev', 'vite', 'jest', 'aura', 'theme', 'design-system']
+---
+
+This environment streamlines React component development, ensuring consistency with the Aura Design System and the Nebula theme. It offers pre-configured tools and settings for a smooth development experience.
+
+Features:
+-   TypeScript support
+-   Vitest for testing
+-   Generator templates for components, hooks, and applications (Vite + SSR)
+-   React workspace starter
+-   ESLint for linting
+-   Optimized React build pipeline
+-   React Preview with Aura and Nebula theme integration using `@luvktest/test.aura-theme`
+
+## Usage in Existing Workspaces
+
+To integrate this environment into your workspace, update the `workspace.jsonc` file:
+
+```json
+{
+  "teambit.generator/generator": {
+    "envs": [
+      "luvktest.test/aura-env"
+    ]
+  }
+}
+```
+You can then view available templates using the command `bit templates`.
+## Applying to Existing Components
+Apply this environment to your existing components by running:
+```
+bit env set my-component luvktest.test/aura-env
+```
+## Creating a New React Workspace
+Initiate a new React workspace with this environment using:
+```
+bit new react my-workspace --aspect luvktest.test/aura-env
+```
+## Customizing the Environment
+Create a custom environment based on this one by running:
+```
+bit create react-env my-custom-env --scope luvktest.test
+```
+Ensure your custom environment class extends `AuraEnv` from `luvktest.test/aura-env` and override methods as needed.
+## Examples
+### Basic Component Preview
+Components within this environment automatically render with the Aura Design System's base styles, and can be further customized with the Nebula theme.
+```jsx
+function MyComponent({ text }) {
+  return <div>{text}</div>;
+}
+```
+### Themed Button Example
+This example shows how a button component adapts to the Nebula theme's color scheme.
+```jsx
+function ThemedButton({ label }) {
+  return <button>{label}</button>;
+}
+```
+### Customized Heading
+Illustrates the use of the custom font family applied by the Nebula theme.
+```jsx
+function NebulaHeading({ title }) {
+  return <h1>{title}</h1>;
+}

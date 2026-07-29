@@ -1,0 +1,45 @@
+---
+description: A versatile and visually distinct badge component for displaying statuses, labels, or categories.
+labels: ['badge', 'ui', 'display']
+---
+
+The `Badge` component is used to highlight key information, statuses, or categories. It can be customized with different sizes, variants, and colors to suit various use cases.
+
+## Variants and Colors
+
+The Badge component supports different variants and colors to provide flexibility in styling.
+
+```jsx
+<Badge label="Primary" color="primary" variant="solid" />
+<Badge label="Secondary" color="secondary" variant="outline" />
+<Badge label="Success" color="success" variant="ghost" />
+```
+This example demonstrates the use of different color and variant combinations, including `solid`, `outline`, and `ghost` variants with `primary`, `secondary`, and `success` colors.
+## Sizes and Icons
+The Badge component can be rendered in different sizes and with an optional icon.
+```jsx
+const StarIcon = ({ className }) => (
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+  </svg>
+);
+<Badge label="Small" size="small" color="primary" variant="solid" />
+<Badge label="Medium" size="medium" color="secondary" variant="outline" />
+<Badge label="Large with Icon" size="large" color="success" variant="ghost" icon={StarIcon} />
+```
+This example shows how to create badges with different sizes and how to include an icon within the badge. The `StarIcon` is a simple SVG component used for demonstration.
+## Custom Colors
+The Badge component allows you to use custom colors by providing a valid CSS color value to the color prop.
+```jsx
+<Badge label="Custom Color" color="#673AB7" variant="solid" />
+<Badge label="Teal Outline" color="#009688" variant="outline" />
+<Badge label="Amber Ghost" color="#FFC107" variant="ghost" />
+```
+In this example, the color prop is used to set the background color of the solid badge, the text and border color of the outline badge, and the text color of the ghost badge.

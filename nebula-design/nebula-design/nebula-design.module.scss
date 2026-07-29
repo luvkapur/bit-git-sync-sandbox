@@ -1,0 +1,163 @@
+// General App Styles
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--fill-default);
+  color: var(--content-default);
+  font-family: var(--typography-body-default, sans-serif);
+}
+
+.appHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-default) var(--spacing-double);
+  background-color: var(--fill-secondary-default);
+  border-bottom: 1px solid var(--border-default);
+  flex-wrap: wrap; // Allow wrapping on smaller screens
+  gap: var(--spacing-default);
+}
+
+.appNav {
+  display: flex;
+  gap: var(--spacing-default);
+  align-items: center;
+  flex-wrap: wrap; // Allow nav items to wrap
+}
+
+.mainContent {
+  flex-grow: 1;
+  padding: var(--spacing-double);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.appFooter {
+  padding: var(--spacing-double);
+  text-align: center;
+  background-color: var(--fill-secondary-default);
+  border-top: 1px solid var(--border-default);
+  color: var(--content-secondary);
+}
+
+.fixedThemeToggler {
+  position: fixed;
+  top: var(--spacing-double);
+  right: var(--spacing-double);
+  z-index: 1050; // High z-index to be above other content
+  background-color: var(--fill-default);
+  padding: var(--spacing-half);
+  border-radius: var(--border-radius-large);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid var(--border-secondary);
+}
+
+// Landing Page Hero
+.heroSection {
+  background: linear-gradient(135deg, var(--fill-primary-default) 0%, var(--fill-accent-subtle) 100%);
+  color: var(--content-inverse) !important; // Ensure text is readable on gradient
+  padding: var(--spacing-x4) var(--spacing-double); // Use larger spacing for hero
+  text-align: center;
+  border-radius: var(--border-radius-large);
+}
+
+.heroSection .heroTitle {
+  color: var(--content-inverse) !important;
+  font-size: var(--typography-headline-medium); // Example, adjust as needed
+  margin-bottom: var(--spacing-default);
+}
+
+.heroSection .heroParagraph {
+  color: var(--content-inverse) !important;
+  opacity: 0.9;
+  margin-bottom: var(--spacing-double);
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.heroSection .heroButton {
+  // Button component styles itself, but we can add margin if needed
+  margin-top: var(--spacing-default);
+}
+.heroButton:hover {
+  transform: scale(1.05);
+}
+
+
+// Component Gallery Styles
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-double);
+}
+
+.galleryItemCard {
+  // Card component styles itself
+}
+
+.galleryItemCard h3 { // For titles within gallery item cards if not using Card's title prop
+  margin-top: 0;
+  color: var(--content-primary);
+  margin-bottom: var(--spacing-default);
+}
+
+.componentExampleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-default);
+  padding: var(--spacing-default);
+  border: 1px solid var(--border-default);
+  border-radius: var(--border-radius);
+  background-color: var(--fill-secondary-default);
+}
+
+// Wizard Styles
+.wizardStep {
+  margin-bottom: var(--spacing-double);
+}
+
+.wizardNavigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-double);
+  gap: var(--spacing-default);
+}
+
+.formGroup {
+  margin-bottom: var(--spacing-default);
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: var(--spacing-half);
+  color: var(--content-primary);
+  font-weight: 500; // semi-bold for labels
+}
+
+// Responsive Adjustments
+@media (max-width: 768px) { // Tablet
+  .appHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fixedThemeToggler {
+    top: var(--spacing-default);
+    right: var(--spacing-default);
+  }
+
+  .mainContent {
+    padding: var(--spacing-default);
+  }
+}
+
+@media (max-width: 480px) { // Mobile
+  .galleryGrid {
+    grid-template-columns: 1fr; // Single column on mobile
+  }
+  .heroSection .heroTitle {
+    font-size: calc(var(--typography-headline-medium) * 0.8); // Slightly smaller title
+  }
+}

@@ -1,0 +1,42 @@
+---
+description: PageLayout provides a consistent and responsive structure for web pages, handling SEO metadata and offering a clean content area.
+labels: ['layout', 'page', 'responsive', 'seo']
+---
+
+## Basic Usage
+
+This example demonstrates the basic usage of the `PageLayout` component with a title.
+
+```jsx
+<PageLayout pageTitle="My Awesome Page">
+  <div>
+    <h1>Welcome!</h1>
+    <p>This is the content of my awesome page.</p>
+  </div>
+</PageLayout>
+```
+## With SEO Description
+This example shows how to add a description to improve SEO.
+```jsx
+<PageLayout
+  pageTitle="My Awesome Page"
+  pageDescription="A brief description of my awesome page for search engines."
+>
+  <div>
+    <h1>Welcome!</h1>
+    <p>This is the content of my awesome page.</p>
+  </div>
+</PageLayout>
+```
+## With Inner Navigation
+This example demonstrates how to use the `PageLayout` component with inner navigation.
+```jsx
+<PageLayout
+  pageTitle="My Awesome Page"
+  innerNavigationTitle="Section Title"
+>
+  <div>
+    <h1>Section Content</h1>
+    <p>This is the content of my section.</p>
+  </div>
+</PageLayout>

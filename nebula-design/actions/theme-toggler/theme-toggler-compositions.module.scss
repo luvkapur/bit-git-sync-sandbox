@@ -1,0 +1,111 @@
+// Styles for the ThemeToggler compositions showcase
+.showcaseContainer {
+  font-family: var(--typography-body-default, sans-serif);
+  background-color: var(--fill-default, #fff);
+  color: var(--content-default, #333);
+  padding: var(--spacing-double, 16px);
+  margin: var(--spacing-default, 8px);
+  border: 1px solid var(--border-default, #ccc);
+  border-radius: var(--border-radius, 8px);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-default, 8px);
+  align-items: center;
+  text-align: center;
+}
+
+.showcaseTitle {
+  font-size: var(--typography-headline-medium, 1.5rem);
+  color: var(--content-primary, #000);
+  margin: 0 0 var(--spacing-half, 4px) 0;
+}
+
+.showcaseDescription {
+  font-size: var(--typography-body-default, 1rem);
+  color: var(--content-secondary, #555);
+  margin-bottom: var(--spacing-default, 8px);
+  max-width: 90%;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-half, 4px);
+  background-color: var(--fill-secondary-default, #f9f9f9);
+  padding: var(--spacing-default, 8px);
+  border-radius: var(--border-radius, 4px);
+  margin-bottom: var(--spacing-default, 8px);
+  width: 100%;
+  max-width: 500px; // Limit width for better readability on wide screens
+  box-sizing: border-box;
+}
+
+.statusGrid p {
+  margin: 0;
+  font-size: var(--typography-caption-default, 0.875rem);
+  word-break: break-all; // Ensure long data-theme values wrap
+}
+
+.statusValue {
+  font-weight: bold;
+  color: var(--content-primary, #007bff); // Use a distinct color for values
+  background-color: var(--fill-default, #fff);
+  padding: 2px 6px;
+  border-radius: var(--border-radius, 3px);
+  border: 1px solid var(--border-default, #eee);
+}
+
+.togglerWrapper {
+  padding: var(--spacing-default, 8px);
+  border: 1px dashed var(--border-default, #ccc);
+  border-radius: var(--border-radius, 4px);
+  margin-bottom: var(--spacing-default, 8px);
+  display: inline-block; // So it doesn't stretch full width unless intended
+}
+
+.sampleContent {
+  border: 1px solid var(--border-secondary, #ddd);
+  padding: var(--spacing-default, 8px);
+  border-radius: var(--border-radius, 4px);
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  background-color: var(--fill-secondary-default, #f9f9f9);
+}
+
+.sampleButton {
+  padding: var(--spacing-half, 4px) var(--spacing-default, 8px);
+  background-color: var(--fill-primary-default, #007bff);
+  color: var(--content-inverse, #fff) !important; // Important to override theme styles for demo visibility
+  border: none;
+  border-radius: var(--border-radius, 4px);
+  cursor: pointer;
+  font-size: var(--typography-body-default, 1rem);
+}
+
+.sampleButton:hover {
+  background-color: var(--fill-primary-hover, #0056b3);
+}
+
+// Custom styles for composition example
+.customModeButton {
+  border: 2px solid var(--content-primary, green) !important; // Example override
+  background-color: var(--fill-accent-subtle, lightgreen) !important;
+}
+
+.customThemeSelector {
+  border-color: var(--content-primary, green) !important; // Example override
+  font-weight: bold;
+  background-color: var(--fill-accent-subtle, lightgreen) !important;
+}
+
+.customTogglerContainer {
+  background-color: var(--fill-default, lightyellow) !important; // Example override
+  padding: var(--spacing-default, 10px) !important;
+  border: 2px solid var(--content-primary, purple) !important;
+  border-radius: var(--border-radius-large, 12px) !important;
+}

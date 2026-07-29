@@ -1,0 +1,85 @@
+.sectionLayout {
+  padding: var(--spacing-xl) var(--layout-gutter);
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center; // Center .header and .contentWrapper horizontally
+  gap: var(--spacing-large); // Space between .header and .contentWrapper
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center; // Center title, subtitle, caption
+  text-align: center;
+  gap: var(--spacing-small); // Consistent spacing between header elements
+  max-width: 720px; // Constrain header text width for readability
+  width: 100%; // Ensure it takes up available width within its constraints
+}
+
+.title {
+  color: var(--colors-text-primary);
+  // Heading component handles its own typography and bottom margin (var(--spacing-default))
+}
+
+.subtitle {
+  color: var(--colors-text-secondary);
+  // Heading component handles its own typography and bottom margin
+  // visualLevel prop on Heading component adjusts its appearance
+}
+
+.caption {
+  color: var(--colors-text-secondary);
+  font-size: var(--typography-sizes-body-small);
+  line-height: var(--typography-line-height-base);
+  max-width: 600px; // Slightly narrower max-width for caption for aesthetic balance
+  // Paragraph component handles its own typography and bottom margin (var(--spacing-default))
+}
+
+.contentWrapper {
+  width: 100%;
+  max-width: var(--layout-max-page-width); // Standard max width for main content area
+  box-sizing: border-box;
+}
+
+// Responsive adjustments
+@media (max-width: 1024px) { // $laptop
+  .sectionLayout {
+    gap: var(--spacing-default);
+  }
+}
+
+@media (max-width: 768px) { // $tablet
+  .sectionLayout {
+    padding-top: var(--spacing-large);
+    padding-bottom: var(--spacing-large);
+    padding-left: var(--spacing-default);
+    padding-right: var(--spacing-default);
+  }
+
+  .header {
+    gap: var(--spacing-x4); // Slightly reduce gap for smaller screens
+    max-width: 90%; // Allow a bit more width relative to screen
+  }
+}
+
+@media (max-width: 480px) { // $mobile
+  .sectionLayout {
+    padding-top: var(--spacing-default);
+    padding-bottom: var(--spacing-default);
+    padding-left: var(--spacing-small);
+    padding-right: var(--spacing-small);
+    gap: var(--spacing-default);
+  }
+
+  .header {
+    max-width: 100%; // Allow header text to utilize full width on small mobile screens
+    gap: var(--spacing-x8); // Further adjust gap on small mobile
+  }
+
+  .caption {
+    max-width: 100%;
+    font-size: var(--typography-sizes-caption-default); // Adjust caption size for mobile
+  }
+}

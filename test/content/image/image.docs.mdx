@@ -1,0 +1,42 @@
+---
+description: Image component to display images responsively and with visual appeal.
+labels: ['image', 'ui', 'media']
+---
+
+The Image component is used to display images in a responsive and visually appealing manner. It supports various props to customize the image source, alt text, dimensions, and styling.
+
+## Basic Image
+
+Displays an image with default properties.
+
+```jsx
+<Image />
+```
+
+The image will use a default source URL and alt text. It will also be responsive, adjusting its size to fit its container.
+
+## Custom Image
+
+Displays an image with a custom source and alt text.
+
+```jsx
+<Image src="https://images.unsplash.com/photo-1646315026047-c424f211e5bd?ixid=M3w3MDc2NDF8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGJsdWUlMjBnZW9tZXRyaWN8ZW58MXwwfHxibHVlfDE3NDk3NzYzNzR8MA&ixlib=rb-4.1.0" alt="Hope - a blue wall with a yellow light coming from it" />
+```
+
+This example shows how to use a custom image source and provide descriptive alt text for accessibility.
+
+## Image with Dimensions and Object Fit
+
+Displays an image with specific dimensions and `objectFit` property.
+
+```jsx
+<Image
+  src="https://images.unsplash.com/photo-1653897221847-43eac640ddf8?ixid=M3w3MDc2NDF8MHwxfHNlYXJjaHwzfHxhYnN0cmFjdCUyMGJsdWUlMjBnZW9tZXRyaWN8ZW58MXwwfHxibHVlfDE3NDk3NzYzNzR8MA&ixlib=rb-4.1.0"
+  alt="Street light on a wire with a blue sky"
+  width="300"
+  height="200"
+  objectFit="cover"
+/>
+```
+
+This example demonstrates how to control the image's dimensions and how it fits within its container using the `width`, `height`, and `objectFit` properties.

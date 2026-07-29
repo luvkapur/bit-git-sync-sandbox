@@ -1,0 +1,154 @@
+.selectListContainer {
+  position: relative;
+  font-family: var(--typography-font-family);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.selectListContainer *,
+.selectListContainer *::before,
+.selectListContainer *::after {
+  box-sizing: inherit;
+}
+
+.selectedItemDisplay {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-small) var(--spacing-default);
+  background-color: var(--colors-surface-primary);
+  color: var(--colors-text-primary);
+  border: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+  border-radius: var(--borders-radius-medium);
+  cursor: var(--interactions-cursor-pointer);
+  text-align: left;
+  transition: border-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out),
+              box-shadow var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out);
+  min-height: 40px; // Ensure consistent height
+}
+
+.selectedItemDisplay:hover {
+  border-color: var(--colors-border-interactive-default);
+}
+
+.selectedItemDisplay:focus-visible {
+  outline: var(--borders-focus-width) var(--borders-focus-style) var(--colors-border-interactive-default);
+  outline-offset: var(--borders-focus-offset);
+  border-color: var(--colors-border-interactive-default);
+}
+
+.selectedItemDisplay.disabled {
+  cursor: var(--interactions-cursor-disabled);
+  opacity: var(--effects-opacity-disabled);
+  background-color: var(--colors-surface-secondary); // Slightly different background for disabled state
+}
+
+.selectedItemDisplay.disabled:hover {
+  border-color: var(--colors-border-default); // No hover effect on border for disabled
+}
+
+
+.selectedItemLabel {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+.selectedItemPlaceholder {
+  color: var(--colors-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+.chevronIcon {
+  flex-shrink: 0;
+  margin-left: var(--spacing-small);
+  transition: transform var(--interactions-transitions-duration-medium) var(--interactions-transitions-easing-ease-in-out);
+  color: var(--colors-text-secondary); // Icon color matches placeholder or secondary text
+}
+
+.chevronIconOpen {
+  transform: rotate(180deg);
+}
+
+.dropdownList {
+  position: absolute;
+  top: calc(100% + var(--spacing-small) / 2); // Small gap between control and dropdown
+  left: 0;
+  right: 0;
+  background-color: var(--colors-surface-secondary);
+  border: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+  border-radius: var(--borders-radius-medium);
+  box-shadow: var(--effects-shadows-large); // Enhanced shadow for more depth
+  list-style-type: none;
+  margin: 0;
+  padding: var(--spacing-small) 0; // Padding around the list items
+  max-height: 240px; // Increased max-height for more items
+  overflow-y: auto;
+  z-index: var(--interactions-z-index-tooltip); // Ensures dropdown is above other content
+  
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98); // Added scale for subtle pop effect
+  visibility: hidden;
+  transition: opacity var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-out),
+              transform var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-out),
+              visibility var(--interactions-transitions-duration-fast) linear;
+}
+
+.dropdownList.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  visibility: visible;
+}
+
+.dropdownItem {
+  padding: var(--spacing-small) var(--spacing-default);
+  color: var(--colors-text-primary);
+  cursor: var(--interactions-cursor-pointer);
+  transition: background-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out),
+              color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdownItem:not(.itemDisabled):hover {
+  background-color: var(--colors-surface-primary); // Subtle hover effect
+}
+
+.dropdownItem.itemSelected {
+  background-color: var(--colors-primary-default);
+  color: var(--colors-text-inverse) !important; // Ensure inverse text color is applied
+  font-weight: var(--typography-font-weight-medium);
+}
+
+.dropdownItem.itemDisabled {
+  color: var(--colors-text-secondary);
+  cursor: var(--interactions-cursor-disabled);
+  opacity: var(--effects-opacity-disabled);
+  background-color: transparent; // Ensure disabled items don't get hover/selected styles
+}
+
+.noOptionsItem {
+  padding: var(--spacing-small) var(--spacing-default);
+  color: var(--colors-text-secondary);
+  cursor: default;
+  font-style: italic;
+}
+
+// Responsive adjustments
+@media (max-width: 480px) { // $tablet breakpoint
+  .selectedItemDisplay {
+    padding: var(--spacing-small) var(--spacing-small); // Slightly less padding on mobile
+  }
+  .dropdownItem {
+    padding: var(--spacing-small) var(--spacing-small);
+  }
+  .dropdownList {
+    max-height: 200px; // Slightly reduce max height on smaller screens
+  }
+}

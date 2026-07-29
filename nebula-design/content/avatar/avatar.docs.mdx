@@ -1,0 +1,29 @@
+---
+description: An avatar component for displaying user profile pictures or initials.
+labels: ['avatar', 'ui', 'image']
+---
+
+The `Avatar` component is used to represent users with a profile picture, initials, or a placeholder. It supports different sizes, shapes, and status indicators.
+
+## Image Avatars
+
+Displaying an avatar with an image from a URL. If the image fails to load, it can fall back to initials or a default placeholder.
+
+```jsx
+<Avatar src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=M3w3MDc2NDF8MHwxfHNlYXJjaHwxfHx1c2VyJTIwYXZhdGFyfGVufDB8fHx8MTcwMzk1NzYxNXww&ixlib=rb-4.0.3&w=200&h=200&fit=crop" alt="User One" name="User One" />
+```
+
+## Initials Avatars
+
+Avatars can display initials derived from a user's name. This is useful when an image is not available.
+
+```jsx
+<Avatar name="Nova Spark" alt="Avatar for Nova Spark" />
+```
+
+## Sized and Shaped Avatars
+
+The size and shape of the avatar can be customized. Available sizes are small, medium, large, and xlarge. Shapes can be circle, rounded, or square.
+
+```jsx
+<Avatar name="NS" alt="NS small" size="small" shape="rounded" />

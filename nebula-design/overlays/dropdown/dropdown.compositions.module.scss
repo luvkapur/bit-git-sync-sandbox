@@ -1,0 +1,126 @@
+.compositionHost {
+  padding: var(--spacing-l);
+  background-color: var(--colors-surface-background);
+  color: var(--colors-text-default);
+  font-family: var(--typography-font-family);
+  min-height: 250px; // Ensure space for dropdowns to open
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.placeholderButton {
+  padding: var(--spacing-s) var(--spacing-m);
+  background-color: var(--colors-primary-default);
+  color: var(--colors-text-inverse) !important;
+  border: none;
+  border-radius: var(--borders-radius-medium);
+  cursor: var(--interactions-cursor-pointer);
+  font-family: var(--typography-font-family);
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  transition: background-color 0.15s ease-in-out;
+}
+
+.placeholderButton:hover {
+  background-color: var(--colors-primary-hover);
+}
+
+.placeholderButton:focus-visible {
+  outline: var(--borders-focus-width) var(--borders-focus-style) var(--colors-border-interactive);
+  outline-offset: var(--borders-focus-offset);
+}
+
+.dropdownContentList {
+  // This class is for the wrapper of menu items if needed,
+  // but individual items (buttons/links) are styled by dropdown.module.scss
+  display: flex;
+  flex-direction: column;
+}
+
+
+// For DropdownWithDifferentPositions
+.positionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-xxl) var(--spacing-xl); // Increased gap for better spacing
+  align-items: start; // Align items to the start to see dropdowns correctly
+  justify-items: center;
+  padding: var(--spacing-xl);
+  background-color: var(--colors-surface-primary); // Use surface-primary for contrast
+  border-radius: var(--borders-radius-container);
+  min-height: 500px; // Ensure enough height for all dropdowns
+}
+
+.positionItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-m);
+  margin-top: var(--spacing-l); // Add margin for top-positioned dropdowns
+  margin-bottom: var(--spacing-l); // Add margin for bottom-positioned dropdowns
+}
+
+.positionLabel {
+  font-size: 0.875rem;
+  color: var(--colors-text-secondary);
+  font-weight: 500; // Medium weight for labels
+}
+
+// For DropdownWithCustomStyling
+.customStyledPlaceholder {
+  padding: var(--spacing-m) var(--spacing-l);
+  background-color: var(--colors-secondary-default);
+  color: var(--colors-text-inverse) !important;
+  border: 1px solid var(--colors-secondary-active);
+  border-radius: var(--borders-radius-large);
+  font-weight: bold;
+  box-shadow: var(--shadows-medium);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  cursor: var(--interactions-cursor-pointer);
+}
+
+.customStyledPlaceholder:hover {
+  background-color: var(--colors-secondary-hover);
+}
+
+.customDropdownContentWrapper {
+  padding: var(--spacing-m); // This is for the direct child of Dropdown, not the one styled by dropdown.module.scss
+}
+
+.customDropdownContentWrapper h4 {
+  color: var(--colors-text-interactive-default);
+  margin-top: 0;
+  margin-bottom: var(--spacing-m);
+  font-family: var(--typography-font-family); // Ensure heading font if different
+}
+
+.customDropdownContentWrapper p {
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-m);
+  color: var(--colors-text-secondary);
+}
+
+.customDropdownContentWrapper .actionButton {
+  // Styles for a button *inside* the custom content, already covered by dropdown.module.scss if it's a <button>
+  // If more specific styling is needed:
+  background-color: var(--colors-status-success-default);
+  color: var(--colors-text-inverse) !important;
+}
+
+.customDropdownContentWrapper .actionButton:hover {
+  background-color: var(--colors-status-success-subtle);
+  color: var(--colors-status-success-default) !important;
+}
+
+.simpleContent {
+  padding: var(--spacing-s);
+  font-size: 0.9rem;
+}
+.simpleContent p {
+  margin-bottom: var(--spacing-xs);
+}

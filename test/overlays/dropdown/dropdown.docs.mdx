@@ -1,0 +1,31 @@
+---
+description: A flexible and accessible dropdown component that renders interactive content within a visually distinct overlay.
+labels: ['dropdown', 'ui', 'interactive']
+---
+
+## Basic Usage
+
+The `Dropdown` component accepts a `placeholder` which acts as the trigger for opening the dropdown, and `children` which represent the content to be displayed within the dropdown overlay.
+
+```jsx
+<Dropdown placeholder={<button>Open Dropdown</button>}>
+  <div>Dropdown Content</div>
+</Dropdown>
+```
+## Positioning the Dropdown
+The `openPosition` prop allows you to control the placement of the dropdown relative to the placeholder. Available options are `top-left`, `top-right`, `bottom-left`, and `bottom-right`.
+```jsx
+<Dropdown placeholder={<button>Open Dropdown</button>} openPosition="top-right">
+  <div>Dropdown Content</div>
+</Dropdown>
+```
+## Custom Styling
+You can apply custom styles to the dropdown container and content using the `className` and `contentClassName` props, respectively.
+```jsx
+<Dropdown
+  placeholder={<button>Open Dropdown</button>}
+  className="custom-dropdown"
+  contentClassName="custom-dropdown-content"
+>
+  <div>Dropdown Content</div>
+</Dropdown>

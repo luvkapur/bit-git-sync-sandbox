@@ -1,0 +1,72 @@
+---
+description: A versatile link component that supports both internal and external navigation, with re-exported React Router hooks.
+labels: ['link', 'navigation', 'react-router']
+---
+
+The `Link` component provides a unified way to handle both internal and external links within your application. It leverages React Router for internal navigation and standard `<a>` tags for external links, offering a consistent API. It also re-exports useful hooks from `react-router-dom`.
+
+## Component Usage
+
+Use the `Link` component for navigation within your application or to external websites. It intelligently determines whether to use React Router for internal links or standard HTML for external links.
+
+## Examples
+
+### Internal Links
+
+Demonstrates basic internal navigation using React Router.
+
+```jsx
+<MemoryRouter initialEntries={['/']}>
+  <Link href="/page1">Go to Page 1</Link>
+  
+  <Routes>
+    {/* <Route path="/page1" element={<div>Page 1 Content</div>} /> */}
+      {/* Page1 content here */}
+    {/* </Route> */}
+  </Routes>
+</MemoryRouter>
+```
+
+### External Links
+
+Shows how to create links that open in a new tab and navigate to external websites.
+
+```jsx
+<Link href="https://example.com" external>
+  Visit Example.com
+</Link>
+```
+
+### Styled Link with Click Handler
+
+Illustrates how to apply custom styles and attach a click handler to a Link component.
+
+```jsx
+<MemoryRouter>
+  <Link
+    href="/custom-page"
+    className="custom-link"
+    onClick={() => alert('Link clicked!')}
+  >
+    Custom Styled Link
+  </Link>
+  
+  <Routes>
+    {/* <Route path="/custom-page" element={<div>Custom Page Content</div>} /> */}
+      {/* Custom page content here */}
+    {/* </Route> */}
+  </Routes>
+  
+  <style>
+    {`
+      .custom-link {
+        color: blue;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      .custom-link:hover {
+        text-decoration: underline;
+      }
+    `}
+  </style>
+</MemoryRouter>

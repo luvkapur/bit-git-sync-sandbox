@@ -1,0 +1,56 @@
+.spinner {
+  // Dynamically set width and height based on --spinner-size CSS custom property.
+  // No default fallback here as size is always provided by the component (defaulting to 24px).
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+
+  // Dynamically set border thickness based on --spinner-thickness CSS custom property.
+  // No default fallback here as thickness is always provided (defaulting to 3px).
+  border-width: var(--spinner-thickness);
+  border-style: solid;
+
+  // Set the track color of the spinner.
+  // It uses the --spinner-track-color custom property if provided via inline style (from trackColor prop).
+  // Otherwise, it falls back to the theme's default border color.
+  border-color: var(--spinner-track-color, var(--colors-border-default));
+
+  // Set the active color of the spinner (the spinning part).
+  // It uses the --spinner-color custom property if provided via inline style (from color prop).
+  // Otherwise, it falls back to the theme's primary color.
+  // Only the top border is colored to create the arc effect for the spinner.
+  border-top-color: var(--spinner-color, var(--colors-primary-default));
+
+  border-radius: 50%; // Ensures the spinner is circular.
+  box-sizing: border-box; // Includes padding and border in the element's total width and height.
+
+  // Apply the spin animation.
+  // The animation duration uses --interactions-transitions-duration-very-slow from the theme,
+  // which is typically around 1 second, suitable for a continuous spinner.
+  // 'linear' timing function ensures a smooth, constant rotation.
+  // 'infinite' makes the animation loop continuously.
+  animation: spin var(--interactions-transitions-duration-very-slow) linear infinite;
+}
+
+// Defines the rotation animation for the spinner.
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Utility class to visually hide elements while keeping them accessible to screen readers.
+// Used for the "Loading..." text within the spinner.
+.visuallyHidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  white-space: nowrap; // Prevents text from wrapping to a new line.
+}

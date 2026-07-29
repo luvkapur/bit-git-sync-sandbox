@@ -1,0 +1,50 @@
+---
+description: A component that displays contextual information when a user hovers over or focuses on an element.
+labels: ['tooltip', 'ui', 'feedback']
+---
+
+The Tooltip component provides additional information about an element when the user hovers over it or focuses on it using the keyboard. It's useful for explaining unfamiliar icons, clarifying button functions, or providing hints within a form.
+
+## Basic Tooltip
+
+A simple tooltip that displays text when hovering over or focusing on a button.
+
+```jsx
+<Tooltip content="This is a basic tooltip!">
+  <button>Hover or Focus Me</button>
+</Tooltip>
+```
+
+## Tooltip Positions
+
+The tooltip position can be adjusted to appear on the top, bottom, left, or right of the trigger element.
+
+```jsx
+<div style={{ display: 'flex', gap: '10px' }}>
+  <Tooltip content="Tooltip on top" position="top">
+    <span>Top</span>
+  </Tooltip>
+  <Tooltip content="Tooltip on bottom" position="bottom">
+    <span>Bottom</span>
+  </Tooltip>
+  <Tooltip content="Tooltip on left" position="left">
+    <span>Left</span>
+  </Tooltip>
+  <Tooltip content="Tooltip on right" position="right">
+    <span>Right</span>
+  </Tooltip>
+</div>
+```
+
+## Delayed Tooltip
+
+Tooltips can be configured to appear and disappear after a specified delay. This is useful to prevent tooltips from appearing too quickly or disappearing too abruptly.
+
+```jsx
+<Tooltip
+  content="Appears after 500ms, disappears after 300ms."
+  enterDelay={500}
+  leaveDelay={300}
+>
+  <button>Hover for Delayed Tooltip</button>
+</Tooltip>

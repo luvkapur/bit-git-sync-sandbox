@@ -1,0 +1,95 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-default) var(--spacing-large);
+  border-radius: var(--borders-radius-medium);
+  font-family: var(--typography-font-family);
+  font-weight: var(--typography-font-weight-semi-bold);
+  font-size: var(--typography-sizes-body-default);
+  text-decoration: none;
+  cursor: var(--interactions-cursor-pointer);
+  transition:
+    background-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out),
+    color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out),
+    border-color var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out),
+    box-shadow var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-in-out);
+  border: 1px solid transparent; // Base border to prevent layout shifts
+  box-sizing: border-box;
+  line-height: var(--typography-line-height-base); // Ensure consistent line height
+  white-space: nowrap; // Prevent text wrapping
+  vertical-align: middle; // Align with adjacent text/elements
+}
+
+// Primary Appearance
+.primary {
+  background-color: var(--colors-primary-default);
+  color: var(--colors-text-inverse) !important;
+  border-color: var(--colors-primary-default);
+}
+
+.primary:hover:not(.disabled) {
+  background-color: var(--colors-primary-hover);
+  border-color: var(--colors-primary-hover);
+  box-shadow: var(--effects-shadows-small);
+}
+
+.primary:active:not(.disabled) {
+  background-color: var(--colors-primary-active);
+  border-color: var(--colors-primary-active);
+  box-shadow: var(--effects-shadows-inset);
+}
+
+// Secondary Appearance
+.secondary {
+  background-color: var(--colors-secondary-default);
+  color: var(--colors-text-primary);
+  border-color: var(--colors-border-default);
+}
+
+.secondary:hover:not(.disabled) {
+  background-color: var(--colors-secondary-hover);
+  border-color: var(--colors-border-default); // Or --colors-border-interactive-default if more emphasis is needed
+  box-shadow: var(--effects-shadows-small);
+}
+
+.secondary:active:not(.disabled) {
+  background-color: var(--colors-secondary-active);
+  border-color: var(--colors-border-default);
+  box-shadow: var(--effects-shadows-inset);
+}
+
+// Tertiary Appearance
+.tertiary {
+  background-color: transparent;
+  color: var(--colors-text-interactive-default);
+  border-color: transparent;
+}
+
+.tertiary:hover:not(.disabled) {
+  background-color: var(--colors-surface-secondary);
+  color: var(--colors-text-interactive-default); // Or a slightly brighter interactive color if available
+}
+
+.tertiary:active:not(.disabled) {
+  background-color: var(--colors-surface-secondary); // Keep hover background
+  box-shadow: var(--effects-shadows-inset);
+  color: var(--colors-text-interactive-default);
+}
+
+// Disabled State
+.disabled {
+  cursor: var(--interactions-cursor-disabled);
+  opacity: var(--effects-opacity-disabled);
+  pointer-events: none; // Ensures no interaction, especially for link-buttons
+}
+
+// Specific adjustments for Link component rendered as button
+.buttonAsLink {
+  // Ensures Link component visually integrates as a button
+}
+
+.buttonAsLink.disabled {
+  // Additional styles if Link component needs specific disabled handling not covered by .disabled
+  // pointer-events: none is already in .disabled, this is mostly a placeholder
+}

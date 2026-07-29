@@ -1,0 +1,54 @@
+---
+description: A styled dropdown component for Nebula themes, providing flexible content display.
+labels: ['dropdown', 'ui', 'nebula']
+---
+
+The `Dropdown` component provides a styled dropdown for Nebula themes. It allows you to display content in a dropdown panel when triggered by a placeholder element.
+
+## Basic Usage
+
+The most basic usage involves wrapping your content with the `Dropdown` component and providing a placeholder to trigger the dropdown.
+
+```jsx
+import { NebulaTheme } from '@luvktest/nebula-design.nebula-theme'; // Assuming NebulaTheme is available
+import { Dropdown } from './dropdown.js'; // Assuming Dropdown is in the same directory or appropriately aliased
+
+<NebulaTheme>
+  <Dropdown placeholder={<button type="button">Open Dropdown</button>}>
+    <div>Dropdown Content</div>
+  </Dropdown>
+</NebulaTheme>
+```
+
+## Dropdown with Different Positions
+
+The `openPosition` prop allows you to control where the dropdown panel appears relative to the placeholder.
+
+```jsx
+import { NebulaTheme } from '@luvktest/nebula-design.nebula-theme';
+import { Dropdown } from './dropdown.js';
+
+<NebulaTheme>
+  <Dropdown placeholder={<button type="button">Open Dropdown</button>} openPosition="top-right">
+    <div>Dropdown Content</div>
+  </Dropdown>
+</NebulaTheme>
+```
+
+## Custom Styling
+
+You can apply custom styling to both the placeholder and the dropdown content using the `className` and `contentClassName` props, respectively.
+
+```jsx
+import { NebulaTheme } from '@luvktest/nebula-design.nebula-theme';
+import { Dropdown } from './dropdown.js';
+
+<NebulaTheme>
+  <Dropdown
+    placeholder={<button type="button">Open Dropdown</button>}
+    className="custom-dropdown"
+    contentClassName="custom-dropdown-content"
+  >
+    <div>Dropdown Content</div>
+  </Dropdown>
+</NebulaTheme>

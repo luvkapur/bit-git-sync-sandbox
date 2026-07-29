@@ -1,0 +1,10 @@
+.image {
+  display: block; // Ensures the image is treated as a block-level element for layout purposes
+  max-width: 100%; // Makes the image responsive by default, ensuring it doesn't overflow its container
+  height: auto; // Maintains aspect ratio when max-width is applied, can be overridden by props
+  border-radius: var(--borders-radius-medium); // Applies a medium rounded corner using Nebula theme token
+  box-shadow: var(--shadows-small); // Applies a small shadow effect using Nebula theme token
+  background-color: var(--colors-surface-secondary); // Provides a subtle background, visible if image is transparent or during loading if image takes time to load
+  // object-fit is applied via inline style in the component for dynamic control (based on width, height, objectFit props)
+  box-sizing: border-box; // Ensures padding and border (if any were added) do not increase the element's total width/height beyond specified values
+}

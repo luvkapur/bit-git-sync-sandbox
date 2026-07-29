@@ -1,0 +1,19 @@
+.paragraph {
+  font-family: var(--typography-font-family);
+  color: var(--colors-text-primary);
+  font-size: var(--typography-sizes-body-default);
+  line-height: var(--typography-line-height-base);
+  font-weight: var(--typography-font-weight-regular);
+  margin-top: 0;
+  margin-bottom: var(--spacing-default);
+  box-sizing: border-box; // Ensures padding and border don't affect overall dimensions
+}
+
+// Styles for different paragraph elements if needed, e.g., blockquote
+.paragraph:is(blockquote) {
+  margin-left: var(--spacing-large); // Example for blockquote indentation
+  padding-left: var(--spacing-default);
+  border-left: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+  font-style: italic;
+  color: var(--colors-text-secondary); // Slightly different color for quotes
+}

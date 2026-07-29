@@ -1,0 +1,83 @@
+---
+description: A custom dropdown component for selecting options from a list, styled for the Nebula theme.
+labels: ['select-list', 'form', 'input', 'ui']
+---
+
+The `SelectList` component provides a styled dropdown for selecting options. It supports controlled and uncontrolled modes, custom styling, and accessibility features, designed to integrate seamlessly with the Nebula theme.
+
+## Usage
+
+### Basic Example
+
+A basic uncontrolled `SelectList` with a placeholder and a few options:
+
+```jsx
+const optionsListOne = [ // Renamed to avoid conflict if examples were in same scope
+  { value: 'option1', label: 'Option 1' },
+  { value: 'option2', label: 'Option 2' },
+  { value: 'option3', label: 'Option 3' },
+];
+
+const BasicSelectList = () => {
+  // Assuming React, useState, SelectList, SelectListItemType are globally available or provided by the MDX environment
+  const [selectedValue, setSelectedValue] = React.useState(undefined);
+  return (
+    <SelectList
+      options={optionsListOne}
+      value={selectedValue}
+      onChange={setSelectedValue}
+      placeholder="Select an option..."
+    />
+  );
+};
+
+<BasicSelectList />
+```
+
+### Controlled Example
+
+A controlled `SelectList` where the value is managed externally:
+
+```jsx
+const optionsListTwo = [ // Renamed to avoid conflict
+  { value: 'option1', label: 'Option 1' },
+  { value: 'option2', label: 'Option 2' },
+];
+
+const ControlledSelectList = () => {
+  // Assuming React, useState, SelectList, SelectListItemType are globally available
+  const [selectedValue, setSelectedValue] = React.useState('option2');
+  return (
+    <SelectList
+      options={optionsListTwo}
+      value={selectedValue}
+      onChange={setSelectedValue}
+      placeholder="Select an option..."
+    />
+  );
+};
+
+<ControlledSelectList />
+```
+
+### Disabled Example
+
+A `SelectList` in a disabled state:
+
+```jsx
+const optionsListThree = [ // Renamed to avoid conflict
+  { value: 'option1', label: 'Option 1' },
+  { value: 'option2', label: 'Option 2' },
+];
+
+const DisabledSelectList = () => (
+  // Assuming SelectList, SelectListItemType are globally available
+  <SelectList
+    options={optionsListThree}
+    value="option1"
+    disabled={true}
+    placeholder="Select an option..."
+  />
+);
+
+<DisabledSelectList />

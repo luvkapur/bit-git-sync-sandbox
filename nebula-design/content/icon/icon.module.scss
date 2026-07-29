@@ -1,0 +1,14 @@
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0; /* Prevents shrinking when in a flex container */
+  line-height: 1; /* Prevents extra space below if used inline with text */
+  /* Path elements inside will inherit fill/stroke from the SVG element by default.
+     This allows the 'color' prop (mapped to 'fill' on the svg) to cascade,
+     or paths can be styled directly if needed. */
+}
+
+.clickable {
+  /* Use theme variable for cursor, with a standard fallback */
+  cursor: var(--interactions-cursor-pointer, pointer);
+}

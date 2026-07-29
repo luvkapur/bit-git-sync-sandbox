@@ -1,0 +1,126 @@
+---
+description: A customizable text input component styled for the Nebula theme.
+labels: ['text-input', 'ui', 'form']
+---
+
+A customizable text input component styled for the Nebula theme.
+It allows users to enter and edit text, supporting various types and styles,
+and visually aligns with Nebula's design tokens for colors, borders, and spacing.
+
+## Basic Text Input
+
+This example shows a basic text input field where users can enter their name. The entered value is displayed below the input.
+
+```jsx
+<NebulaTheme>
+  <div style={{
+      padding: 'var(--spacing-l)',
+      backgroundColor: 'var(--colors-surface-background)',
+      width: '350px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 'var(--spacing-m)',
+      borderRadius: 'var(--borders-radius-container)',
+    }}>
+    <label htmlFor="basic-nebula-input" style={{
+        display: 'block',
+        marginBottom: 'var(--spacing-xs)',
+        color: 'var(--colors-text-default)',
+        fontFamily: 'var(--typography-font-family)',
+      }}>
+      Your Name:
+    </label>
+    <TextInput
+      id="basic-nebula-input"
+      value="Nova Stardust"
+      onChange={() => {}}
+      placeholder="e.g., Nova Stardust"
+    />
+    <p style={{
+        marginTop: 'var(--spacing-s)',
+        color: 'var(--colors-text-secondary)',
+        fontFamily: 'var(--typography-font-family)',
+        fontSize: '0.9em',
+      }}>Entered Name: Nova Stardust</p>
+  </div>
+</NebulaTheme>
+```
+
+## Password Input
+
+This example demonstrates a password input field. As the user types, the password length is displayed.
+
+```jsx
+<NebulaTheme>
+  <div style={{
+      padding: 'var(--spacing-l)',
+      backgroundColor: 'var(--colors-surface-background)',
+      width: '350px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 'var(--spacing-m)',
+      borderRadius: 'var(--borders-radius-container)',
+    }}>
+    <label htmlFor="password-nebula-input" style={{
+        display: 'block',
+        marginBottom: 'var(--spacing-xs)',
+        color: 'var(--colors-text-default)',
+        fontFamily: 'var(--typography-font-family)',
+      }}>
+      Secure Password:
+    </label>
+    <TextInput
+      id="password-nebula-input"
+      type="password"
+      value="secret"
+      onChange={() => {}}
+      placeholder="Enter your secret phrase"
+      name="nebula-password"
+    />
+    {true && <p style={{
+          marginTop: 'var(--spacing-s)',
+          color: 'var(--colors-text-secondary)',
+          fontFamily: 'var(--typography-font-family)',
+          fontSize: '0.9em',
+        }}>Password length: 6</p>}
+  </div>
+</NebulaTheme>
+```
+
+## Disabled Text Input
+
+This example shows a disabled text input field, typically used for read-only values.
+
+```jsx
+<NebulaTheme>
+  <div style={{
+      padding: 'var(--spacing-l)',
+      backgroundColor: 'var(--colors-surface-background)',
+      width: '350px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 'var(--spacing-m)',
+      borderRadius: 'var(--borders-radius-container)',
+    }}>
+    <label htmlFor="disabled-nebula-input" style={{
+        display: 'block',
+        marginBottom: 'var(--spacing-xs)',
+        color: 'var(--colors-text-default)',
+        fontFamily: 'var(--typography-font-family)',
+      }}>
+      System ID (Read-only):
+    </label>
+    <TextInput
+      id="disabled-nebula-input"
+      value="NBL-SYS-001-ALPHA"
+      onChange={() => {}}
+      disabled={true}
+    />
+    <p style={{
+        marginTop: 'var(--spacing-s)',
+        color: 'var(--colors-text-secondary)',
+        fontFamily: 'var(--typography-font-family)',
+        fontSize: '0.9em',
+      }}>This field is locked and cannot be edited.</p>
+  </div>
+</NebulaTheme>

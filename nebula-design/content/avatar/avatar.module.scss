@@ -1,0 +1,196 @@
+.avatarContainer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* For status indicator positioning */
+  overflow: hidden; /* Ensures content (image/initials) respects border-radius */
+  font-family: var(--typography-font-family);
+  color: var(--colors-text-default); // Text color for initials, changed from text-primary to text-default for better theme flexibility
+  background-color: var(--colors-surface-secondary); // Background for initials if no image
+  box-sizing: border-box;
+  vertical-align: middle; // Better alignment with surrounding text/elements
+  flex-shrink: 0; // Prevent shrinking in flex layouts
+  // Hardcoded transition values as per Nebula theme requirements
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.avatarContainer.clickable {
+  cursor: var(--interactions-cursor-pointer);
+}
+
+.avatarContainer.clickable:hover {
+  // Hardcoded transform scale as per Nebula theme requirements
+  transform: scale(1.05);
+  box-shadow: var(--shadows-medium); // Updated to use Nebula shadow token
+}
+
+.avatarContainer.clickable:active {
+  transform: scale(0.98); // Slightly smaller on click
+  box-shadow: var(--shadows-small); // Updated to use Nebula shadow token
+}
+
+// Sizes
+.small {
+  width: 32px;
+  height: 32px;
+  // Hardcoded font size as per Nebula theme requirements
+  font-size: 12px;
+}
+
+.medium {
+  width: 48px;
+  height: 48px;
+  // Hardcoded font size as per Nebula theme requirements
+  font-size: 14px;
+}
+
+.large {
+  width: 64px;
+  height: 64px;
+  // Hardcoded font size as per Nebula theme requirements
+  font-size: 16px;
+}
+
+.xlarge {
+  width: 96px;
+  height: 96px;
+  // Hardcoded font size as per Nebula theme requirements
+  font-size: 20px;
+}
+
+// Shapes
+.circle {
+  border-radius: var(--borders-radius-circle);
+}
+
+.square {
+  border-radius: 0; // Explicitly 0 for square, no specific token needed
+}
+
+.rounded {
+  border-radius: var(--borders-radius-medium); // Nebula theme's medium radius
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; // Ensures image covers the area without distortion
+  display: block; // Removes extra space below image
+}
+
+.initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  // Hardcoded font weight as per Nebula theme requirements
+  font-weight: 500;
+  user-select: none; // Prevents text selection of initials
+  // Hardcoded line height as per Nebula theme requirements
+  line-height: 1.5;
+}
+
+// Status Indicator
+.statusIndicator {
+  position: absolute;
+  width: 25%; // Relative to avatar size
+  height: 25%; // Relative to avatar size
+  min-width: 8px; // Minimum size for visibility
+  min-height: 8px; // Minimum size for visibility
+  border-radius: var(--borders-radius-circle);
+  border: 2px solid var(--colors-surface-background); // Border color against the page background for better contrast
+  box-sizing: border-box; // Include border in width/height
+  box-shadow: var(--shadows-small); // Updated to use Nebula shadow token, subtle shadow for depth
+}
+
+// Status Indicator Positions
+.topLeft {
+  top: 0;
+  left: 0;
+  transform: translate(-20%, -20%); // Slight offset for better visual
+}
+
+.topRight {
+  top: 0;
+  right: 0;
+  transform: translate(20%, -20%); // Slight offset
+}
+
+.bottomLeft {
+  bottom: 0;
+  left: 0;
+  transform: translate(-20%, 20%); // Slight offset
+}
+
+.bottomRight {
+  bottom: 0;
+  right: 0;
+  transform: translate(20%, 20%); // Slight offset
+}
+
+// Adjust transform for square avatars if needed to hug corners better
+.square .topLeft { transform: translate(0,0); }
+.square .topRight { transform: translate(0,0); }
+.square .bottomLeft { transform: translate(0,0); }
+.square .bottomRight { transform: translate(0,0); }
+
+
+// Status Colors - Updated to use Nebula theme tokens
+.online {
+  background-color: var(--colors-status-success-default); // Nebula: success color (cyan)
+}
+
+.offline {
+  background-color: var(--colors-text-secondary); // Nebula: neutral gray for offline
+}
+
+.busy {
+  background-color: var(--colors-status-error-default); // Nebula: error color
+}
+
+.away {
+  background-color: var(--colors-status-warning-default); // Nebula: warning color
+}
+
+// Responsive adjustments
+@media (max-width: 480px) { // $tablet breakpoint
+  .small {
+    width: 28px;
+    height: 28px;
+    // Hardcoded font size for responsiveness as per Nebula theme requirements
+    font-size: 11px;
+  }
+  .medium {
+    width: 40px;
+    height: 40px;
+  }
+  .large {
+    width: 56px;
+    height: 56px;
+  }
+  .xlarge {
+    width: 80px;
+    height: 80px;
+  }
+
+  .statusIndicator {
+    min-width: 6px;
+    min-height: 6px;
+    border-width: 1.5px; // Slightly thinner border on smaller screens
+    // Adjust offset for smaller screens if needed
+    transform: translate(15%, 15%); // General smaller offset for bottom-right
+  }
+
+  // Specific adjustments for other positions on small screens
+  .topLeft { transform: translate(-15%, -15%); }
+  .topRight { transform: translate(15%, -15%); }
+  .bottomLeft { transform: translate(-15%, 15%); }
+  // .bottomRight is covered by the general statusIndicator transform above for small screens
+
+  .square .topLeft { transform: translate(0,0); }
+  .square .topRight { transform: translate(0,0); }
+  .square .bottomLeft { transform: translate(0,0); }
+  .square .bottomRight { transform: translate(0,0); }
+}

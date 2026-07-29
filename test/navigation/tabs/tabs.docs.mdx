@@ -1,0 +1,33 @@
+---
+description: Tabs component renders a container for content, optionally with a title.
+labels: ['ui', 'container']
+---
+
+## Basic Tabs
+
+The most basic usage of the `Tabs` component involves wrapping content within the component.
+
+```jsx
+<Tabs>
+  <div>This is the content of the first tab panel.</div>
+</Tabs>
+```
+
+## Tabs with Title
+
+You can add a title to the Tabs component using the `title` prop. This title will be displayed above the content area.
+
+```jsx
+<Tabs title="Section Title">
+  <div>This tab container has a title: "Section Title".</div>
+</Tabs>
+```
+
+## Minimal Variant Tabs
+
+The `Tabs` component supports a `minimal` variant, which provides a more subtle appearance, often with just a separator line instead of a full background.
+
+```jsx
+<Tabs variant="minimal">
+  <div>This tab container uses the minimal variant.</div>
+</Tabs>

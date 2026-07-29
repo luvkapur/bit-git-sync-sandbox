@@ -1,0 +1,30 @@
+---
+description: A versatile and visually engaging card component that serves as a flexible container for various content types, including an optional header, footer, image, and title. Styled with Nebula theme tokens.
+labels: ['card', 'ui', 'nebula']
+---
+
+## Basic Card Usage
+The Card component can display content, a title, and an optional image.
+
+```jsx
+<Card title="Nebula Card">
+  <p>This is a basic card example.</p>
+</Card>
+```
+## Card with Header and Footer
+Cards can include headers and footers for additional context or actions.
+```jsx
+<Card
+  header={<h4>Card Header</h4>}
+  title="Card Title"
+  footer={<button>Learn More</button>}
+>
+  <p>This card has a header and footer.</p>
+</Card>
+```
+## Interactive Card
+The `interactive` prop adds hover and focus effects, making the card clickable.
+```jsx
+<Card title="Interactive Card" interactive>
+  <p>Hover or focus to see the interactive effect.</p>
+</Card>

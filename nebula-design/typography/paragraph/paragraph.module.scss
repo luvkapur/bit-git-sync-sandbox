@@ -1,0 +1,16 @@
+.paragraph {
+  font-family: var(--typography-font-family);
+  color: var(--colors-text-default);
+  // Font size, line height, and weight are expected to be inherited or set by the base theme/typography component
+  margin-top: 0;
+  margin-bottom: var(--spacing-m); // Using Nebula spacing token
+  box-sizing: border-box;
+}
+
+.paragraph:is(blockquote) {
+  margin-left: var(--spacing-l); // Using Nebula spacing token
+  padding-left: var(--spacing-m); // Using Nebula spacing token
+  border-left: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default); // Using Nebula border tokens
+  font-style: italic;
+  color: var(--colors-text-secondary); // Using Nebula text token
+}

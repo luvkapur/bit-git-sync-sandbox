@@ -1,0 +1,40 @@
+---
+description: A semantic and visually consistent heading component that enhances content structure and readability.
+labels: ['heading', 'ui', 'typography']
+---
+
+## Basic Usage
+
+This example demonstrates the basic usage of the `Heading` component with different semantic levels.
+
+```jsx
+<Heading level={1}>Level 1 Heading</Heading>
+<Heading level={2}>Level 2 Heading</Heading>
+<Heading level={3}>Level 3 Heading</Heading>
+```
+
+## Visual Level Override
+
+Here's how to use the `visualLevel` prop to override the default visual styling of a heading, decoupling the semantic level from the visual appearance.
+
+```jsx
+<Heading level={1} visualLevel={3}>
+  Semantic H1, Visual H3
+</Heading>
+<Heading level={4} visualLevel={2}>
+  Semantic H4, Visual H2
+</Heading>
+```
+
+## Custom Styling
+
+You can apply custom styles to the `Heading` component using the `className` and `style` props.
+
+```jsx
+<Heading
+  level={2}
+  className="custom-heading-class"
+  style={{ color: 'var(--colors-text-interactive-default)' }}
+>
+  Custom Styled H2
+</Heading>

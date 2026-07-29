@@ -1,0 +1,35 @@
+---
+description: Paragraph component for rendering text content, styled with Nebula theme tokens.
+labels: ['paragraph', 'typography', 'nebula']
+---
+
+The Paragraph component is designed to render text content with styling that adheres to the Nebula theme. It provides a consistent typographic appearance throughout the user interface.
+
+## Basic Usage
+
+This example demonstrates the basic usage of the Paragraph component within the Nebula theme.
+
+```jsx
+<Paragraph>
+  This is a standard paragraph within the Nebula theme. It utilizes the default 'p' HTML element and showcases the fundamental typography for body text.
+</Paragraph>
+```
+
+## Paragraph as Various Elements
+
+The Paragraph component can be rendered as different HTML elements, allowing for semantic correctness while maintaining consistent styling.
+
+```jsx
+<Paragraph element="div">
+  This content is rendered as a div, styled as a paragraph. This is useful when a block-level container with paragraph styling is needed, but 'p' is not semantically appropriate in the Nebula-themed layout.
+</Paragraph>
+```
+
+## Blockquote Paragraph
+
+This example shows how to use the Paragraph component to render a blockquote with Nebula's distinct styling for quoted text.
+
+```jsx
+<Paragraph element="blockquote">
+  "In the vast expanse of the digital cosmos, Nebula provides clarity and order." - A Future Visionary.
+</Paragraph>

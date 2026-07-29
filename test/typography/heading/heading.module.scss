@@ -1,0 +1,41 @@
+.baseHeading {
+  font-family: var(--typography-font-family);
+  color: var(--colors-text-primary);
+  font-weight: var(--typography-font-weight-bold);
+  line-height: var(--typography-line-height-heading);
+  margin-block-start: 0;
+  margin-block-end: var(--spacing-default);
+  box-sizing: border-box;
+}
+
+// Visual styles for heading levels
+// Levels 1-3 use headline tokens
+.h1Style {
+  font-size: var(--typography-sizes-heading-h1);
+  letter-spacing: var(--typography-letter-spacing-tight); // Enhance larger headings
+}
+
+.h2Style {
+  font-size: var(--typography-sizes-heading-h2);
+  letter-spacing: var(--typography-letter-spacing-tight); // Enhance larger headings
+}
+
+.h3Style {
+  font-size: var(--typography-sizes-heading-h3);
+}
+
+// Levels 4-6 use body tokens as per requirement
+.h4Style {
+  font-size: var(--typography-sizes-body-large);
+  // Maintain heading characteristics like bold weight and line height
+}
+
+.h5Style {
+  font-size: var(--typography-sizes-body-medium);
+  // Maintain heading characteristics
+}
+
+.h6Style {
+  font-size: var(--typography-sizes-body-default);
+  // Maintain heading characteristics
+}

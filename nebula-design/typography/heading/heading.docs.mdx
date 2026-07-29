@@ -1,0 +1,36 @@
+---
+description: Heading component for rendering semantic HTML heading elements (h1-h6) with controllable visual styling.
+labels: ['heading', 'ui', 'typography']
+---
+
+The `Heading` component renders semantic HTML heading elements (h1-h6) with configurable visual styling. It supports theme integration for typography tokens, including font family, and allows decoupling semantic structure from visual presentation.
+
+## Basic Usage
+
+The `Heading` component can be used to render headings of different levels. The `level` prop determines the semantic level of the heading (h1-h6).
+
+```jsx
+<Heading level={1}>This is an H1 Heading</Heading>
+<Heading level={2}>This is an H2 Heading</Heading>
+<Heading level={3}>This is an H3 Heading</Heading>
+```
+## Visual Level Override
+The `visualLevel` prop allows you to override the visual styling of the heading, independent of its semantic level.
+```jsx
+<Heading level={1} visualLevel={3}>
+  This is an H1 visually styled as an H3
+</Heading>
+<Heading level={4} visualLevel={1}>
+  This is an H4 visually styled as an H1
+</Heading>
+```
+## Custom Styling
+The `Heading` component accepts custom CSS class names and inline styles for further customization.
+```jsx
+<Heading
+  level={2}
+  className="custom-heading"
+  style={{ color: 'purple', textDecoration: 'underline' }}
+>
+  Custom Styled Heading
+</Heading>

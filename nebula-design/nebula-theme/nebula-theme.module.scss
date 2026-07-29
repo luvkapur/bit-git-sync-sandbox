@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.nebulaThemeRoot {
+  /* Styles applied to the root div rendered by NebulaTheme */
+  /* This div will have CSS custom properties set directly on it */
+  /* and will also wrap the AuraTheme component. */
+
+  /* Apply the base font family using the CSS variable provided by NebulaTheme itself */
+  font-family: var(--typography-font-family);
+  
+  /* Apply the base background color from tokens */
+  background-color: var(--colors-surface-background);
+  
+  /* Apply the primary text color from tokens */
+  color: var(--colors-text-primary);
+
+  /* Ensure box-sizing is consistent for all elements within the theme scope */
+  box-sizing: border-box;
+}
+
+.nebulaThemeRoot *,
+.nebulaThemeRoot *::before,
+.nebulaThemeRoot *::after {
+  /* Inherit box-sizing for all elements within the theme for easier layout management. */
+  box-sizing: inherit;
+}
+
+/* Minimal global reset for the body. */
+/* This is applied if NebulaTheme is used at the root of the application. */
+:global(body) {
+  margin: 0;
+  /* Optional: Add base font-smoothing for better text rendering globally */
+  /* -webkit-font-smoothing: antialiased; */
+  /* -moz-osx-font-smoothing: grayscale; */
+}

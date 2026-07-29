@@ -1,0 +1,88 @@
+.dropdownContainer {
+  position: relative;
+  display: inline-block; 
+  box-sizing: border-box;
+}
+
+.placeholderWrapper {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--colors-text-primary);
+  cursor: var(--interactions-cursor-pointer);
+  display: inline-flex; 
+  align-items: center; 
+  text-align: left;
+  box-sizing: border-box;
+
+  &:focus-visible {
+    outline: var(--borders-focus-width) var(--borders-focus-style) var(--colors-border-interactive-default); // Using interactive border color for focus
+    outline-offset: var(--borders-focus-offset);
+    border-radius: var(--borders-radius-small); 
+  }
+}
+
+.dropdownContent {
+  position: absolute;
+  z-index: var(--interactions-z-index-modal); 
+  background-color: var(--colors-surface-primary);
+  border: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+  border-radius: var(--borders-radius-container); 
+  box-shadow: var(--effects-shadows-large); 
+  padding: var(--spacing-default);
+  min-width: 180px; 
+  box-sizing: border-box;
+  color: var(--colors-text-primary);
+
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-out),
+              transform var(--interactions-transitions-duration-fast) var(--interactions-transitions-easing-ease-out);
+  will-change: opacity, transform; 
+
+  max-height: 300px; // Example max height for scrollability
+  overflow-y: auto;
+}
+
+.dropdownContentOpen {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.positionBottomLeft {
+  top: calc(100% + var(--spacing-small)); 
+  left: 0;
+  transform-origin: top left;
+}
+
+.positionBottomRight {
+  top: calc(100% + var(--spacing-small));
+  right: 0;
+  transform-origin: top right;
+}
+
+.positionTopLeft {
+  bottom: calc(100% + var(--spacing-small));
+  left: 0;
+  transform-origin: bottom left;
+}
+
+.positionTopRight {
+  bottom: calc(100% + var(--spacing-small));
+  right: 0;
+  transform-origin: bottom right;
+}
+
+// Example of responsive adjustments, tailor as needed
+// @media (max-width: 480px) { // Using a common breakpoint for tablets/large phones
+// .dropdownContent {
+// // Occupy more width on smaller screens, potentially behaving like a modal
+// left: var(--spacing-default);
+// right: var(--spacing-default);
+// width: auto;
+// min-width: 0; // Allow it to shrink below 180px
+// max-width: calc(100vw - (2 * var(--spacing-default))); // Prevent overflow
+// }
+// }

@@ -1,0 +1,84 @@
+---
+description: A customizable and accessible select list component.
+labels: ['select', 'list', 'form', 'ui']
+---
+
+The `SelectList` component provides a user-friendly dropdown for selecting options from a list. It supports controlled and uncontrolled modes, custom styling, and accessibility features.
+
+## Basic Usage
+
+Here's a simple example of how to use the `SelectList` component:
+
+```jsx
+const options = [
+  { value: 'option1', label: 'Option 1' },
+  { value: 'option2', label: 'Option 2' },
+  { value: 'option3', label: 'Option 3' },
+];
+function BasicSelectList() {
+  const [selectedValue, setSelectedValue] = React.useState(null);
+  const handleChange = (value) => {
+    setSelectedValue(value);
+  };
+  return (
+    <SelectList
+      options={options}
+      value={selectedValue}
+      onChange={handleChange}
+      placeholder="Select an option"
+    />
+  );
+}
+<BasicSelectList />
+```
+
+This will render a basic select list with the provided options.
+
+## Controlled Select List
+
+In this example, the `SelectList` is used in controlled mode, where the value is managed by the parent component.
+
+```jsx
+const options = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+  { value: 'cherry', label: 'Cherry' },
+];
+function ControlledSelectList() {
+  const [selectedValue, setSelectedValue] = React.useState('banana');
+  const handleChange = (value) => {
+    setSelectedValue(value);
+  };
+  return (
+    <SelectList
+      options={options}
+      value={selectedValue}
+      onChange={handleChange}
+      placeholder="Select a fruit"
+    />
+  );
+}
+<ControlledSelectList />
+```
+
+The select list will initially display "Banana" as the selected option, and the parent component will always control the selected value.
+
+## Disabled Select List
+
+This example demonstrates how to disable the `SelectList` component:
+
+```jsx
+const options = [
+  { value: 'option1', label: 'Option 1' },
+  { value: 'option2', label: 'Option 2' },
+  { value: 'option3', label: 'Option 3' },
+];
+<SelectList
+  options={options}
+  value="option2"
+  disabled
+  placeholder="This select list is disabled"
+/>
+```
+
+The select list will be disabled and users will not be able to interact with it.

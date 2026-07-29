@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
+.auraTheme {
+  // Apply the primary font family defined in tokens
+  font-family: var(--typography-font-family);
+  
+  // Apply the base background color from tokens
+  background-color: var(--colors-surface-background);
+  
+  // Apply the primary text color from tokens
+  color: var(--colors-text-primary);
+
+  // Ensure box-sizing is consistent for all elements within the theme scope
+  box-sizing: border-box;
+}
+
+.auraTheme *,
+.auraTheme *::before,
+.auraTheme *::after {
+  box-sizing: inherit;
+}
+
+// Minimal global reset for body if this theme is at the root
+:global(body) {
+  margin: 0;
+  // It's often good to set a default background and color on the body as a fallback
+  // or if the theme provider doesn't cover the entire viewport.
+  // However, the primary application of these should be via the .auraTheme class.
+}

@@ -1,0 +1,86 @@
+---
+description: A styled Link component with Nebula theme integration, supporting internal and external navigation.
+labels: ['link', 'navigation', 'nebula']
+---
+
+The `Link` component is a styled link that inherits visual properties from the Nebula theme. It supports both internal navigation using React Router and external navigation to other websites. It also re-exports React Router hooks for easy access to routing information.
+
+## Internal Links
+
+The `Link` component can be used for internal navigation within a React Router application.
+
+```jsx
+<MemoryRouter initialEntries={['/']}>
+  <NebulaTheme>
+    <Link href="/page-one">Go to Page One</Link>
+    <Routes>
+      <Route path="/page-one" element={<div>Page One Content</div>} />
+    </Routes>
+  </NebulaTheme>
+</MemoryRouter>
+```
+
+This example demonstrates how to create a link that navigates to an internal route. The `MemoryRouter` and `Routes` components are used to set up the routing context.
+
+## External Links
+
+To create an external link that opens in a new tab, use the `external` prop.
+
+```jsx
+<NebulaTheme>
+  <Link href="https://example.com" external>
+    Visit Example.com
+  </Link>
+</NebulaTheme>
+```
+
+The `external` prop automatically adds `target="_blank"` and `rel="noopener noreferrer"` attributes to the link.
+
+## Re-exported React Router Hooks
+
+The component also re-exports commonly used React Router hooks, ensuring easy access and compatibility:
+
+*   `useLocation`: Returns the current location object.
+*   `useParams`: Returns an object of URL parameters.
+*   `useNavigate`: Returns a function to navigate programmatically.
+*   `useSearchQuery`: Returns a function to work with search query parameters.
+
+Here's a simple example showcasing the usage of `useParams`:
+
+```jsx
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+// Assuming NebulaTheme and useParams are available in the scope of this example
+// For a real Bit composition or app, ensure imports are correctly handled.
+// E.g. import { useParams } from './link.js'; or from the router package.
+
+const UserPage = () => {
+    const { userId } = useParams(); // useParams is used here
+    return (
+        <div>
+            <h1>User ID: {userId}</h1>
+        </div>
+    );
+};
+
+// Example usage within a router context:
+// <MemoryRouter initialEntries={['/user/123']}>
+//     <NebulaTheme>
+//         <Routes>
+//             <Route path="/user/:userId" element={<UserPage />} />
+//         </Routes>
+//     </NebulaTheme>
+// </MemoryRouter>
+
+// For clarity, the self-contained runnable example for UserPage with router:
+const App = () => (
+  <MemoryRouter initialEntries={['/user/123']}>
+    <NebulaTheme>
+      <Routes>
+        <Route path="/user/:userId" element={<UserPage />} />
+      </Routes>
+    </NebulaTheme>
+  </MemoryRouter>
+);
+
+// If you were rendering this example directly:
+// ReactDOM.render(<App />, document.getElementById('root'));

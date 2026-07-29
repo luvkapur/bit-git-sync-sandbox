@@ -1,0 +1,22 @@
+.link {
+  color: var(--colors-text-interactive-default);
+  text-decoration: none;
+  cursor: var(--interactions-cursor-pointer);
+  font-family: var(--typography-font-family);
+  /* --interactions-transitions-duration-fast and --interactions-transitions-easing-ease-in-out are not in NebulaTheme's explicit list. */
+  /* Hardcoding transition values as per instruction: "If a token is missing, hard-code the needed value in to the component" */
+  transition: color 0.15s ease-in-out;
+}
+
+.link:hover,
+.link:focus {
+  text-decoration: underline;
+  color: var(--colors-text-interactive-hover); /* This variable IS in NebulaTheme's list */
+}
+
+.link:active {
+  text-decoration: underline;
+  /* --colors-text-interactive-active is NOT in NebulaTheme's list. */
+  /* Using hover color for active state as a common fallback. */
+  color: var(--colors-text-interactive-hover);
+}

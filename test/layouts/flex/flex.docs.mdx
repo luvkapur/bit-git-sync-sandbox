@@ -1,0 +1,33 @@
+---
+description: A flexbox layout component for arranging elements in rows and columns. Accepts style prop to allow overriding styles.
+labels: ['layout', 'flex', 'ui']
+---
+
+## Basic Row Example
+Displays items in a row with a gap between them.
+
+```jsx
+<Flex gap="var(--spacing-medium)">
+  <div>Item 1</div>
+  <div>Item 2</div>
+  <div>Item 3</div>
+</Flex>
+```
+## Column with Justified Content
+Arranges items in a column, justifying the content to distribute space evenly.
+```jsx
+<Flex flexDirection="column" justifyContent="space-between" style={{ height: '200px' }}>
+  <div>Item A</div>
+  <div>Item B</div>
+  <div>Item C</div>
+</Flex>
+```
+## Flex Wrap with Images
+Demonstrates wrapping of items within a flex container, useful for responsive layouts.
+```jsx
+<Flex flexWrap="wrap" gap="var(--spacing-medium)" style={{ maxWidth: '300px' }}>
+  <div style={{ width: '100px', height: '80px', backgroundColor: 'lightblue' }}>Item 1</div>
+  <div style={{ width: '100px', height: '80px', backgroundColor: 'lightcoral' }}>Item 2</div>
+  <div style={{ width: '100px', height: '80px', backgroundColor: 'lightgreen' }}>Item 3</div>
+  <div style={{ width: '100px', height: '80px', backgroundColor: 'lightyellow' }}>Item 4</div>
+</Flex>

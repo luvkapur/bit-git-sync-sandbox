@@ -1,0 +1,32 @@
+.textInput {
+  font-family: var(--typography-font-family);
+  color: var(--colors-text-default);
+  background-color: var(--colors-surface-primary);
+  border: var(--borders-default-width) var(--borders-default-style) var(--colors-border-default);
+  border-radius: var(--borders-radius-medium); // Nebula: "sharper corners", medium should reflect this e.g. 8px
+  padding: var(--spacing-s) var(--spacing-m);
+  font-size: 1rem; // --typography-sizes-body-default not in Nebula list
+  line-height: 1.5; // --typography-line-height-base not in Nebula list
+  box-sizing: border-box;
+  width: 100%;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; // --interactions-transitions-* not in Nebula list
+
+  &::placeholder {
+    color: var(--colors-text-secondary);
+    opacity: 0.7; // --effects-opacity-semi-opaque not in Nebula list
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--colors-border-interactive); // Nebula primary color for focus
+    // Using Nebula's primary color for the focus ring as per Nebula theme description
+    box-shadow: 0 0 0 var(--borders-focus-offset) var(--colors-border-interactive);
+  }
+
+  &:disabled {
+    background-color: var(--colors-surface-secondary);
+    color: var(--colors-text-disabled);
+    cursor: var(--interactions-cursor-disabled);
+    opacity: 0.5; // --effects-opacity-disabled not in Nebula list
+  }
+}

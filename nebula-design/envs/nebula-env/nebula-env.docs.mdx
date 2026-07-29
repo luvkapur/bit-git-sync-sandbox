@@ -1,0 +1,98 @@
+---
+description: A React development environment configured for the Nebula design system, integrating themes and development tools.
+labels: ['env', 'react', 'dev', 'vite', 'jest', 'webpack', 'nebula', 'theme']
+---
+
+A specialized React development environment designed to streamline the creation of components and applications using the Nebula design system. This environment comes pre-configured with the Nebula theme and essential development tools, ensuring consistency and efficiency in your projects.
+
+Features include TypeScript support, Vitest for testing, ESLint for code quality, and a streamlined build pipeline.
+
+## Setting up the Nebula Environment
+
+To incorporate the Nebula environment into your project, you'll need to update your workspace configuration file (`workspace.jsonc`) to include a reference to the environment.
+
+```json
+{
+  "teambit.generator/generator": {
+    "envs": [
+      "luvktest.nebula-design/nebula-env"
+    ]
+  }
+}
+```
+This setup allows you to leverage the environment's templates when creating new components or applications.
+## Applying the Environment to Components
+You can apply this environment to existing components in your project using the following command:
+```
+bit env set my-component luvktest.nebula-design/nebula-env
+```
+This ensures that the component is built and tested within the Nebula environment, with access to the Nebula theme and configured tools.
+## Creating a New Workspace with Nebula
+To start a new project based on the Nebula environment, use the following command:
+```
+bit new react my-nebula-app --aspect luvktest.nebula-design/nebula-env
+```
+This command initializes a new React workspace configured with the Nebula environment, providing a ready-to-go setup for building Nebula-themed applications.
+## Customizing the Environment
+You can create your own environment based on Nebula's and customize it further to suit your needs:
+```
+bit create react-env my-custom-env --scope your-org.your-scope
+```
+Ensure that your custom environment class extends the `NebulaEnv` class and override any methods necessary for your specific customizations.
+## Examples
+### Themed Button
+Create a button component that automatically inherits the Nebula theme styles.
+```jsx
+function ThemedButton({ children, onClick }) {
+  return (
+    <button
+      style={{
+        backgroundColor: '#22212C',
+        color: '#C48CFF',
+        padding: '10px 20px',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+      }}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+```
+This button will render with the background and text colors defined in the Nebula theme.
+### Nebula-Styled Input Field
+An input field that adheres to Nebula's design principles, providing a consistent look and feel.
+```jsx
+function NebulaInput({ placeholder, value, onChange }) {
+  return (
+    <input
+      type="text"
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      style={{
+        backgroundColor: '#22212C',
+        color: '#22D3EE',
+        border: '1px solid #C48CFF',
+        borderRadius: '8px',
+        padding: '8px',
+      }}
+    />
+  );
+}
+```
+This input component is styled with a dark background, cyan text, and purple borders, aligning with Nebula's aesthetic.
+### Using Typography
+Applying the correct font family to headings
+```jsx
+function Heading({ children }) {
+  return (
+    <h1 style={{ fontFamily: 'Inter', color: '#d1d5db' }}>
+      {children}
+    </h1>
+  );
+}
+```
+This heading will render with the Inter font, consistent with the Nebula design system.
