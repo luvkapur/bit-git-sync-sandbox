@@ -1,0 +1,25 @@
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-color, #6c5ce7);
+  border-radius: 8px;
+  height: 48px;
+  width: 168px;
+  border: 1px solid var(--primary-color, #6c5ce7);
+  color: var(--on-primary-color, #ffffff);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 300ms ease-in-out;
+  &:hover {
+    background-color: #3e29df;
+  }
+}
+
+.secondary {
+  background: #eceaff;
+  color: #5d4aec;
+  &:hover {
+    background-color: #dfdcff;
+  }
+}

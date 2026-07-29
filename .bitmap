@@ -9,6 +9,33 @@
  */
 
 {
+    "component1": {
+        "name": "component1",
+        "scope": "luvktest.test",
+        "version": "f1bc05939ef42e917cfbb8d6994cf86fdc12dc0e",
+        "mainFile": "index.ts",
+        "rootDir": "test/component1",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "component2": {
+        "name": "component2",
+        "scope": "luvktest.test",
+        "version": "1bf94e91a70152ffb300422ce16cdf292de2163c",
+        "mainFile": "index.ts",
+        "rootDir": "test/component2",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
+    "envs/react": {
+        "name": "envs/react",
+        "scope": "luvktest.test",
+        "version": "fb36ccac149487f8f0ddc6ea2eea17884c803030",
+        "mainFile": "index.ts",
+        "rootDir": "test/envs/react",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
@@ -16,5 +43,12 @@
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
     },
-    "$schema-version": "17.0.0"
+    "$schema-version": "17.0.0",
+    "_bit_lane": {
+        "id": {
+            "name": "overview-only",
+            "scope": "luvktest.test"
+        },
+        "exported": true
+    }
 }
