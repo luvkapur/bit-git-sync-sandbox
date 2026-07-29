@@ -12,7 +12,7 @@
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
-        "version": "ddd76faa74ad5371ea06db947bad5cf35d94a7db",
+        "version": "e1b689be63bc087ef77f48f9f8641d773d48dd1c",
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
     },
