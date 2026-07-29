@@ -12,16 +12,9 @@
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
-        "version": "e1b689be63bc087ef77f48f9f8641d773d48dd1c",
+        "version": "0.0.2",
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
     },
-    "$schema-version": "17.0.0",
-    "_bit_lane": {
-        "id": {
-            "name": "live-a",
-            "scope": "luvktest.test"
-        },
-        "exported": true
-    }
+    "$schema-version": "17.0.0"
 }
