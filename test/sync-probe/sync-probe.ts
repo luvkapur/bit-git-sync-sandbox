@@ -5,5 +5,6 @@
 export function syncProbe() {
   return 'hello world';
 }
-export const liveA = 'mode-a-live-validation';
-export const devEdit = 'pushed-from-git';
+export const probe2 = 'custom-template-test';
+export const probe3 = 'live-dispatch-test';
+export const probe4 = 'header-inspection';
