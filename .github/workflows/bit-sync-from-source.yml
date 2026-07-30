@@ -25,9 +25,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - name: Install released bit (bootstrapper)
+        # bvm install leaves a pnpm store daemon holding stdio open, so the step never exits
+        # on CI runners — reap it with a timeout and validate the binary explicitly instead.
         run: |
           npm i -g @teambit/bvm
-          bvm install
+          timeout 480 bvm install < /dev/null || true
+          export PATH="$PATH:$HOME/bin"
+          bit -v
           echo "$HOME/bin" >> $GITHUB_PATH
       - name: Cache bit source build
         uses: actions/cache@v4
