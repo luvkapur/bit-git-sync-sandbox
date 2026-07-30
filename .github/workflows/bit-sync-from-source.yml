@@ -75,6 +75,13 @@ jobs:
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
         run: bit install
+      - name: Warm workspace load (bit status forces env resolution)
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+        run: |
+          bit status
+          # Fail loudly if envs could not load - a sync that cannot snap must not look green.
+          bit status 2>&1 | grep -qE "EnvNotFound|ERR_MODULE_NOT_FOUND" && { echo "::error::workspace envs failed to load"; exit 1; } || true
       - name: Run bit-git-sync (vendored action, dev binary)
         uses: ./.github/actions/bit-git-sync
         env:
