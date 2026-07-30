@@ -1,0 +1,58 @@
+# Validation workflow: runs bit-git-sync with `bit` BUILT FROM SOURCE (branch ci-sync),
+# so the sync job is watchable in the Actions tab before `bit ci sync` ships in a release.
+name: bit-sync-from-source
+on:
+  repository_dispatch:
+    types: [bit-export, bit-lane-export, bit-main-export, bit-lane-removed]
+  workflow_dispatch:
+    inputs:
+      lane: { description: "Lane to sync (empty = all)", required: false }
+concurrency:
+  group: bit-sync-${{ github.event.client_payload.laneId || github.event.client_payload.lane || inputs.lane || 'reconcile-all' }}
+  cancel-in-progress: false
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Checkout bit source (ci-sync branch)
+        uses: actions/checkout@v4
+        with: { repository: luvkapur/bit, ref: ci-sync, path: .bit-src }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install released bit (bootstrapper)
+        run: |
+          npm i -g @teambit/bvm
+          bvm install --use-system-node
+          echo "$HOME/bin" >> $GITHUB_PATH
+      - name: Cache bit source build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .bit-src/node_modules
+            .bit-src/scopes/**/dist
+          key: bit-src-${{ hashFiles('.bit-src/.git/HEAD') }}-${{ github.sha }}
+          restore-keys: bit-src-
+      - name: Bootstrap bit from source (bit install && bit compile)
+        working-directory: .bit-src
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+        run: |
+          bit install && bit compile
+      - name: Shim dev bit onto PATH
+        run: |
+          sudo tee /usr/local/bin/bit > /dev/null << SHIM
+          #!/bin/sh
+          exec node $GITHUB_WORKSPACE/.bit-src/bin/bit.js "\$@"
+          SHIM
+          sudo chmod +x /usr/local/bin/bit
+          bit -v
+      - name: Run bit-git-sync (vendored action, dev binary)
+        uses: ./.github/actions/bit-git-sync
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
