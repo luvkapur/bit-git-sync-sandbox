@@ -27,7 +27,7 @@ jobs:
       - name: Install released bit (bootstrapper)
         run: |
           npm i -g @teambit/bvm
-          bvm install --use-system-node
+          bvm install
           echo "$HOME/bin" >> $GITHUB_PATH
       - name: Cache bit source build
         uses: actions/cache@v4
