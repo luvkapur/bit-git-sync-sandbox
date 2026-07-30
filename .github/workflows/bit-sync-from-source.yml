@@ -68,6 +68,7 @@ jobs:
         working-directory: .bit-src
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
         run: |
           # Fallback: a fresh runner can hit tarball-integrity mismatches between the committed
           # lockfile's hashes and node-registry.bit.cloud; re-resolving heals it (rig-only).
@@ -95,10 +96,12 @@ jobs:
       - name: Install workspace dependencies (bit install, dev binary)
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
         run: bit install
       - name: Warm workspace load (bit status forces env resolution)
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
         run: |
           # A sync that cannot snap must not look green. Two independent signals, because neither
           # one alone is sufficient:
@@ -126,4 +129,7 @@ jobs:
         uses: ./.github/actions/bit-git-sync
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          # The dev binary reads the user.token config key; provide both env spellings.
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
