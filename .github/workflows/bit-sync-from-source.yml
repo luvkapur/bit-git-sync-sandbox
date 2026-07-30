@@ -29,7 +29,11 @@ jobs:
         # on CI runners — reap it with a timeout and validate the binary explicitly instead.
         run: |
           npm i -g @teambit/bvm
-          timeout 480 bvm install < /dev/null || true
+          # Run bvm with fully detached stdio: its pnpm daemon inherits the step's pipes
+          # otherwise, and the runner waits on every process holding them - not just bvm.
+          timeout 480 bvm install > /tmp/bvm-install.log 2>&1 < /dev/null || true
+          tail -5 /tmp/bvm-install.log
+          pkill -f 'pnpm|store-server' || true
           export PATH="$PATH:$HOME/bin"
           bit -v
           echo "$HOME/bin" >> $GITHUB_PATH
