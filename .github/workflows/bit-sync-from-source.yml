@@ -71,6 +71,10 @@ jobs:
           chmod +x "$HOME/bin/bit"
           bit -v
           bit ci sync --help | head -3
+      - name: Install workspace dependencies (bit install, dev binary)
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+        run: bit install
       - name: Run bit-git-sync (vendored action, dev binary)
         uses: ./.github/actions/bit-git-sync
         env:
