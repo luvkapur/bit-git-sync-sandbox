@@ -30,6 +30,14 @@ jobs:
           git push --force https://x-access-token:${GH_TOKEN}@github.com/luvkapur/bit.git ci-sync:ci-sync
           echo "fork mirrored to $(git rev-parse ci-sync)"
       - name: Checkout bit source (ci-sync branch)
+        # NOTE: bit ends up running from INSIDE this workspace (.bit-src). dependency-linker's
+        # `isBitRepoWorkspace` treats "bit's main aspect path starts with the workspace root" as
+        # "this workspace authors the core aspects", and therefore SKIPS linking bit's core aspects
+        # (@teambit/typescript, @teambit/builder, ...) into the workspace node_modules. Published
+        # envs require those as phantom deps, so any env installed from the registry fails to load
+        # here while it loads fine on a dev machine (where bit lives outside the workspace). The
+        # workspace works around it by using a core env, which is loaded from bit's own installation
+        # and needs no such links. Moving .bit-src out of the workspace would remove the trap.
         uses: actions/checkout@v4
         with: { repository: luvkapur/bit, ref: ci-sync, path: .bit-src }
       - uses: actions/setup-node@v4
@@ -92,9 +100,28 @@ jobs:
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
         run: |
-          bit status
-          # Fail loudly if envs could not load - a sync that cannot snap must not look green.
-          bit status 2>&1 | grep -qE "EnvNotFound|ERR_MODULE_NOT_FOUND" && { echo "::error::workspace envs failed to load"; exit 1; } || true
+          # A sync that cannot snap must not look green. Two independent signals, because neither
+          # one alone is sufficient:
+          #
+          # 1. EXIT CODE. A bare `bit status` ALWAYS exits 0 - it prints "components with issues"
+          #    as report text and still succeeds - so the previous gate could never have failed on
+          #    it. `--fail-on-error` exits 1 for exactly the issues that block tag/snap ("failed
+          #    loading env", missing dependencies, ...), which is the same set `bit ci sync` refuses
+          #    to snap on before reporting "Workspace status verification failed". Warnings do not
+          #    trip it (that would be `--strict`), so this gate fires only on real blockers.
+          bit status --fail-on-error \
+            || { echo "::error::workspace has tag/snap-blocking issues (see the bit status output above)"; exit 1; }
+          # 2. LOG TRACES. The underlying env-resolution errors (EnvNotFound for the env's own env,
+          #    ERR_MODULE_NOT_FOUND from aspect-loader's pluginFileResolver) are logged as TOLERATED
+          #    traces - bit retries and continues - so they never appear in the default `bit status`
+          #    output. That is why the old grep on plain `bit status` matched nothing while CI was
+          #    failing: those strings only exist in the log. Verified experimentally: under
+          #    `--log info` they are written to STDOUT (never stderr), and to the debug log at
+          #    "$BIT_GLOBALS_DIR"/logs/debug.log. Grep the trace stream so degraded-but-not-yet-
+          #    blocking env loads are caught too.
+          bit status --log info 2>&1 | grep -qE "EnvNotFound|ERR_MODULE_NOT_FOUND" \
+            && { echo "::error::workspace envs failed to load (EnvNotFound/ERR_MODULE_NOT_FOUND in the bit log)"; exit 1; } \
+            || true
       - name: Run bit-git-sync (vendored action, dev binary)
         uses: ./.github/actions/bit-git-sync
         env:
