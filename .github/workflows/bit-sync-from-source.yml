@@ -19,6 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      - name: Sync fork branch from upstream (teambit/bit ci-sync)
+        # Keeps luvkapur/bit:ci-sync a mirror of teambit/bit:ci-sync, surviving upstream rebases.
+        env:
+          GH_TOKEN: ${{ secrets.FORK_SYNC_TOKEN }}
+        run: |
+          git clone --bare --branch ci-sync https://x-access-token:${GH_TOKEN}@github.com/teambit/bit.git /tmp/upstream-bit 2>/dev/null \
+            || { echo "::warning::upstream ci-sync branch missing (merged/deleted?) - using fork as-is"; exit 0; }
+          cd /tmp/upstream-bit
+          git push --force https://x-access-token:${GH_TOKEN}@github.com/luvkapur/bit.git ci-sync:ci-sync
+          echo "fork mirrored to $(git rev-parse ci-sync)"
       - name: Checkout bit source (ci-sync branch)
         uses: actions/checkout@v4
         with: { repository: luvkapur/bit, ref: ci-sync, path: .bit-src }
@@ -51,7 +61,10 @@ jobs:
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
         run: |
-          bit install && bit compile
+          # Fallback: a fresh runner can hit tarball-integrity mismatches between the committed
+          # lockfile's hashes and node-registry.bit.cloud; re-resolving heals it (rig-only).
+          bit install || { echo "::warning::bit install failed - retrying with fresh lockfile resolution"; rm -f pnpm-lock.yaml; bit install; }
+          bit compile
       - name: Save bit source build cache
         if: always()
         uses: actions/cache/save@v4
