@@ -37,13 +37,14 @@ jobs:
           export PATH="$PATH:$HOME/bin"
           bit -v
           echo "$HOME/bin" >> $GITHUB_PATH
-      - name: Cache bit source build
-        uses: actions/cache@v4
+      - name: Restore bit source build cache
+        uses: actions/cache/restore@v4
+        id: bit-src-cache
         with:
           path: |
             .bit-src/node_modules
             .bit-src/scopes/**/dist
-          key: bit-src-${{ hashFiles('.bit-src/.git/HEAD') }}-${{ github.sha }}
+          key: bit-src-${{ hashFiles('.bit-src/.git/HEAD') }}
           restore-keys: bit-src-
       - name: Bootstrap bit from source (bit install && bit compile)
         working-directory: .bit-src
@@ -51,14 +52,25 @@ jobs:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
         run: |
           bit install && bit compile
+      - name: Save bit source build cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .bit-src/node_modules
+            .bit-src/scopes/**/dist
+          key: bit-src-${{ hashFiles('.bit-src/.git/HEAD') }}
       - name: Shim dev bit onto PATH
+        # GITHUB_PATH entries are PREPENDED, so bvm's ~/bin/bit shadows /usr/local/bin.
+        # Overwrite bvm's binary location itself, and validate the DEV feature exists.
         run: |
-          sudo tee /usr/local/bin/bit > /dev/null << SHIM
+          tee "$HOME/bin/bit" > /dev/null << SHIM
           #!/bin/sh
           exec node $GITHUB_WORKSPACE/.bit-src/bin/bit.js "\$@"
           SHIM
-          sudo chmod +x /usr/local/bin/bit
+          chmod +x "$HOME/bin/bit"
           bit -v
+          bit ci sync --help | head -3
       - name: Run bit-git-sync (vendored action, dev binary)
         uses: ./.github/actions/bit-git-sync
         env:
