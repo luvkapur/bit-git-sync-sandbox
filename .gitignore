@@ -1,2 +1,12 @@
 node_modules/
 .bit/
+
+# bit source checked out into the workspace by the from-source sync workflow
+.bit-src/
+
+# Bit regenerates this on every `bit install`, and the cache file it points at
+# embeds ABSOLUTE paths, so its content hash differs per machine and per
+# checkout path. Committing it guarantees a dirty tree on every CI run.
+# The other generated workspace configs (tsconfig.json, .prettierrc.cjs) are
+# path-independent and stay tracked.
+.eslintrc.json
