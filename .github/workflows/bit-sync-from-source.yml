@@ -24,6 +24,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.FORK_SYNC_TOKEN }}
         run: |
+          # Maintainer-only mirror refresh; forks of this demo skip it (the source
+          # checkout below pulls the public luvkapur/bit:ci-sync read-only).
+          [ -z "$GH_TOKEN" ] && { echo "FORK_SYNC_TOKEN not set - skipping mirror refresh (fine for forks)"; exit 0; }
           git clone --bare --branch ci-sync https://x-access-token:${GH_TOKEN}@github.com/teambit/bit.git /tmp/upstream-bit 2>/dev/null \
             || { echo "::warning::upstream ci-sync branch missing (merged/deleted?) - using fork as-is"; exit 0; }
           cd /tmp/upstream-bit

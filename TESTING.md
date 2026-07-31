@@ -1,9 +1,46 @@
 # Test bit-git-sync yourself — step by step
 
-Everything is pre-configured: this repository is a Bit workspace (scope `luvktest.test`),
-the bit.cloud webhook is wired to GitHub, the sync/release workflows run a from-source
-build of `bit ci sync` ([teambit/bit#10541](https://github.com/teambit/bit/pull/10541)),
-and the repo secrets are in place. You only need the two clients.
+This repository is a working demo of bi-directional Bit lane ↔ GitHub PR sync, running a
+from-source build of `bit ci sync` ([teambit/bit#10541](https://github.com/teambit/bit/pull/10541)).
+
+Two ways to use it:
+
+- **Path A — quick tour (luvktest members only):** this repo as-is is wired to the
+  `luvktest.test` scope; if you have write access there, skip straight to the tests.
+- **Path B — bring your own org (anyone):** fork/clone, run one setup script against
+  **your** bit.cloud scope, add two settings and one webhook, and the whole demo runs
+  against your own org and repo.
+
+## Path B — configure for YOUR org (one-time, ~10 min)
+
+```bash
+# 0. Fork this repo on GitHub, then:
+git clone https://github.com/<you>/<your-fork>.git && cd <your-fork>
+
+# 1. Create a scope on bit.cloud (UI: New scope, e.g. acme.demos), then:
+./setup-your-org.sh acme.demos     # re-points the workspace, re-tracks the sample
+                                   # component, exports the baseline to YOUR scope
+git push
+```
+
+Then three one-time settings on YOUR fork/org:
+
+1. **Repo secret** `BIT_CONFIG_ACCESS_TOKEN` — your bit.cloud token
+   (`bit config get user.token`, **last line only — it must be a single line**).
+2. **Repo setting** Actions → General → ✅ *Allow GitHub Actions to create and approve pull requests*.
+3. **bit.cloud org webhook** (Settings → Webhooks → **create fresh; editing a webhook drops
+   its headers — recreate instead of edit**):
+   - Event: *Components → Export succeeded*
+   - URL: `https://api.github.com/repos/<you>/<your-fork>/dispatches`
+   - Headers: `Authorization: Bearer <GitHub PAT with repo scope>` and
+     `Accept: application/vnd.github+json`
+   - Template (Custom):
+     `{"event_type":"bit-export","client_payload":{"laneId":"{{laneId}}","componentIds":"{{componentIds}}","owner":"{{owner}}","actor":"{{username}}"}}`
+
+No other secrets are needed — the workflows pull the public from-source bit branch read-only
+(`FORK_SYNC_TOKEN` is maintainer-only and skipped on forks).
+
+In the tests below, replace `luvktest.test` with your scope.
 
 ## Prerequisites (one-time)
 
@@ -18,7 +55,7 @@ gh auth status   # or: gh auth login
 bit login
 ```
 
-## Setup (one command)
+## Path A setup (luvktest members, one command)
 
 ```bash
 git clone https://github.com/luvkapur/bit-git-sync-sandbox.git
@@ -26,7 +63,7 @@ cd bit-git-sync-sandbox
 bit install     # ~30s; workspace is preconfigured for scope luvktest.test
 ```
 
-You now hold **both personas**: a Bit developer (lane side) and a git developer (branch side).
+Either path: you now hold **both personas** — a Bit developer (lane side) and a git developer (branch side).
 
 ## Test 1 — Lane → PR, hands-free (~3 min)
 
