@@ -108,7 +108,7 @@ function routePullRequest(input) {
   return run("merge");
 }
 function routeWorkflowDispatch(input) {
-  return input.inputLane ? runSyncLane(input.inputLane, "workflow_dispatch input") : run("sync", "--all");
+  return input.inputLane ? runSyncLaneId(input.inputLane, "workflow_dispatch input") : run("sync", "--all");
 }
 function routeEvent(input) {
   switch (input.eventName) {
