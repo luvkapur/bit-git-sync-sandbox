@@ -1,0 +1,86 @@
+# Release half of the demo rig: when a lane-sync PR merges, run `bit ci merge`
+# with the from-source dev binary - lane merges into the main scope, versions release.
+name: bit-release-from-source
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+concurrency:
+  group: bit-release
+  cancel-in-progress: false
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  release:
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref != 'bit-sync/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Sync fork branch from upstream (teambit/bit ci-sync)
+        env:
+          GH_TOKEN: ${{ secrets.FORK_SYNC_TOKEN }}
+        run: |
+          git clone --bare --branch ci-sync https://x-access-token:${GH_TOKEN}@github.com/teambit/bit.git /tmp/upstream-bit 2>/dev/null \
+            || { echo "::warning::upstream ci-sync missing - using fork as-is"; exit 0; }
+          cd /tmp/upstream-bit && git push --force https://x-access-token:${GH_TOKEN}@github.com/luvkapur/bit.git ci-sync:ci-sync
+      - name: Checkout bit source (ci-sync branch)
+        uses: actions/checkout@v4
+        with: { repository: luvkapur/bit, ref: ci-sync, path: .bit-src }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install released bit (bootstrapper)
+        run: |
+          npm i -g @teambit/bvm
+          timeout 480 bvm install > /tmp/bvm-install.log 2>&1 < /dev/null || true
+          tail -3 /tmp/bvm-install.log
+          pkill -f 'pnpm|store-server' || true
+          export PATH="$PATH:$HOME/bin"
+          bit -v
+          echo "$HOME/bin" >> $GITHUB_PATH
+      - name: Restore bit source build cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            .bit-src/node_modules
+            .bit-src/scopes/**/dist
+          key: bit-src-${{ hashFiles('.bit-src/.git/HEAD') }}
+          restore-keys: bit-src-
+      - name: Bootstrap bit from source
+        working-directory: .bit-src
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+        run: |
+          bit install || { echo "::warning::retrying with fresh lockfile resolution"; rm -f pnpm-lock.yaml; bit install; }
+          bit compile
+      - name: Save bit source build cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .bit-src/node_modules
+            .bit-src/scopes/**/dist
+          key: bit-src-${{ hashFiles('.bit-src/.git/HEAD') }}
+      - name: Shim dev bit onto PATH
+        run: |
+          tee "$HOME/bin/bit" > /dev/null << SHIM
+          #!/bin/sh
+          exec node $GITHUB_WORKSPACE/.bit-src/bin/bit.js "\$@"
+          SHIM
+          chmod +x "$HOME/bin/bit"
+          bit -v && bit ci merge --help | head -2
+      - name: Install workspace dependencies
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+        run: bit install
+      - name: Release (bit ci merge)
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_NAME: bit-sync[bot]
+          GIT_USER_EMAIL: bit-sync[bot]@users.noreply.github.com
+        run: bit ci merge --message "${{ github.event.pull_request.title }}"
