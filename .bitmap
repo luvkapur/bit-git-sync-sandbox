@@ -9,6 +9,15 @@
  */
 
 {
+    "button": {
+        "name": "button",
+        "scope": "luvktest.test",
+        "version": "f4fb06858daa464303377d393eac1f72b2b2925f",
+        "mainFile": "index.ts",
+        "rootDir": "test/button",
+        "onLanesOnly": true,
+        "isAvailableOnCurrentLane": true
+    },
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
@@ -16,5 +25,12 @@
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
     },
-    "$schema-version": "17.0.0"
+    "$schema-version": "17.0.0",
+    "_bit_lane": {
+        "id": {
+            "name": "luv-test",
+            "scope": "luvktest.test"
+        },
+        "exported": true
+    }
 }
