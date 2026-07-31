@@ -10,3 +10,7 @@ node_modules/
 # The other generated workspace configs (tsconfig.json, .prettierrc.cjs) are
 # path-independent and stay tracked.
 .eslintrc.json
+
+# The from-source rig checks bit out here to build the dev binary - never sync content
+.bit-src/
+/tmp-bvm*
