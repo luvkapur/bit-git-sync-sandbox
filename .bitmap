@@ -9,6 +9,13 @@
  */
 
 {
+    "notifications/toast": {
+        "name": "notifications/toast",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/notifications/toast"
+    },
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
