@@ -1,0 +1,109 @@
+# Test bit-git-sync yourself — step by step
+
+Everything is pre-configured: this repository is a Bit workspace (scope `luvktest.test`),
+the bit.cloud webhook is wired to GitHub, the sync/release workflows run a from-source
+build of `bit ci sync` ([teambit/bit#10541](https://github.com/teambit/bit/pull/10541)),
+and the repo secrets are in place. You only need the two clients.
+
+## Prerequisites (one-time)
+
+```bash
+# 1. bit CLI (any recent version — the new sync command runs server-side, not on your machine)
+npx @teambit/bvm install
+
+# 2. GitHub CLI, authenticated
+gh auth status   # or: gh auth login
+
+# 3. bit.cloud login with access to the luvktest org
+bit login
+```
+
+## Setup (one command)
+
+```bash
+git clone https://github.com/luvkapur/bit-git-sync-sandbox.git
+cd bit-git-sync-sandbox
+bit install     # ~30s; workspace is preconfigured for scope luvktest.test
+```
+
+You now hold **both personas**: a Bit developer (lane side) and a git developer (branch side).
+
+## Test 1 — Lane → PR, hands-free (~3 min)
+
+```bash
+bit lane create my-test-<yourname>
+echo "export const hello = '<yourname> was here';" >> test/sync-probe/sync-probe.ts
+bit snap --message "my first synced change"
+bit export
+```
+
+Now **touch nothing** and watch:
+- Actions tab → a `bit-sync-from-source` run appears within seconds (the bit.cloud webhook
+  triggered it — no human, no cron).
+- ~4 min later (warm cache): a branch and a pull request named `Lane sync: luvktest.test/my-test-<yourname>`
+  exist, authored by `github-actions`, containing your actual source change.
+
+## Test 2 — PR branch → lane (~5 min)
+
+```bash
+git fetch origin && git checkout my-test-<yourname>
+echo "export const fromGit = 'this line was born in git';" >> test/sync-probe/index.ts
+git commit -am "a change from the git side" && git push origin my-test-<yourname>
+gh workflow run bit-sync-from-source.yml -f lane=my-test-<yourname>
+```
+
+Watch the run, then verify on the Bit side:
+
+```bash
+bit lane import luvktest.test/my-test-<yourname>   # or view the lane on bit.cloud
+```
+
+Your git-born line is now a snap on the lane — the runner performed a real `bit snap` + export.
+
+## Test 3 — Conflict safety (~5 min)
+
+Edit the **same line** of `test/sync-probe/sync-probe.ts` twice: once via `bit snap` + `bit export`
+on the lane, once via `git commit` + push on the branch. Trigger the workflow. Expected:
+the run goes red, your PR gets a `bit-sync-conflict` label and a comment with exact recovery
+steps, and **nothing is force-pushed** — your branch tip is untouched. Resolve per the comment,
+remove the label, re-trigger: the pair converges.
+
+## Test 4 — Merge → release (~5 min)
+
+Merge your PR (GitHub UI or `gh pr merge <n> --merge`). The `bit-release-from-source` workflow
+fires automatically: your lane merges into the scope's main, new component versions release on
+[bit.cloud/luvktest/test](https://bit.cloud/luvktest/test), and the lane is archived.
+
+## Test 5 — Branch retirement
+
+```bash
+gh workflow run bit-sync-from-source.yml    # no lane input = reconcile everything
+```
+
+The merged lane's branch is deleted — the run log shows `close-pr` with the ownership evidence.
+Any ordinary branch you push (never lane-synced) survives every run: deletion requires a
+reconciler-authored sync commit at the tip whose committed `.bitmap` names that exact lane.
+
+## Test 6 — Cross-scope guard
+
+```bash
+gh workflow run bit-sync-from-source.yml -f lane=luvktest.cards/cross-scope
+```
+
+That lane carries components from two scopes; one repository maps to one scope. Expected: the
+run refuses loudly (red, with the component list and a docs pointer) — and enumerated runs
+(Test 5) *skip* such lanes and stay green.
+
+## Reading a run
+
+Open any `bit-sync-from-source` run → `sync` job → "Run bit-git-sync" step. The last lines are
+the per-lane verdicts, e.g.:
+
+```
+my-test-x -> import-lane (pushed my-test-x @ lane f9bc68c0e)
+demo-e2e  -> noop (converged)
+main      -> converged (checkout head produced no changes)
+```
+
+Triggers decide *when* it runs; state decides *what* it does. Re-run anything, any time —
+converged pairs are no-ops.
