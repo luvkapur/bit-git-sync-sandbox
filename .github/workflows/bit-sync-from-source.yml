@@ -129,7 +129,6 @@ jobs:
         uses: ./.github/actions/bit-git-sync
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
-          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
           # The dev binary reads the user.token config key; provide both env spellings.
           BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
