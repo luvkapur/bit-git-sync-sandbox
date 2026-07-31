@@ -13,8 +13,12 @@ permissions:
   pull-requests: write
 jobs:
   sync:
-    # Adopt ordinary git-first PRs only; lane-synced branches are already married.
-    if: "!startsWith(github.event.pull_request.head.ref, 'bit-sync/')"
+    # Adopt ordinary git-first PRs only: lane-synced branches are already married,
+    # and PRs opened by the sync itself (github-actions) must never be re-adopted.
+    if: >-
+      !startsWith(github.event.pull_request.head.ref, 'bit-sync/')
+      && github.event.pull_request.user.login != 'github-actions[bot]'
+      && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -130,10 +134,33 @@ jobs:
           bit status --log info 2>&1 | grep -qE "EnvNotFound|ERR_MODULE_NOT_FOUND" \
             && { echo "::error::workspace envs failed to load (EnvNotFound/ERR_MODULE_NOT_FOUND in the bit log)"; exit 1; } \
             || true
-      - name: Run bit-git-sync (vendored action, dev binary)
-        uses: ./.github/actions/bit-git-sync
+      - name: Adopt PR into a lane (bit ci pr --keep-lane)
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
           # The dev binary reads the user.token config key; provide both env spellings.
           BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # PR title flows in via env, never inline substitution - titles are attacker-typed argv.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Re-runs and post-anchor pushes: if the tip is our own anchor commit there is
+          # nothing new to snap - the pair is already married and converged.
+          if [ "$(git log -1 --pretty=%s)" = "chore(bit-sync): anchor PR to its lane" ]; then
+            echo "tip is the anchor commit - already adopted, nothing to do"
+            exit 0
+          fi
+          git config user.name "bit-sync[bot]"
+          git config user.email "bit-sync[bot]@users.noreply.github.com"
+          # Snaps the PR branch source onto a lane named after the branch ('/' -> '-')
+          # and exports it to the scope. --keep-lane preserves the lane after this run.
+          bit ci pr --keep-lane --message "$PR_TITLE"
+      - name: Anchor the pair (commit .bitmap back to the PR branch)
+        run: |
+          if git diff --quiet -- .bitmap; then
+            echo "bitmap unchanged - nothing to anchor"
+            exit 0
+          fi
+          # The committed .bitmap IS the sync state: lane pointer + component versions.
+          # From this commit on, `bit ci sync` treats the pair like any lane-born pair.
+          git add .bitmap
+          git commit -m "chore(bit-sync): anchor PR to its lane"
+          git push origin HEAD:refs/heads/${{ github.event.pull_request.head.ref }}
