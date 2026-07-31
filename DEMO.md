@@ -24,8 +24,14 @@ bit export (lane)  →  bit.cloud webhook (custom template + Authorization heade
 5. **Retirement.** The next `--all` run retires the merged lane's branch — deletion requires proof (the branch tip must be a reconciler-authored sync commit whose committed `.bitmap` names that exact lane). Ordinary developer branches are never touched.
 6. **Cross-scope guard.** A lane carrying components from multiple scopes is skipped with a clear reason (one repo maps one scope) — enumerated runs stay green.
 
-## Artifacts from past live runs
+## Artifacts from live runs
 
+- **The showcase**: [PR #7 (demo-e2e)](../../pull/7) — opened hands-free by `github-actions` after a `bit export`, zero humans in the chain.
+- Main-scope sync PR: [#8 (bit-sync/main)](../../pull/8) — drift detected and proposed as a reviewable PR.
 - Full lifecycle PR: [#1 (live-a)](../../pull/1) — sync commits, dev commit, conflict label + runbook, resolution, merge.
-- First hands-free dispatch: [run 30555608626](../../actions/runs/30555608626)
-- First green runner-side snap: [run 30630594375](../../actions/runs/30630594375)
+- Retirement in action: [PR #6](../../pull/6) — the engine's hardening battlefield, closed by the ownership rule after its lane was removed.
+- First hands-free dispatch: [run 30555608626](../../actions/runs/30555608626) · first green runner-side snap: [run 30630594375](../../actions/runs/30630594375)
+
+## Setup note learned live
+
+Repository setting **Actions → General → "Allow GitHub Actions to create and approve pull requests"** must be enabled — without it the sync degrades gracefully (branch pushed, warning logged, run stays green) but no PR appears.
