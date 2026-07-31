@@ -142,10 +142,12 @@ jobs:
           # PR title flows in via env, never inline substitution - titles are attacker-typed argv.
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          # Re-runs and post-anchor pushes: if the tip is our own anchor commit there is
-          # nothing new to snap - the pair is already married and converged.
-          if [ "$(git log -1 --pretty=%s)" = "chore(bit-sync): anchor PR to its lane" ]; then
-            echo "tip is the anchor commit - already adopted, nothing to do"
+          # Adopt exactly once. Once the branch's committed .bitmap names a lane (the
+          # anchor), the pair belongs to `bit ci sync` - later git-side commits are
+          # reconciled by the next sync run (dev-commit detection -> export-branch),
+          # not by re-adoption.
+          if grep -q '_bit_lane' .bitmap 2>/dev/null; then
+            echo "branch .bitmap already names a lane - adopted; bit ci sync owns this pair"
             exit 0
           fi
           git config user.name "bit-sync[bot]"
@@ -154,13 +156,25 @@ jobs:
           # and exports it to the scope. --keep-lane preserves the lane after this run.
           bit ci pr --keep-lane --message "$PR_TITLE"
       - name: Anchor the pair (commit .bitmap back to the PR branch)
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
-          if git diff --quiet -- .bitmap; then
-            echo "bitmap unchanged - nothing to anchor"
+          if grep -q '_bit_lane' .bitmap 2>/dev/null; then
+            echo "already anchored - nothing to do"
             exit 0
           fi
-          # The committed .bitmap IS the sync state: lane pointer + component versions.
-          # From this commit on, `bit ci sync` treats the pair like any lane-born pair.
+          # `bit ci pr` ends by restoring the workspace to main, which resets .bitmap.
+          # Switch onto the kept lane so .bitmap carries the lane pointer + snapped
+          # versions - that .bitmap, committed to the branch, IS the sync state that
+          # lets `bit ci sync` treat this pair like any lane-born pair.
+          LANE="${HEAD_REF//\//-}"
+          bit lane switch "$LANE"
+          if git diff --quiet -- .bitmap; then
+            echo "bitmap unchanged after lane switch - nothing to anchor"
+            exit 0
+          fi
           git add .bitmap
           git commit -m "chore(bit-sync): anchor PR to its lane"
-          git push origin HEAD:refs/heads/${{ github.event.pull_request.head.ref }}
+          git push origin HEAD:refs/heads/"$HEAD_REF"
