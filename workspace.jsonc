@@ -71,7 +71,10 @@
    **/
   "teambit.git/ci": {
     "sync": {
-      "mainSync": "direct-push"
+      "mainSync": "direct-push",
+      // Same-line lane/branch conflicts: keep the branch's version of contested hunks instead of
+      // halting. Remove this line to restore the default block-and-label behavior ('halt').
+      "onConflict": "git-wins"
     }
   },
   "teambit.workspace/workspace-config-files": {
