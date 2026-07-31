@@ -15,6 +15,13 @@ bit export (lane)  →  bit.cloud webhook (custom template + Authorization heade
 - `.github/workflows/bit-release-from-source.yml` — the release job (PR merge → `bit ci merge`)
 - The bit.cloud org webhook posts `{"event_type":"bit-export","client_payload":{"laneId":…}}` straight to GitHub's dispatch API.
 
+## The core idea
+
+A lane is an **ephemeral repository**: developers create and work on lanes from any workspace,
+on any machine — never needing to clone this repo. The moment a lane exports, this repository
+syncs itself (webhook → workflow → branch + PR). Git stays the reviewable, compliant record;
+the lane stays the fluid workspace.
+
 ## Demo beats
 
 1. **Lane → PR (hands-free).** A developer exports a lane on bit.cloud. The webhook fires, the workflow runs, and a branch + pull request appear with the lane's real source. No human between `bit export` and the PR.

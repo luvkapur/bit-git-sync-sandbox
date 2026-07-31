@@ -63,22 +63,34 @@ cd bit-git-sync-sandbox
 bit install     # ~30s; workspace is preconfigured for scope luvktest.test
 ```
 
-Either path: you now hold **both personas** — a Bit developer (lane side) and a git developer (branch side).
+Either path: you now hold **both personas** — a Bit developer (lane side, works from any
+workspace anywhere) and a git developer (branch side, works in the repo clone). The repo is a
+*projection* of lane activity, not the lane's home.
 
-## Test 1 — Lane → PR, hands-free (~3 min)
+## Test 1 — Lane → PR, hands-free — from ANYWHERE (~3 min)
+
+**The point of this test: the lane developer never touches the git repository.** A lane is an
+ephemeral repo — you can work on it from any workspace, on any machine. The git repo syncs
+itself the moment you export.
 
 ```bash
+# In a fresh directory — NOT the repo clone. Any machine, any path.
+mkdir /tmp/anywhere && cd /tmp/anywhere
+bit init --default-scope luvktest.test        # ← your scope on Path B
+bit import luvktest.test/sync-probe           # pull the component into your workspace
 bit lane create my-test-<yourname>
-echo "export const hello = '<yourname> was here';" >> test/sync-probe/sync-probe.ts
+echo "export const hello = '<yourname> was here';" >> $(find . -name sync-probe.ts | head -1)
 bit snap --message "my first synced change"
 bit export
 ```
 
-Now **touch nothing** and watch:
+Now **touch nothing** and watch the *repository*:
 - Actions tab → a `bit-sync-from-source` run appears within seconds (the bit.cloud webhook
-  triggered it — no human, no cron).
+  triggered it — no human, no cron, and nothing you did referenced the repo).
 - ~4 min later (warm cache): a branch and a pull request named `Lane sync: luvktest.test/my-test-<yourname>`
   exist, authored by `github-actions`, containing your actual source change.
+
+The repo clone from Setup is only needed when you act as the *git-side* developer (Tests 2–4).
 
 ## Test 2 — PR branch → lane (~5 min)
 
