@@ -64,6 +64,16 @@
       "peerDependencies": {}
     }
   },
+  /**
+   * bit-git-sync: a release exported straight to the scope's main is pushed DIRECTLY onto this
+   * repository's default branch (no bit-sync/main proposal PR). Remove this block to get the
+   * default 'pr' behavior, where main drift is proposed as a pull request instead.
+   **/
+  "teambit.git/ci": {
+    "sync": {
+      "mainSync": "direct-push"
+    }
+  },
   "teambit.workspace/workspace-config-files": {
     "enableWorkspaceConfigWrite": true
   }
