@@ -176,6 +176,22 @@ touching *different* files before any sync runs, then dispatch one sync. Expecte
 back to the lane, and both ends converge to the union. Same-line edits instead **halt**:
 conflict label + runbook comment, nothing force-pushed (that is Test 3).
 
+## Test 9 — Release to main, direct push (~5 min)
+
+Set `"mainSync": "direct-push"` under `"teambit.git/ci" > "sync"` in `workspace.jsonc` (this
+repo ships with it on). From any workspace:
+
+```bash
+bit import <your-scope>/sync-probe && # edit it
+bit tag -m "release" && bit export
+```
+
+The webhook (empty `laneId` = main export) triggers a sync that commits the drift straight
+onto the default branch and plain-pushes it — no `bit-sync/main` PR. Expected log:
+`main -> drift in N file(s)` then `main -> direct-push (pushed main @ <sha>)`. Remove the
+config line to get the default `"pr"` mode, where the same drift becomes a reviewable
+pull request on `bit-sync/main` instead.
+
 ## Reading a run
 
 Open any `bit-sync-from-source` run → `sync` job → "Run bit-git-sync" step. The last lines are

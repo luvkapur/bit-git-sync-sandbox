@@ -44,6 +44,20 @@ label + runbook comment, nothing force-pushed, resume by removing the label.
   whose tip now carries both edits. The follow-up run reported `noop (converged)`. Same-line
   edits instead halt: see Test 3 in [TESTING.md](./TESTING.md).
 
+## Guarantee 4 — Releases to main
+*A release exported straight to the scope's main pushes directly to this repo's main.*
+
+With `"mainSync": "direct-push"` in `workspace.jsonc` (see the `teambit.git/ci` block), main-scope
+drift is not proposed as a PR — the sync commits it onto the default branch and plain-pushes
+(never force). The default is still `"pr"`: drift proposed on `bit-sync/main` for review
+([PR #8](../../pull/8) shows that mode).
+
+- Proof: a `bit tag && bit export` from an ephemeral workspace put
+  `RELEASED_DIRECTLY_TO_MAIN` on the scope; the webhook-triggered
+  [sync run](../../actions/runs/30640214774) reported
+  `main -> drift in 2 file(s)` then `main -> direct-push (pushed main @ ba6cc94)` — main's tip
+  is now that `bit-sync[bot]` commit, and no proposal PR was opened.
+
 ---
 
 ## The playbook (beats behind the guarantees)
