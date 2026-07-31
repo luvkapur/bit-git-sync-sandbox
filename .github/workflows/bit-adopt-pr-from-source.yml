@@ -1,0 +1,139 @@
+# Validation workflow: runs bit-git-sync with `bit` BUILT FROM SOURCE (branch ci-sync),
+# so the sync job is watchable in the Actions tab before `bit ci sync` ships in a release.
+name: bit-adopt-pr-from-source
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+concurrency:
+  group: bit-adopt-${{ github.event.pull_request.head.ref }}
+  cancel-in-progress: false
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  sync:
+    # Adopt ordinary git-first PRs only; lane-synced branches are already married.
+    if: "!startsWith(github.event.pull_request.head.ref, 'bit-sync/')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Sync fork branch from upstream (teambit/bit ci-sync)
+        # Keeps luvkapur/bit:ci-sync a mirror of teambit/bit:ci-sync, surviving upstream rebases.
+        env:
+          GH_TOKEN: ${{ secrets.FORK_SYNC_TOKEN }}
+        run: |
+          # Maintainer-only mirror refresh; forks of this demo skip it (the source
+          # checkout below pulls the public luvkapur/bit:ci-sync read-only).
+          [ -z "$GH_TOKEN" ] && { echo "FORK_SYNC_TOKEN not set - skipping mirror refresh (fine for forks)"; exit 0; }
+          git clone --bare --branch ci-sync https://x-access-token:${GH_TOKEN}@github.com/teambit/bit.git /tmp/upstream-bit 2>/dev/null \
+            || { echo "::warning::upstream ci-sync branch missing (merged/deleted?) - using fork as-is"; exit 0; }
+          cd /tmp/upstream-bit
+          git push --force https://x-access-token:${GH_TOKEN}@github.com/luvkapur/bit.git ci-sync:ci-sync
+          echo "fork mirrored to $(git rev-parse ci-sync)"
+      - name: Checkout bit source (ci-sync branch)
+        # NOTE: bit ends up running from INSIDE this workspace (.bit-src). dependency-linker's
+        # `isBitRepoWorkspace` treats "bit's main aspect path starts with the workspace root" as
+        # "this workspace authors the core aspects", and therefore SKIPS linking bit's core aspects
+        # (@teambit/typescript, @teambit/builder, ...) into the workspace node_modules. Published
+        # envs require those as phantom deps, so any env installed from the registry fails to load
+        # here while it loads fine on a dev machine (where bit lives outside the workspace). The
+        # workspace works around it by using a core env, which is loaded from bit's own installation
+        # and needs no such links. Moving .bit-src out of the workspace would remove the trap.
+        uses: actions/checkout@v4
+        with: { repository: luvkapur/bit, ref: ci-sync, path: .bit-src }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install released bit (bootstrapper)
+        # bvm install leaves a pnpm store daemon holding stdio open, so the step never exits
+        # on CI runners — reap it with a timeout and validate the binary explicitly instead.
+        run: |
+          npm i -g @teambit/bvm
+          # Run bvm with fully detached stdio: its pnpm daemon inherits the step's pipes
+          # otherwise, and the runner waits on every process holding them - not just bvm.
+          timeout 480 bvm install > /tmp/bvm-install.log 2>&1 < /dev/null || true
+          tail -5 /tmp/bvm-install.log
+          pkill -f 'pnpm|store-server' || true
+          export PATH="$PATH:$HOME/bin"
+          bit -v
+          echo "$HOME/bin" >> $GITHUB_PATH
+      - name: Restore bit source build cache
+        uses: actions/cache/restore@v4
+        id: bit-src-cache
+        with:
+          path: |
+            .bit-src/node_modules
+            .bit-src/scopes/**/dist
+          key: bit-src-${{ hashFiles('.bit-src/.git/HEAD') }}
+          restore-keys: bit-src-
+      - name: Bootstrap bit from source (bit install && bit compile)
+        working-directory: .bit-src
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+        run: |
+          # Fallback: a fresh runner can hit tarball-integrity mismatches between the committed
+          # lockfile's hashes and node-registry.bit.cloud; re-resolving heals it (rig-only).
+          bit install || { echo "::warning::bit install failed - retrying with fresh lockfile resolution"; rm -f pnpm-lock.yaml; bit install; }
+          bit compile
+      - name: Save bit source build cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .bit-src/node_modules
+            .bit-src/scopes/**/dist
+          key: bit-src-${{ hashFiles('.bit-src/.git/HEAD') }}
+      - name: Shim dev bit onto PATH
+        # GITHUB_PATH entries are PREPENDED, so bvm's ~/bin/bit shadows /usr/local/bin.
+        # Overwrite bvm's binary location itself, and validate the DEV feature exists.
+        run: |
+          tee "$HOME/bin/bit" > /dev/null << SHIM
+          #!/bin/sh
+          exec node $GITHUB_WORKSPACE/.bit-src/bin/bit.js "\$@"
+          SHIM
+          chmod +x "$HOME/bin/bit"
+          bit -v
+          bit ci sync --help | head -3
+      - name: Install workspace dependencies (bit install, dev binary)
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+        run: bit install
+      - name: Warm workspace load (bit status forces env resolution)
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+        run: |
+          # A sync that cannot snap must not look green. Two independent signals, because neither
+          # one alone is sufficient:
+          #
+          # 1. EXIT CODE. A bare `bit status` ALWAYS exits 0 - it prints "components with issues"
+          #    as report text and still succeeds - so the previous gate could never have failed on
+          #    it. `--fail-on-error` exits 1 for exactly the issues that block tag/snap ("failed
+          #    loading env", missing dependencies, ...), which is the same set `bit ci sync` refuses
+          #    to snap on before reporting "Workspace status verification failed". Warnings do not
+          #    trip it (that would be `--strict`), so this gate fires only on real blockers.
+          bit status --fail-on-error \
+            || { echo "::error::workspace has tag/snap-blocking issues (see the bit status output above)"; exit 1; }
+          # 2. LOG TRACES. The underlying env-resolution errors (EnvNotFound for the env's own env,
+          #    ERR_MODULE_NOT_FOUND from aspect-loader's pluginFileResolver) are logged as TOLERATED
+          #    traces - bit retries and continues - so they never appear in the default `bit status`
+          #    output. That is why the old grep on plain `bit status` matched nothing while CI was
+          #    failing: those strings only exist in the log. Verified experimentally: under
+          #    `--log info` they are written to STDOUT (never stderr), and to the debug log at
+          #    "$BIT_GLOBALS_DIR"/logs/debug.log. Grep the trace stream so degraded-but-not-yet-
+          #    blocking env loads are caught too.
+          bit status --log info 2>&1 | grep -qE "EnvNotFound|ERR_MODULE_NOT_FOUND" \
+            && { echo "::error::workspace envs failed to load (EnvNotFound/ERR_MODULE_NOT_FOUND in the bit log)"; exit 1; } \
+            || true
+      - name: Run bit-git-sync (vendored action, dev binary)
+        uses: ./.github/actions/bit-git-sync
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          # The dev binary reads the user.token config key; provide both env spellings.
+          BIT_CONFIG_USER_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
