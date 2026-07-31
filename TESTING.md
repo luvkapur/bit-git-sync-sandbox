@@ -143,6 +143,39 @@ That lane carries components from two scopes; one repository maps to one scope. 
 run refuses loudly (red, with the component list and a docs pointer) — and enumerated runs
 (Test 5) *skip* such lanes and stay green.
 
+## Test 7 — Git-first: a plain PR becomes a lane (~10 min)
+
+The reverse origination story. A developer who knows nothing about Bit pushes a branch and
+opens a PR — the repo adopts it into a lane and the pair stays bidirectional from then on.
+
+```bash
+git checkout -b my-git-first main
+# edit test/sync-probe/sync-probe.ts — any change
+git commit -am "feat: born in git" && git push -u origin my-git-first
+gh pr create --fill
+```
+
+The `bit-adopt-pr-from-source` workflow fires on the PR:
+1. runs `bit ci pr --keep-lane` — snaps the PR's source onto lane `my-git-first` and exports it
+   (branch names are sanitized: `/` becomes `-`);
+2. commits the updated `.bitmap` back to the PR branch (`chore(bit-sync): anchor PR to its
+   lane`). That committed `.bitmap` *is* the sync state — lane pointer + component versions —
+   which is what lets `bit ci sync` treat this pair like any lane-born pair afterwards.
+
+Verify: lane `my-git-first` on bit.cloud carries the snap; the PR branch has the anchor commit.
+Then prove the marriage both ways:
+- snap on the lane from any workspace (`bit lane import`, edit, `bit snap && bit export`) →
+  dispatch a sync → the PR branch gains the change;
+- push another commit to the PR branch → the sync exports it to the lane.
+
+## Test 8 — Both ends at once (~10 min)
+
+On the Test 7 pair (or any synced pair), make a lane-side snap **and** a git-side commit
+touching *different* files before any sync runs, then dispatch one sync. Expected verdict:
+`merge-diverged` — the engine merges lane content into the branch, snaps the merged result
+back to the lane, and both ends converge to the union. Same-line edits instead **halt**:
+conflict label + runbook comment, nothing force-pushed (that is Test 3).
+
 ## Reading a run
 
 Open any `bit-sync-from-source` run → `sync` job → "Run bit-git-sync" step. The last lines are
