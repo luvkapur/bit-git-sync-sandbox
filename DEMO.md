@@ -41,8 +41,20 @@ label + runbook comment, nothing force-pushed, resume by removing the label.
   [sync run](../../actions/runs/30637737442) reported
   `merge-diverged (lane head: 19924cd2, branch state: f5d31ade, dev commits: true)`, merged the
   lane into the branch, snapped the union back (`46cfc88e`), exported, and updated the branch —
-  whose tip now carries both edits. The follow-up run reported `noop (converged)`. Same-line
-  edits instead halt: see Test 3 in [TESTING.md](./TESTING.md).
+  whose tip now carries both edits. The follow-up run reported `noop (converged)`.
+
+### Same-line conflicts: blocked by default, automatable by config
+
+When both ends rewrite the *same line*, merging would erase someone's work — so by default the
+sync **halts**: [this run](../../actions/runs/30644154755) went red, put the `bit-sync-conflict`
+label and a runbook comment on [PR #9](../../pull/9), and wrote nothing to either end.
+
+Teams that prefer automation over blocking set a policy in `workspace.jsonc`
+(`"onConflict": "git-wins"` or `"lane-wins"` — contested hunks only; everything else still
+merges as the union). Same divergence, label removed, [rerun](../../actions/runs/30646376584):
+green, logging `resolving by policy sync.onConflict "git-wins" (bit merge strategy: ours)` →
+`Resolved 1 conflicted file(s)` — the branch kept its version of the contested line, the union
+survived, and the merged snap went back to the lane.
 
 ## Guarantee 4 — Releases to main
 *A release exported straight to the scope's main pushes directly to this repo's main.*
