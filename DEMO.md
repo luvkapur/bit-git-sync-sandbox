@@ -23,7 +23,9 @@ workflow marries it to a lane (`bit ci pr`), anchors the pair by committing `.bi
 committed `.bitmap` IS the sync state — lane pointer + component versions), and from then on
 the standard sync keeps the pair converged.
 
-- Proof: [PR #9](../../pull/9) — born as a plain git PR, married to lane `git-first-demo`.
+- Proof: [PR #9](../../pull/9) — born as a plain git PR; the adopt run snapped it onto lane
+  `git-first-demo`, exported, and pushed the `chore(bit-sync): anchor PR to its lane` commit
+  ([adopt run](../../actions/runs/30637244292)).
 
 ## Guarantee 3 — Both ends at once
 *A change worked on from both ends simultaneously stays in sync.*
@@ -34,8 +36,13 @@ tree, snaps the merged result back to the lane, and records the new state — bo
 to the union. If the two ends touched the same lines, the engine **halts instead**: conflict
 label + runbook comment, nothing force-pushed, resume by removing the label.
 
-- Proof: see the "both ends" commits on the Guarantee-2 pair below, and Test 3 in
-  [TESTING.md](./TESTING.md) for the conflict variant.
+- Proof, on the Guarantee-2 pair: git side added `consts.ts` on the branch while a snap from a
+  scratch workspace edited `sync-probe.ts` on the lane. The webhook-triggered
+  [sync run](../../actions/runs/30637737442) reported
+  `merge-diverged (lane head: 19924cd2, branch state: f5d31ade, dev commits: true)`, merged the
+  lane into the branch, snapped the union back (`46cfc88e`), exported, and updated the branch —
+  whose tip now carries both edits. The follow-up run reported `noop (converged)`. Same-line
+  edits instead halt: see Test 3 in [TESTING.md](./TESTING.md).
 
 ---
 
