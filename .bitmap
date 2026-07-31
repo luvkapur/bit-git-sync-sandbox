@@ -12,15 +12,16 @@
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
-        "version": "0.0.2",
+        "version": "be197677878b66cbffa4952e0ca6efe26b452adf",
         "mainFile": "index.ts",
-        "rootDir": "test/sync-probe",
-        "config": {
-            "teambit.harmony/node": {},
-            "teambit.envs/envs": {
-                "env": "teambit.harmony/node"
-            }
-        }
+        "rootDir": "test/sync-probe"
     },
-    "$schema-version": "17.0.0"
+    "$schema-version": "17.0.0",
+    "_bit_lane": {
+        "id": {
+            "name": "demo-e2e",
+            "scope": "luvktest.test"
+        },
+        "exported": true
+    }
 }
