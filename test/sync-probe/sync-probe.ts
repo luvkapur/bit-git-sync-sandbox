@@ -9,3 +9,4 @@ export const liveA = 'mode-a-live-validation';
 export const devEdit = 'pushed-from-git';
 export const demoE2E = 'public-demo-live-0901';
 export const beat1b = 'pr-opens-hands-free';
+export const ephemeral = 'this-lane-never-saw-the-git-repo';
