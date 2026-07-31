@@ -1,28 +1,45 @@
 # bit-git-sync — live end-to-end demo
 
-This repository demonstrates bi-directional sync between [Bit lanes](https://bit.cloud/luvktest/test) and GitHub branches/PRs, powered by the `bit ci sync` command ([teambit/bit#10541](https://github.com/teambit/bit/pull/10541)) built **from source** on every run.
+**One setup: a git repository mapped to a Bit scope, configured with the bit-git-sync GitHub
+Action** (running a from-source build of `bit ci sync`, [teambit/bit#10541](https://github.com/teambit/bit/pull/10541)).
 
-## The wiring (zero middleware)
+**Three guarantees, each demonstrated live in this repo:**
 
-```
-bit export (lane)  →  bit.cloud webhook (custom template + Authorization header)
-                   →  GitHub repository_dispatch  →  Actions workflow
-                   →  bit ci sync (dev binary, built from source on the runner)
-                   →  branch + PR appear / lane advances / branches retire
-```
+## Guarantee 1 — Cloud → repo
+*Any change to the scope via bit.cloud creates a branch + PR here and keeps it in sync.*
 
-- `.github/workflows/bit-sync-from-source.yml` — the sync job (webhook/manual triggered)
-- `.github/workflows/bit-release-from-source.yml` — the release job (PR merge → `bit ci merge`)
-- The bit.cloud org webhook posts `{"event_type":"bit-export","client_payload":{"laneId":…}}` straight to GitHub's dispatch API.
+A developer works on a lane from **any workspace, anywhere** — they never clone or reference
+this repository (a lane is an ephemeral repo). The moment they `bit export`, the webhook fires
+and this repo grows a branch + PR with the real source.
 
-## The core idea
+- Proof: [PR #7](../../pull/7) — full lifecycle to merge + release; lane `ephemeral-proof` —
+  created in a scratch directory that never saw this repo, PR appeared hands-free.
 
-A lane is an **ephemeral repository**: developers create and work on lanes from any workspace,
-on any machine — never needing to clone this repo. The moment a lane exports, this repository
-syncs itself (webhook → workflow → branch + PR). Git stays the reviewable, compliant record;
-the lane stays the fluid workspace.
+## Guarantee 2 — Repo → cloud
+*Any change introduced here (an ordinary git PR) creates a lane and keeps it in sync.*
 
-## Demo beats
+A git developer — who may know nothing about Bit — pushes a branch and opens a PR. The adopt
+workflow marries it to a lane (`bit ci pr`), anchors the pair by committing `.bitmap` (the
+committed `.bitmap` IS the sync state — lane pointer + component versions), and from then on
+the standard sync keeps the pair converged.
+
+- Proof: [PR #9](../../pull/9) — born as a plain git PR, married to lane `git-first-demo`.
+
+## Guarantee 3 — Both ends at once
+*A change worked on from both ends simultaneously stays in sync.*
+
+On one pair: a snap lands on the lane (from some other workspace) while a commit lands on the
+branch. The next sync classifies the divergence, merges lane content into the branch's working
+tree, snaps the merged result back to the lane, and records the new state — both ends converge
+to the union. If the two ends touched the same lines, the engine **halts instead**: conflict
+label + runbook comment, nothing force-pushed, resume by removing the label.
+
+- Proof: see the "both ends" commits on the Guarantee-2 pair below, and Test 3 in
+  [TESTING.md](./TESTING.md) for the conflict variant.
+
+---
+
+## The playbook (beats behind the guarantees)
 
 1. **Lane → PR (hands-free).** A developer exports a lane on bit.cloud. The webhook fires, the workflow runs, and a branch + pull request appear with the lane's real source. No human between `bit export` and the PR.
 2. **PR branch → lane.** A developer pushes an ordinary git commit to the PR branch. The next sync run snaps it onto the lane on bit.cloud — the runner performs a real `bit snap` + export.
