@@ -13,3 +13,5 @@ export const beat1b = 'pr-opens-hands-free';
 export const RELEASED_DIRECTLY_TO_MAIN = 'this-release-never-saw-a-pull-request';
 
 export const releasedBit = 'verified-on-bit-2.0.65';
+
+export const gitSideEdit = 'flow-2-repo-to-cloud';
