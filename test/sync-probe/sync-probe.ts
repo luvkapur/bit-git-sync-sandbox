@@ -1,3 +1,4 @@
+// flow-3b: a second git-side edit, made while the lane holds an unexported snap
 // flow-3: the git side moved while the lane also moved
 
 /**
