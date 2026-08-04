@@ -5,7 +5,7 @@
  * returns 'hello world'
  */
 export function syncProbe() {
-  return 'hello from the lane';
+  return 'hello from git';
 }
 export const liveA = 'mode-a-live-validation';
 export const devEdit = 'pushed-from-git';
