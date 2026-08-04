@@ -17,3 +17,5 @@ export const RELEASED_DIRECTLY_TO_MAIN = 'this-release-never-saw-a-pull-request'
 export const releasedBit = 'verified-on-bit-2.0.65';
 
 export const gitSideEdit = 'flow-2-repo-to-cloud';
+
+export const laneSideEdit = 'flow-3-lane-to-repo';
