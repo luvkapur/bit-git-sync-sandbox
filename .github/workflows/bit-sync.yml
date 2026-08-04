@@ -19,7 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      # The init step reads the token too. Without it, the step stops
+      # with "BIT_CONFIG_ACCESS_TOKEN environment variable is not set!".
       - uses: bit-tasks/init@v2
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
       - name: Gate on workspace health (a sync that cannot snap must not look green)
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
