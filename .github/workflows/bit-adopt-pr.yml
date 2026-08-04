@@ -1,0 +1,75 @@
+# Adopt: turns an ordinary git pull request into a bit.cloud lane.
+# Runs the released bit (bit-tasks/init@v2); adoption calls the command directly,
+# because the action routes a merged pull request only.
+name: bit-adopt-pr
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+concurrency:
+  group: bit-adopt-${{ github.event.pull_request.head.ref }}
+  cancel-in-progress: false
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  sync:
+    # Adopt ordinary git-first PRs only: lane-synced branches are already married,
+    # and PRs opened by the sync itself (github-actions) must never be re-adopted.
+    if: >-
+      !startsWith(github.event.pull_request.head.ref, 'bit-sync/')
+      && github.event.pull_request.user.login != 'github-actions[bot]'
+      && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: bit-tasks/init@v2
+      - name: Gate on workspace health (a run that cannot snap must not look green)
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+        run: |
+          bit status --fail-on-error \
+            || { echo "::error::workspace has tag/snap-blocking issues (see the bit status output above)"; exit 1; }
+          bit status --log info 2>&1 | grep -qE "EnvNotFound|ERR_MODULE_NOT_FOUND" \
+            && { echo "::error::workspace envs failed to load (EnvNotFound/ERR_MODULE_NOT_FOUND in the bit log)"; exit 1; } \
+            || true
+      - name: Adopt PR into a lane (bit ci pr --keep-lane)
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          # PR title flows in via env, never inline substitution - titles are attacker-typed argv.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Adopt exactly once. Once the branch's committed .bitmap names a lane (the
+          # anchor), the pair belongs to `bit ci sync` - later git-side commits are
+          # reconciled by the next sync run, not by re-adoption.
+          if grep -q '_bit_lane' .bitmap 2>/dev/null; then
+            echo "branch .bitmap already names a lane - adopted; bit ci sync owns this pair"
+            exit 0
+          fi
+          git config user.name "bit-sync[bot]"
+          git config user.email "bit-sync[bot]@users.noreply.github.com"
+          bit ci pr --keep-lane --message "$PR_TITLE"
+      - name: Anchor the pair (commit .bitmap back to the PR branch)
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if grep -q '_bit_lane' .bitmap 2>/dev/null; then
+            echo "already anchored - nothing to do"
+            exit 0
+          fi
+          # `bit ci pr` ends by restoring the workspace to main, which resets .bitmap.
+          # Switch onto the kept lane so .bitmap carries the lane pointer + snapped
+          # versions - that .bitmap, committed to the branch, IS the sync state.
+          LANE="${HEAD_REF//\//-}"
+          bit lane switch "$LANE"
+          if git diff --quiet -- .bitmap; then
+            echo "bitmap unchanged after lane switch - nothing to anchor"
+            exit 0
+          fi
+          git add .bitmap
+          git commit -m "chore(bit-sync): anchor PR to its lane"
+          git push origin HEAD:refs/heads/"$HEAD_REF"

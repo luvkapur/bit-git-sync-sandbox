@@ -1,7 +1,7 @@
 # bit-git-sync — live end-to-end demo
 
 **One setup: a git repository mapped to a Bit scope, configured with the bit-git-sync GitHub
-Action** (running a from-source build of `bit ci sync`, [teambit/bit#10541](https://github.com/teambit/bit/pull/10541)).
+Action** (the released `bit ci sync`, available in bit 2.0.65 and later).
 
 **Three guarantees, each demonstrated live in this repo:**
 

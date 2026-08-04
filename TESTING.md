@@ -1,7 +1,7 @@
 # Test bit-git-sync yourself — step by step
 
-This repository is a working demo of bi-directional Bit lane ↔ GitHub PR sync, running a
-from-source build of `bit ci sync` ([teambit/bit#10541](https://github.com/teambit/bit/pull/10541)).
+This repository is a working demo of bi-directional Bit lane ↔ GitHub PR sync, running the
+released `bit ci sync` (bit 2.0.65 and later).
 
 Two ways to use it:
 
@@ -37,8 +37,7 @@ Then three one-time settings on YOUR fork/org:
    - Template (Custom):
      `{"event_type":"bit-export","client_payload":{"laneId":"{{laneId}}","componentIds":"{{componentIds}}","owner":"{{owner}}","actor":"{{username}}"}}`
 
-No other secrets are needed — the workflows pull the public from-source bit branch read-only
-(`FORK_SYNC_TOKEN` is maintainer-only and skipped on forks).
+No other secrets are needed — `bit-tasks/init@v2` installs the newest released bit.
 
 In the tests below, replace `luvktest.test` with your scope.
 
@@ -85,7 +84,7 @@ bit export
 ```
 
 Now **touch nothing** and watch the *repository*:
-- Actions tab → a `bit-sync-from-source` run appears within seconds (the bit.cloud webhook
+- Actions tab → a `bit-sync` run appears within seconds (the bit.cloud webhook
   triggered it — no human, no cron, and nothing you did referenced the repo).
 - ~4 min later (warm cache): a branch and a pull request named `Lane sync: luvktest.test/my-test-<yourname>`
   exist, authored by `github-actions`, containing your actual source change.
@@ -98,7 +97,7 @@ The repo clone from Setup is only needed when you act as the *git-side* develope
 git fetch origin && git checkout my-test-<yourname>
 echo "export const fromGit = 'this line was born in git';" >> test/sync-probe/index.ts
 git commit -am "a change from the git side" && git push origin my-test-<yourname>
-gh workflow run bit-sync-from-source.yml -f lane=my-test-<yourname>
+gh workflow run bit-sync.yml -f lane=my-test-<yourname>
 ```
 
 Watch the run, then verify on the Bit side:
@@ -119,14 +118,14 @@ remove the label, re-trigger: the pair converges.
 
 ## Test 4 — Merge → release (~5 min)
 
-Merge your PR (GitHub UI or `gh pr merge <n> --merge`). The `bit-release-from-source` workflow
+Merge your PR (GitHub UI or `gh pr merge <n> --merge`). The `bit-release` workflow
 fires automatically: your lane merges into the scope's main, new component versions release on
 [bit.cloud/luvktest/test](https://bit.cloud/luvktest/test), and the lane is archived.
 
 ## Test 5 — Branch retirement
 
 ```bash
-gh workflow run bit-sync-from-source.yml    # no lane input = reconcile everything
+gh workflow run bit-sync.yml    # no lane input = reconcile everything
 ```
 
 The merged lane's branch is deleted — the run log shows `close-pr` with the ownership evidence.
@@ -136,7 +135,7 @@ reconciler-authored sync commit at the tip whose committed `.bitmap` names that 
 ## Test 6 — Cross-scope guard
 
 ```bash
-gh workflow run bit-sync-from-source.yml -f lane=luvktest.cards/cross-scope
+gh workflow run bit-sync.yml -f lane=luvktest.cards/cross-scope
 ```
 
 That lane carries components from two scopes; one repository maps to one scope. Expected: the
@@ -155,7 +154,7 @@ git commit -am "feat: born in git" && git push -u origin my-git-first
 gh pr create --fill
 ```
 
-The `bit-adopt-pr-from-source` workflow fires on the PR:
+The `bit-adopt-pr` workflow fires on the PR:
 1. runs `bit ci pr --keep-lane` — snaps the PR's source onto lane `my-git-first` and exports it
    (branch names are sanitized: `/` becomes `-`);
 2. commits the updated `.bitmap` back to the PR branch (`chore(bit-sync): anchor PR to its
@@ -194,7 +193,7 @@ pull request on `bit-sync/main` instead.
 
 ## Reading a run
 
-Open any `bit-sync-from-source` run → `sync` job → "Run bit-git-sync" step. The last lines are
+Open any `bit-sync` run → `sync` job → "Run bit-git-sync" step. The last lines are
 the per-lane verdicts, e.g.:
 
 ```

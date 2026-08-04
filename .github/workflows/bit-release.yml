@@ -1,0 +1,27 @@
+# Release: a merged lane-sync pull request merges the lane into the main scope,
+# then the run tags and exports new component versions.
+# Runs the released bit (bit-tasks/init@v2) and the published, pinned action.
+name: bit-release
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+concurrency:
+  group: bit-release
+  cancel-in-progress: false
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  release:
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref != 'bit-sync/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: bit-tasks/init@v2
+      # The pin is deliberate, because this job holds write permission.
+      - uses: teambit/bit-git-sync@66c0fdf9e34e45f70b4f397b38b2b01f79dd1f41
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

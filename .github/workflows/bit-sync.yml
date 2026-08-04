@@ -1,0 +1,39 @@
+# Reconcile: keeps each bit.cloud lane and its git branch equal.
+# Runs the released bit (bit-tasks/init@v2) and the published, pinned action.
+name: bit-sync
+on:
+  repository_dispatch:
+    types: [bit-export, bit-lane-export, bit-main-export, bit-lane-removed]
+  workflow_dispatch:
+    inputs:
+      lane: { description: "Lane to sync (empty = all)", required: false }
+concurrency:
+  group: bit-sync-${{ github.event.client_payload.laneId || github.event.client_payload.lane || inputs.lane || 'reconcile-all' }}
+  cancel-in-progress: false
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: bit-tasks/init@v2
+      - name: Gate on workspace health (a sync that cannot snap must not look green)
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+        run: |
+          # Exit code: --fail-on-error exits 1 for exactly the issues that block tag/snap.
+          bit status --fail-on-error \
+            || { echo "::error::workspace has tag/snap-blocking issues (see the bit status output above)"; exit 1; }
+          # Log traces: env-resolution failures are TOLERATED traces that never reach the
+          # default status output; they appear only under --log info (stdout).
+          bit status --log info 2>&1 | grep -qE "EnvNotFound|ERR_MODULE_NOT_FOUND" \
+            && { echo "::error::workspace envs failed to load (EnvNotFound/ERR_MODULE_NOT_FOUND in the bit log)"; exit 1; } \
+            || true
+      # The pin is deliberate, because this job holds write permission.
+      - uses: teambit/bit-git-sync@66c0fdf9e34e45f70b4f397b38b2b01f79dd1f41
+        env:
+          BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
