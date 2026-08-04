@@ -79,10 +79,10 @@
    **/
   "teambit.git/ci": {
     "sync": {
-      "mainSync": "direct-push"
-      // Same-line lane/branch conflicts use the default 'halt' policy: the run stops the
-      // lane, labels the pull request, and writes the recovery steps. Add
-      // "onConflict": "git-wins" (or "lane-wins") to auto-resolve contested hunks instead.
+      "mainSync": "direct-push",
+      // Same-line lane/branch conflicts: keep the branch's version of contested hunks instead of
+      // halting. Remove this line to restore the default block-and-label behavior ('halt').
+      "onConflict": "git-wins"
     }
   },
   "teambit.workspace/workspace-config-files": {
