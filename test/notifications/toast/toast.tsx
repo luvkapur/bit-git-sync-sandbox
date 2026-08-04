@@ -14,3 +14,5 @@ export function Toast({ children }: ToastProps) {
     </div>
   );
 }
+
+export const directPushProbe = 'released-straight-to-main';
