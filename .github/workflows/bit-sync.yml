@@ -16,11 +16,6 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    # bit is preinstalled in this image (built daily by bit-tasks/bit-docker-image).
-    # The tag matches the engine pin in workspace.jsonc, so bit-tasks/init skips
-    # the bvm download and the run saves the install time.
-    container:
-      image: bitsrc/nightly:2.0.65
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
