@@ -32,9 +32,9 @@
     "resolveEnvsFromRoots": true
   },
   /**
-   * the bit version this workspace requires. bit-tasks/init reads it and
-   * installs exactly this version (`bvm install` alone installs the latest
-   * stable, which predates `bit ci sync`).
+   * the bit version that this workspace requires. bit-tasks/init reads it
+   * and installs this version. `bvm install` alone installs the latest
+   * stable release. That release does not have `bit ci sync`.
    **/
   "teambit.harmony/bit": {
     "engine": "2.0.65"

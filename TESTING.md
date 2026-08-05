@@ -1,7 +1,7 @@
 # Test bit-git-sync yourself — step by step
 
-This repository is a working demo of bi-directional Bit lane ↔ GitHub PR sync, running the
-released `bit ci sync` (bit 2.0.65 and later).
+This repository is a working demo of bi-directional sync between Bit lanes and GitHub PRs. It
+runs the released `bit ci sync` (bit 2.0.65 and later).
 
 Two ways to use it:
 
