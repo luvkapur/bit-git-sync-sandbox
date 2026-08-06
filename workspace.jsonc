@@ -37,7 +37,7 @@
    * stable release. That release does not have `bit ci sync`.
    **/
   "teambit.harmony/bit": {
-    "engine": "2.0.65"
+    "engine": "2.0.69"
   },
   /**
   * Enable generator templates by uncommenting the desired environments below.
