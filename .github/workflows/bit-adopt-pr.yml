@@ -35,8 +35,8 @@ jobs:
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
         run: |
-          # (No log-trace grep here: the released bit logs a tolerated "env not
-          # loaded yet" retry trace in healthy workspaces.)
+          # Do not gate on EnvNotFound log traces: bit logs them as tolerated
+          # retries in healthy workspaces.
           bit status --fail-on-error \
             || { echo "::error::workspace has tag/snap-blocking issues (see the bit status output above)"; exit 1; }
       - name: Adopt PR into a lane (bit ci pr --keep-lane)
