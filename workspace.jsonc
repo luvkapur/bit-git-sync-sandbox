@@ -73,16 +73,18 @@
     }
   },
   /**
-   * bit-git-sync: a release exported straight to the scope's main is pushed DIRECTLY onto this
-   * repository's default branch (no bit-sync/main proposal PR). Remove this block to get the
-   * default 'pr' behavior, where main drift is proposed as a pull request instead.
+   * The sync configuration that the `bit ci sync` command and the
+   * bit-git-sync action both read. Kept equal to the teambit
+   * bit-git-sync-example: every lane gets a branch, main drift is proposed
+   * as a pull request, and a contested line halts the run.
    **/
   "teambit.git/ci": {
     "sync": {
-      "mainSync": "direct-push",
-      // Same-line lane/branch conflicts: keep the branch's version of contested hunks instead of
-      // halting. Remove this line to restore the default block-and-label behavior ('halt').
-      "onConflict": "git-wins"
+      "lanes": [
+        "*"
+      ],
+      "mainSync": "pr",
+      "onConflict": "halt"
     }
   },
   "teambit.workspace/workspace-config-files": {
