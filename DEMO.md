@@ -1,94 +1,144 @@
 # bit-git-sync — live end-to-end demo
 
-**One setup: a git repository mapped to a Bit scope, configured with the bit-git-sync GitHub
-Action** (the released `bit ci sync`, available in bit 2.0.65 and later).
+One setup: this git repository is mapped to the Bit scope `luvktest.test` and configured with
+the bit-git-sync GitHub Action (`bit ci sync`). Everything below happened live in this repo —
+every claim links to the real Actions run that proved it.
 
-**Three guarantees, each demonstrated live in this repo:**
-
-## Guarantee 1 — Cloud → repo
-*Any change to the scope via bit.cloud creates a branch + PR here and keeps it in sync.*
-
-A developer works on a lane from **any workspace, anywhere** — they never clone or reference
-this repository (a lane is an ephemeral repo). The moment they `bit export`, the webhook fires
-and this repo grows a branch + PR with the real source.
-
-- Proof: [PR #7](../../pull/7) — full lifecycle to merge + release; lane `ephemeral-proof` —
-  created in a scratch directory that never saw this repo, PR appeared hands-free.
-
-## Guarantee 2 — Repo → cloud
-*Any change introduced here (an ordinary git PR) creates a lane and keeps it in sync.*
-
-A git developer — who may know nothing about Bit — pushes a branch and opens a PR. The adopt
-workflow marries it to a lane (`bit ci pr`), anchors the pair by committing `.bitmap` (the
-committed `.bitmap` IS the sync state — lane pointer + component versions), and from then on
-the standard sync keeps the pair converged.
-
-- Proof: [PR #9](../../pull/9) — born as a plain git PR; the adopt run snapped it onto lane
-  `git-first-demo`, exported, and pushed the `chore(bit-sync): anchor PR to its lane` commit
-  ([adopt run](../../actions/runs/30637244292)).
-
-## Guarantee 3 — Both ends at once
-*A change worked on from both ends simultaneously stays in sync.*
-
-On one pair: a snap lands on the lane (from some other workspace) while a commit lands on the
-branch. The next sync classifies the divergence, merges lane content into the branch's working
-tree, snaps the merged result back to the lane, and records the new state — both ends converge
-to the union. If the two ends touched the same lines, the engine **halts instead**: conflict
-label + runbook comment, nothing force-pushed, resume by removing the label.
-
-- Proof, on the Guarantee-2 pair: git side added `consts.ts` on the branch while a snap from a
-  scratch workspace edited `sync-probe.ts` on the lane. The webhook-triggered
-  [sync run](../../actions/runs/30637737442) reported
-  `merge-diverged (lane head: 19924cd2, branch state: f5d31ade, dev commits: true)`, merged the
-  lane into the branch, snapped the union back (`46cfc88e`), exported, and updated the branch —
-  whose tip now carries both edits. The follow-up run reported `noop (converged)`.
-
-### Same-line conflicts: blocked by default, automatable by config
-
-When both ends rewrite the *same line*, merging would erase someone's work — so by default the
-sync **halts**: [this run](../../actions/runs/30644154755) went red, put the `bit-sync-conflict`
-label and a runbook comment on [PR #9](../../pull/9), and wrote nothing to either end.
-
-Teams that prefer automation over blocking set a policy in `workspace.jsonc`
-(`"onConflict": "git-wins"` or `"lane-wins"` — contested hunks only; everything else still
-merges as the union). Same divergence, label removed, [rerun](../../actions/runs/30646376584):
-green, logging `resolving by policy sync.onConflict "git-wins" (bit merge strategy: ours)` →
-`Resolved 1 conflicted file(s)` — the branch kept its version of the contested line, the union
-survived, and the merged snap went back to the lane.
-
-## Guarantee 4 — Releases to main
-*A release exported straight to the scope's main pushes directly to this repo's main.*
-
-With `"mainSync": "direct-push"` in `workspace.jsonc` (see the `teambit.git/ci` block), main-scope
-drift is not proposed as a PR — the sync commits it onto the default branch and plain-pushes
-(never force). The default is still `"pr"`: drift proposed on `bit-sync/main` for review
-([PR #8](../../pull/8) shows that mode).
-
-- Proof: a `bit tag && bit export` from an ephemeral workspace put
-  `RELEASED_DIRECTLY_TO_MAIN` on the scope; the webhook-triggered
-  [sync run](../../actions/runs/30640214774) reported
-  `main -> drift in 2 file(s)` then `main -> direct-push (pushed main @ ba6cc94)` — main's tip
-  is now that `bit-sync[bot]` commit, and no proposal PR was opened.
+The engine is a **stateless reconciler**: the committed `.bitmap` on each branch IS the sync
+state (which lane the branch mirrors + the exact version of every component). Triggers — the
+bit.cloud webhook, branch pushes, an hourly cron — only decide *when* it runs, never *what* it
+does. Converged state is a no-op; the command is safe to re-run at any time.
 
 ---
 
-## The playbook (beats behind the guarantees)
+## Flow 1 — Lane → branch (cloud-first work lands as a PR)
 
-1. **Lane → PR (hands-free).** A developer exports a lane on bit.cloud. The webhook fires, the workflow runs, and a branch + pull request appear with the lane's real source. No human between `bit export` and the PR.
-2. **PR branch → lane.** A developer pushes an ordinary git commit to the PR branch. The next sync run snaps it onto the lane on bit.cloud — the runner performs a real `bit snap` + export.
-3. **Conflict safety.** If the lane and branch edit the same lines, the run halts: the PR gets a `bit-sync-conflict` label + a runbook comment. Removing the label resumes syncing. Nothing is force-pushed, ever.
-4. **Merge → release.** Merging the PR triggers the release workflow: the lane merges into the scope's main and new component versions release on bit.cloud.
-5. **Retirement.** The next `--all` run retires the merged lane's branch — deletion requires proof (the branch tip must be a reconciler-authored sync commit whose committed `.bitmap` names that exact lane). Ordinary developer branches are never touched.
-6. **Cross-scope guard.** A lane carrying components from multiple scopes is skipped with a clear reason (one repo maps one scope) — enumerated runs stay green.
+A developer works on a lane from any workspace, anywhere — they never clone this repository.
+The moment they `bit export`, the webhook fires and this repo grows a branch + PR with the
+lane's real source.
 
-## Artifacts from live runs
+**What we did:** `bit lane create feature-banner`, edited `sync-probe`, `bit snap && bit export`.
+**What the automation did:** [run 31517811196](../../actions/runs/31517811196) planned
+`feature-banner -> import-lane (branch: feature-banner, lane head: 8b3c75493, branch state: none)`,
+pushed the branch, and opened [PR #19](../../pull/19) hands-free.
+**What you see:** a PR whose committed `.bitmap` records the lane pointer
+(`_bit_lane: luvktest.test/feature-banner`) and the exact snap of every component — the anchor
+every later decision reads.
 
-- **The showcase**: [PR #7 (demo-e2e)](../../pull/7) — opened hands-free by `github-actions` after a `bit export`, zero humans in the chain.
-- Main-scope sync PR: [#8 (bit-sync/main)](../../pull/8) — drift detected and proposed as a reviewable PR.
-- Full lifecycle PR: [#1 (live-a)](../../pull/1) — sync commits, dev commit, conflict label + runbook, resolution, merge.
-- Retirement in action: [PR #6](../../pull/6) — the engine's hardening battlefield, closed by the ownership rule after its lane was removed.
-- First hands-free dispatch: [run 30555608626](../../actions/runs/30555608626) · first green runner-side snap: [run 30630594375](../../actions/runs/30630594375)
+## Flow 2 — Branch → lane (a plain git commit flows to the cloud)
 
-## Setup note learned live
+A git developer — who may know nothing about Bit — pushes an ordinary commit to the PR branch.
 
-Repository setting **Actions → General → "Allow GitHub Actions to create and approve pull requests"** must be enabled — without it the sync degrades gracefully (branch pushed, warning logged, run stays green) but no PR appears.
+**What we did:** edited `sync-probe.ts`, `git commit && git push` — nothing else.
+**What the automation did:** [run 31518125726](../../actions/runs/31518125726) planned
+`feature-banner -> export-branch (dev commits: true)`, performed a real `bit snap` + export on
+the runner, and pushed the ledger commit `chore(bit-sync): sync lane … @ 36fb47b8f` back to the
+branch.
+**What you see:** the lane on bit.cloud now carries the git edit; a fresh
+`bit lane import luvktest.test/feature-banner` in any workspace shows the change.
+
+## Both ends at once — merge-diverged
+
+A snap landed on the lane while a different-file commit landed on the branch, before any sync
+could run (the export webhook and the git push fired within the same second).
+
+- [Run 31518467871](../../actions/runs/31518467871):
+  `feature-banner -> merge-diverged (lane head: 6ac486c25, branch state: 36fb47b8f, dev commits: true)`
+  → merged the lane into the branch tree with no conflicts, snapped the merged result, exported,
+  pushed. Both edits now live on both ends.
+- Its twin [run 31518467856](../../actions/runs/31518467856) raced it, lost the push, detected
+  the concurrent CI export, rebased onto the remote lane and reported
+  `raced (… next run re-plans)` — no work lost, no red run.
+- [Run 31518588740](../../actions/runs/31518588740) fast-forwarded the branch;
+  [run 31518598765](../../actions/runs/31518598765) confirmed `noop (converged)`.
+
+## Same-line conflict — halt, label, resume
+
+Both ends rewrote the *same line*. Merging would erase someone's work, so the sync **halts**
+instead of guessing.
+
+- [Run 31519023931](../../actions/runs/31519023931) went red on purpose:
+  `HALTED feature-banner -> merge conflicts in: luvktest.test/sync-probe`, put the
+  `bit-sync-conflict` label on [PR #19](../../pull/19) and posted a runbook comment with the
+  exact local commands to resolve. Nothing was force-pushed to either end.
+- The simultaneous push-triggered [run 31519024882](../../actions/runs/31519024882) saw the
+  label and latched: `noop (PR is labeled bit-sync-conflict; resolve and remove the label to resume)` —
+  the label is a lock that stops every trigger from retrying a known-bad merge.
+- A human picked the winning text, pushed the resolution, removed the label; the pair then
+  reconverged — [run 31519727103](../../actions/runs/31519727103) brought the branch and lane
+  back to the same head (`import-lane … @ lane ea27e6c0f`).
+
+## Retirement — the lane is deleted on bit.cloud
+
+bit.cloud sends no "lane removed" event, so the hourly reconcile (or a manual dispatch) is what
+notices. Deletion requires proof of ownership: the branch tip must be the reconciler's **own
+ledger commit** with no human commits above it.
+
+- [Run 31519982407](../../actions/runs/31519982407):
+  `feature-banner -> close-pr (lane head: none, dev commits: false, branch claim: own-live)`
+  → closed [PR #19](../../pull/19) and deleted the branch. A branch with unmerged human work
+  above its sync state is always kept — a false "human" only ever keeps a branch.
+
+## Flow 3 — Merge → release
+
+Merging the lane PR releases the work: the lane merges into the scope's main and new component
+versions publish on bit.cloud.
+
+**What we did:** merged [PR #16](../../pull/16) (the adopted `adopt-demo` branch).
+**What the automation did:** [run 31517352093](../../actions/runs/31517352093) ran
+`bit ci merge`: tagged `luvktest.test/sync-probe@0.0.6`, exported it to main, and archived lane
+`luvktest.test/adopt-demo`.
+**Then the reconciler retired the branch:** [run 31517526996](../../actions/runs/31517526996)
+planned `adopt-demo -> close-pr (… dev commits: false, branch claim: own-merged)` and deleted
+the branch — its entire history was reachable from main, so nothing could be lost.
+
+## Flow 4 — Main drift → git (a release that never saw a PR)
+
+A `bit tag && bit export` straight to the scope's main, with **no git commit at all**.
+
+**What the automation did:** the hourly cron [run 31520188260](../../actions/runs/31520188260)
+reported `main -> drift in 2 file(s): .bitmap, test/sync-probe/sync-probe.ts`, pushed the drift
+onto `bit-sync/main` and opened [PR #20](../../pull/20) for review (conflicts, had there been
+any, resolve in favour of the scope — the PR body says so and invites closing instead of
+merging).
+**What we did:** merged it. [Run 31520533700](../../actions/runs/31520533700) then confirmed
+`main -> converged (checkout head produced no changes)`.
+
+## The adoption story — a git-first PR marries a lane
+
+The one scenario that used to be fatal: a PR branch adopted onto a lane with
+`bit ci pr --keep-lane`, whose committed `.bitmap` still carries **main's** state (no lane
+pointer). The lane exists, the branch has real commits, and the reconciler must not guess.
+
+- **Before the fix:** [run 31513767094](../../actions/runs/31513767094) — released bit HALTED:
+  `branch adopt-demo has commits but its .bitmap records no state for lane …` — a red run and a
+  stuck pair, even though nothing was actually wrong.
+- **After the fix:** [run 31516683588](../../actions/runs/31516683588) — the same state plans
+  `adopt-branch`: the reconciler proves via `bit status` that the branch tree is already the
+  lane's content, writes the missing lane pointer into `.bitmap`, and pushes one audit-trailed
+  ledger commit (`Bit-Adopted: true`). From then on the pair syncs like any other — all the way
+  through the Flow-3 merge + release above.
+
+## Dry-run
+
+`bit ci sync --all --dry-run` prints the planned action per target and writes nothing: remote
+refs were byte-identical before and after, and the working tree is restored (a dirty tree is
+refused rather than discarded).
+
+---
+
+## Current end state
+
+- Branches: `main` and `bit-sync/main` (the standing main-drift proposal branch, reused per
+  drift). No open PRs.
+- Scope `luvktest.test`: `sync-probe@0.0.7`, `notifications/toast@0.0.2` — converged with git
+  main. Lane list: empty (`adopt-demo` archived on release, `feature-banner` retired).
+
+## Setup notes learned live
+
+- Repository setting **Actions → General → "Allow GitHub Actions to create and approve pull
+  requests"** must be enabled — without it the sync degrades gracefully (branch pushed, warning
+  logged, run stays green) but no PR appears.
+- The bit.cloud webhook fires `repository_dispatch: bit-export` on every export;
+  `client_payload.laneId` carries the lane (empty = main export). Lane *removal* sends no
+  event — the hourly cron is what finds it.
