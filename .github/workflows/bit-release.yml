@@ -53,7 +53,7 @@ jobs:
           path: |
             ~/bit-src
             ~/.bvm
-          key: bit-src-v2-${{ runner.os }}-${{ steps.bit-branch.outputs.sha }}
+          key: bit-src-v3-${{ runner.os }}-${{ steps.bit-branch.outputs.sha }}
       - name: Build bit from the branch (cache miss only)
         if: steps.bit-src-restore.outputs.cache-hit != 'true'
         run: |
@@ -66,6 +66,11 @@ jobs:
           cd "$HOME/bit-src"
           bit install
           bit compile
+          # First contact links the authored core aspects (e.g. @teambit/ci)
+          # to the RUNNING bvm bit as a bootstrap bridge. Only an install that
+          # runs after the compile repoints them at the workspace's own
+          # compiled copies - without it, the released code keeps running.
+          bit install
       # The save runs right after a successful build, before any sync step can
       # fail, so one green build is enough to fill the cache for every workflow.
       - uses: actions/cache/save@v4
@@ -77,7 +82,7 @@ jobs:
           path: |
             ~/bit-src
             ~/.bvm
-          key: bit-src-v2-${{ runner.os }}-${{ steps.bit-branch.outputs.sha }}
+          key: bit-src-v3-${{ runner.os }}-${{ steps.bit-branch.outputs.sha }}
       - name: Put the branch-built bit on the PATH
         run: |
           set -euo pipefail
@@ -85,6 +90,11 @@ jobs:
           # -e follows symlinks: a dangling @teambit/legacy link (bvm dir
           # missing) must fail HERE, not later inside `bit install`.
           test -e "$HOME/bit-src/node_modules/@teambit/legacy"
+          # The runtime must be the BRANCH code, not the bvm bootstrap bridge:
+          # @teambit/ci must resolve inside bit-src and its compiled planner
+          # must know the adopt-branch action (the fix under test).
+          node -e "const p=require.resolve('@teambit/ci/package.json',{paths:[process.env.HOME+'/bit-src']}); if(p.includes('.bvm')){console.error('@teambit/ci still resolves into the bvm install: '+p);process.exit(1)};console.log('@teambit/ci at '+p)"
+          grep -q adopt-branch "$(node -e "console.log(require.resolve('@teambit/ci/dist/sync/sync-planner.js',{paths:[process.env.HOME+'/bit-src']}))")"
           sudo ln -sf "$HOME/bit-src/bin/bit.js" /usr/local/bin/bit
           command -v bit
           bit --version
