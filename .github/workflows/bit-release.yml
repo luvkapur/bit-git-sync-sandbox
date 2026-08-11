@@ -1,31 +1,94 @@
-# Release: a merged lane-sync pull request merges the lane into the main scope,
+# Release: a merged pull request merges the lane into the main scope,
 # then the run tags and exports new component versions.
-# Runs the released bit (bit-tasks/init@v2) and the published, pinned action.
 name: bit-release
 on:
   pull_request:
     types: [closed]
+    # `main` is the default branch of this repository.
+    # A pull request that merges into another branch is not on the default
+    # branch yet, so it must not start a release.
     branches: [main]
-concurrency:
-  group: bit-release
-  cancel-in-progress: false
+
+# The default GITHUB_TOKEN is read-only in many organizations.
+# The release pushes a commit and it updates the pull request.
 permissions:
   contents: write
   pull-requests: write
+
+concurrency:
+  group: bit-release-${{ github.event.pull_request.number }}
+  # A run can hold an exported version. Do not cancel it.
+  cancel-in-progress: false
+
 jobs:
   release:
-    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref != 'bit-sync/main'
     runs-on: ubuntu-latest
+    # A closed pull request is not always a merged pull request.
+    # A merged main-sync pull request releases nothing, because the scope is
+    # already ahead of the merge.
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref != 'bit-sync/main'
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
+        with:
+          # The release reads the full history. A shallow clone stops the run.
+          fetch-depth: 0
+
+      # ---------------------------------------------------------------------
+      # Branch-built bit. This is the ONLY difference from the stock example:
+      # bit comes from the branch fix/ci-pr-keep-lane-bitmap-pointer of
+      # luvkapur/bit instead of the released install that bit-tasks/init does.
+      # ---------------------------------------------------------------------
+      - id: bit-branch
+        name: Resolve the bit branch commit
+        run: |
+          SHA=$(git ls-remote https://github.com/luvkapur/bit refs/heads/fix/ci-pr-keep-lane-bitmap-pointer | cut -f1)
+          test -n "$SHA"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+      - id: bit-src-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/bit-src
+          key: bit-src-${{ runner.os }}-${{ steps.bit-branch.outputs.sha }}
+      - name: Build bit from the branch (cache miss only)
+        if: steps.bit-src-restore.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          node --version
+          npx @teambit/bvm install 2.0.69
+          export PATH="$HOME/bin:$HOME/.bvm/bin:$PATH"
+          bit --version
+          git clone --depth 1 -b fix/ci-pr-keep-lane-bitmap-pointer https://github.com/luvkapur/bit "$HOME/bit-src"
+          cd "$HOME/bit-src"
+          bit install
+          bit compile
+      # The save runs right after a successful build, before any sync step can
+      # fail, so one green build is enough to fill the cache for every workflow.
+      - uses: actions/cache/save@v4
+        if: steps.bit-src-restore.outputs.cache-hit != 'true'
+        with:
+          path: ~/bit-src
+          key: bit-src-${{ runner.os }}-${{ steps.bit-branch.outputs.sha }}
+      - name: Put the branch-built bit on the PATH
+        run: |
+          set -euo pipefail
+          test -f "$HOME/bit-src/node_modules/@teambit/bit/dist/app.js"
+          sudo ln -sf "$HOME/bit-src/bin/bit.js" /usr/local/bin/bit
+          command -v bit
+          bit --version
+      # ---------------------------------------------------------------------
+
       # The init step reads the token too. Without it, the step stops
       # with "BIT_CONFIG_ACCESS_TOKEN environment variable is not set!".
       - uses: bit-tasks/init@v2
+        with:
+          # bit is already on the PATH from the branch build above.
+          skip-bit-install: 'true'
         env:
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
       # The pin is deliberate, because this job holds write permission.
       - uses: teambit/bit-git-sync@66c0fdf9e34e45f70b4f397b38b2b01f79dd1f41
         env:
+          # A bit.cloud service-account token. The account merges the lane.
           BIT_CONFIG_ACCESS_TOKEN: ${{ secrets.BIT_CONFIG_ACCESS_TOKEN }}
+          # GitHub credentials for the commit push and the pull request comment.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
