@@ -93,8 +93,10 @@ jobs:
           # The runtime must be the BRANCH code, not the bvm bootstrap bridge:
           # @teambit/ci must resolve inside bit-src and its compiled planner
           # must know the adopt-branch action (the fix under test).
-          node -e "const p=require.resolve('@teambit/ci/package.json',{paths:[process.env.HOME+'/bit-src']}); if(p.includes('.bvm')){console.error('@teambit/ci still resolves into the bvm install: '+p);process.exit(1)};console.log('@teambit/ci at '+p)"
-          grep -q adopt-branch "$(node -e "console.log(require.resolve('@teambit/ci/dist/sync/sync-planner.js',{paths:[process.env.HOME+'/bit-src']}))")"
+          CIP=$(node -e "console.log(require('fs').realpathSync(process.env.HOME+'/bit-src/node_modules/@teambit/ci'))")
+          echo "@teambit/ci realpath: $CIP"
+          case "$CIP" in *.bvm*) echo '@teambit/ci still resolves into the bvm install'; exit 1;; esac
+          grep -q adopt-branch "$HOME/bit-src/node_modules/@teambit/ci/dist/sync/sync-planner.js"
           sudo ln -sf "$HOME/bit-src/bin/bit.js" /usr/local/bin/bit
           command -v bit
           bit --version
