@@ -24,3 +24,7 @@ export const laneSideEdit = 'flow-3-lane-to-repo';
 // `bit ci pr --keep-lane`; `bit ci sync` must then adopt the branch instead
 // of halting on "branch has commits but its .bitmap records no state".
 export const adoptDemoEdit = 'git-first-work-adopted-into-a-lane';
+
+// feature-banner: a cloud-first change — snapped on a lane, synced to a git
+// branch and PR by `bit ci sync` with no manual git work at all.
+export const featureBanner = 'cloud-first-lane-to-branch';
