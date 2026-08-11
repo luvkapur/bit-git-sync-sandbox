@@ -24,3 +24,7 @@ export const laneSideEdit = 'flow-3-lane-to-repo';
 // `bit ci pr --keep-lane`; `bit ci sync` must then adopt the branch instead
 // of halting on "branch has commits but its .bitmap records no state".
 export const adoptDemoEdit = 'git-first-work-adopted-into-a-lane';
+
+// main drift: released straight to the scope with `bit tag && bit export`;
+// no git commit was made — the sync opens the bit-sync/main PR to carry it.
+export const mainDrift = 'released-to-the-scope-before-git-saw-it';
