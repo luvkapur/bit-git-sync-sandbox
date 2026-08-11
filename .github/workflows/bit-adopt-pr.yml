@@ -48,8 +48,13 @@ jobs:
       - id: bit-src-restore
         uses: actions/cache/restore@v4
         with:
-          path: ~/bit-src
-          key: bit-src-${{ runner.os }}-${{ steps.bit-branch.outputs.sha }}
+          # ~/.bvm must travel with bit-src: `bit install` links some core
+          # packages (e.g. @teambit/legacy) as symlinks into the bvm
+          # installation, and a restored bit-src without ~/.bvm dangles.
+          path: |
+            ~/bit-src
+            ~/.bvm
+          key: bit-src-v2-${{ runner.os }}-${{ steps.bit-branch.outputs.sha }}
       - name: Build bit from the branch (cache miss only)
         if: steps.bit-src-restore.outputs.cache-hit != 'true'
         run: |
@@ -67,12 +72,20 @@ jobs:
       - uses: actions/cache/save@v4
         if: steps.bit-src-restore.outputs.cache-hit != 'true'
         with:
-          path: ~/bit-src
-          key: bit-src-${{ runner.os }}-${{ steps.bit-branch.outputs.sha }}
+          # ~/.bvm must travel with bit-src: `bit install` links some core
+          # packages (e.g. @teambit/legacy) as symlinks into the bvm
+          # installation, and a restored bit-src without ~/.bvm dangles.
+          path: |
+            ~/bit-src
+            ~/.bvm
+          key: bit-src-v2-${{ runner.os }}-${{ steps.bit-branch.outputs.sha }}
       - name: Put the branch-built bit on the PATH
         run: |
           set -euo pipefail
           test -f "$HOME/bit-src/node_modules/@teambit/bit/dist/app.js"
+          # -e follows symlinks: a dangling @teambit/legacy link (bvm dir
+          # missing) must fail HERE, not later inside `bit install`.
+          test -e "$HOME/bit-src/node_modules/@teambit/legacy"
           sudo ln -sf "$HOME/bit-src/bin/bit.js" /usr/local/bin/bit
           command -v bit
           bit --version
