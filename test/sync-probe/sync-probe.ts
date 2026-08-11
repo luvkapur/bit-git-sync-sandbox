@@ -27,7 +27,7 @@ export const adoptDemoEdit = 'git-first-work-adopted-into-a-lane';
 
 // feature-banner: a cloud-first change — snapped on a lane, synced to a git
 // branch and PR by `bit ci sync` with no manual git work at all.
-export const featureBanner = 'cloud-first-lane-to-branch';
+export const featureBanner = 'banner-text-chosen-in-git';
 
 // feature-banner, git side: an ordinary commit pushed to the branch;
 // the sync exports it back onto the lane as a snap.
