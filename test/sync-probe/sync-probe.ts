@@ -32,3 +32,6 @@ export const featureBanner = 'cloud-first-lane-to-branch';
 // feature-banner, git side: an ordinary commit pushed to the branch;
 // the sync exports it back onto the lane as a snap.
 export const bannerCopy = 'git-edit-flows-back-to-the-lane';
+
+// diverged, lane side: snapped on the lane while the branch moved too.
+export const divergedLaneSide = 'lane-moved-while-git-moved';
