@@ -120,6 +120,16 @@ jobs:
           bit --version
       # ---------------------------------------------------------------------
 
+      - name: Debug which @teambit/ci the runtime loads
+        run: |
+          echo "--- branch build (bit-src) ---"
+          grep -c postRunSummaryComment "$HOME/bit-src/node_modules/@teambit/ci/dist/sync/lane-sync-executor.js" || echo "bit-src LACKS postRunSummaryComment"
+          echo "--- workspace node_modules ---"
+          CIWS=$(node -e "try{console.log(require('fs').realpathSync(process.cwd()+'/node_modules/@teambit/ci'))}catch(e){console.log('')}")
+          echo "ws @teambit/ci realpath: ${CIWS:-MISSING}"
+          if [ -n "$CIWS" ]; then grep -c postRunSummaryComment "$CIWS/dist/sync/lane-sync-executor.js" || echo "ws copy LACKS postRunSummaryComment"; fi
+          bit --version
+
       # The init step reads the token too. Without it, the step stops
       # with "BIT_CONFIG_ACCESS_TOKEN environment variable is not set!".
       - uses: bit-tasks/init@v2
