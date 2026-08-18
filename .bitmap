@@ -19,9 +19,16 @@
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
-        "version": "0.0.7",
+        "version": "3e7c3ceed68783eec227283c07530328dc6dac10",
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
     },
-    "$schema-version": "17.0.0"
+    "$schema-version": "17.0.0",
+    "_bit_lane": {
+        "id": {
+            "name": "run-summary-demo",
+            "scope": "luvktest.test"
+        },
+        "exported": true
+    }
 }
