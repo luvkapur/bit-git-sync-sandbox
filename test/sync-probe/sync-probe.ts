@@ -30,3 +30,4 @@ export const adoptDemoEdit = 'git-first-work-adopted-into-a-lane';
 export const mainDrift = 'released-to-the-scope-before-git-saw-it';
 export const runSummaryDemo = 'first-lane-snap-for-the-comment';
 export const runSummaryDemo2 = 'the-edit-the-comment-reports';
+export const runSummaryDemo3 = 'exported-by-the-branch-built-sync';
