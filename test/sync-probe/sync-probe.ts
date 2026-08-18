@@ -29,3 +29,4 @@ export const adoptDemoEdit = 'git-first-work-adopted-into-a-lane';
 // no git commit was made — the sync opens the bit-sync/main PR to carry it.
 export const mainDrift = 'released-to-the-scope-before-git-saw-it';
 export const runSummaryDemo = 'first-lane-snap-for-the-comment';
+export const runSummaryDemo2 = 'the-edit-the-comment-reports';
