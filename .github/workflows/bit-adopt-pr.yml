@@ -60,8 +60,9 @@ jobs:
         run: |
           set -euo pipefail
           node --version
-          npx @teambit/bvm config set RELEASE_TYPE nightly
-          npx @teambit/bvm install
+          npm install --global @teambit/bvm
+          bvm config set RELEASE_TYPE nightly
+          bvm upgrade
           export PATH="$HOME/bin:$HOME/.bvm/bin:$PATH"
           bit --version
           git clone --depth 1 -b feat/ci-sync-partial-lane https://github.com/luvkapur/bit "$HOME/bit-src"
