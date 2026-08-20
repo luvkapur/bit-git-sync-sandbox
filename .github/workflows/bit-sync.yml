@@ -77,7 +77,7 @@ jobs:
         run: |
           set -euo pipefail
           node --version
-          npx @teambit/bvm install 2.0.69
+          npx @teambit/bvm install
           export PATH="$HOME/bin:$HOME/.bvm/bin:$PATH"
           bit --version
           git clone --depth 1 -b feat/ci-sync-partial-lane https://github.com/luvkapur/bit "$HOME/bit-src"
