@@ -67,21 +67,28 @@ jobs:
         run: |
           set -euo pipefail
           node --version
-          npm install --global @teambit/bvm
+          # bvm@latest, and the nightly channel: bvm's stable channel tops out
+          # at 2.0.26 while nightly tracks master (2.0.82+), so nightly IS the
+          # newest bit obtainable through bvm.
+          npm install --global @teambit/bvm@latest
+          bvm --version
           bvm config set RELEASE_TYPE nightly
           bvm upgrade
+          bvm list
           export PATH="$HOME/bin:$HOME/.bvm/bin:$PATH"
           # Run the bvm-installed bit under THIS job's pinned node, not the
           # node the bundle downloaded (see the setup-node comment above).
           BIT_APP=$(ls -d "$HOME"/.bvm/versions/*/bit-*/node_modules/@teambit/bit/dist/app.js | tail -1)
           printf '#!/bin/sh\nexec node "%s" "$@"\n' "$BIT_APP" > "$HOME/bin/bit"
           chmod +x "$HOME/bin/bit"
-          # bvm resolves the bundle's deps fresh at install time, and the
-          # current resolution ships a broken nested execa under
-          # @pnpm/network.git-utils (npm-run-path named-export SyntaxError when
-          # the linker reads injected dirs on a rootComponents workspace).
-          # Give that subtree its own complete dependency set so module
-          # resolution never escapes to a wrong hoisted copy.
+          # Bundle packaging bug (bit 2.0.69 through 2.0.82 at least):
+          # @pnpm/network.git-utils nests execa 9.6.1 (ESM, imports the named
+          # export npmRunPathEnv) without a co-located npm-run-path, so node
+          # resolves up to the hoisted npm-run-path 3.1.0 (CommonJS) and throws
+          # "Named export 'npmRunPathEnv' not found" the moment the linker reads
+          # injected dirs - which every `bit install` of a rootComponents
+          # workspace does. Installing the subtree's own deps makes resolution
+          # self-contained. Harmless once the bundle ships this fixed.
           GU=$(ls -d "$HOME"/.bvm/versions/*/bit-*/node_modules/@pnpm/network.git-utils | tail -1)
           (cd "$GU" && npm install --omit=dev --no-package-lock --no-save --silent)
           node --version
