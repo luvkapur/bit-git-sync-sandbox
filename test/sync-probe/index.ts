@@ -1,2 +1,2 @@
 export { syncProbe } from './sync-probe.js';
-export const beat3 = 'cross-scope-partial-mirror-test';
+export const beat4 = 'branch-side-edit-exported-to-lane';
