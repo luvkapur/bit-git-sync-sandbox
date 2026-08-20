@@ -76,6 +76,14 @@ jobs:
           BIT_APP=$(ls -d "$HOME"/.bvm/versions/*/bit-*/node_modules/@teambit/bit/dist/app.js | tail -1)
           printf '#!/bin/sh\nexec node "%s" "$@"\n' "$BIT_APP" > "$HOME/bin/bit"
           chmod +x "$HOME/bin/bit"
+          # bvm resolves the bundle's deps fresh at install time, and the
+          # current resolution ships a broken nested execa under
+          # @pnpm/network.git-utils (npm-run-path named-export SyntaxError when
+          # the linker reads injected dirs on a rootComponents workspace).
+          # Give that subtree its own complete dependency set so module
+          # resolution never escapes to a wrong hoisted copy.
+          GU=$(ls -d "$HOME"/.bvm/versions/*/bit-*/node_modules/@pnpm/network.git-utils | tail -1)
+          (cd "$GU" && npm install --omit=dev --no-package-lock --no-save --silent)
           node --version
           bit --version
           git clone --depth 1 -b feat/ci-sync-partial-lane https://github.com/luvkapur/bit "$HOME/bit-src"
