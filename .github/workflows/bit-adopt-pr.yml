@@ -68,10 +68,14 @@ jobs:
         run: |
           set -euo pipefail
           node --version
-          # bvm@latest, and the nightly channel: bvm's stable channel tops out
-          # at 2.0.26 while nightly tracks master (2.0.82+), so nightly IS the
-          # newest bit obtainable through bvm.
-          npm install --global @teambit/bvm@latest
+          # bvm is PINNED, matching teambit/bit's own CircleCI (#10643): bvm 3.1.0
+          # resolves a bundle whose @pnpm/network.git-utils nests execa 9.6.1
+          # (ESM) without a co-located npm-run-path, so `bit install` of a
+          # rootComponents workspace dies with "Named export 'npmRunPathEnv'
+          # not found". 3.0.4 resolves a working bundle.
+          # The nightly channel is still right: bvm's stable channel tops out at
+          # 2.0.26 while nightly tracks master.
+          npm install --global @teambit/bvm@3.0.4
           bvm --version
           bvm config set RELEASE_TYPE nightly
           bvm upgrade
