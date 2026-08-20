@@ -60,6 +60,7 @@ jobs:
         run: |
           set -euo pipefail
           node --version
+          npx @teambit/bvm config set RELEASE_TYPE nightly
           npx @teambit/bvm install
           export PATH="$HOME/bin:$HOME/.bvm/bin:$PATH"
           bit --version
