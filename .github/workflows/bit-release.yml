@@ -35,13 +35,13 @@ jobs:
 
       # ---------------------------------------------------------------------
       # Branch-built bit. This is the ONLY difference from the stock example:
-      # bit comes from the branch fix/ci-pr-keep-lane-bitmap-pointer of
+      # bit comes from the branch feat/ci-sync-partial-lane of
       # luvkapur/bit instead of the released install that bit-tasks/init does.
       # ---------------------------------------------------------------------
       - id: bit-branch
         name: Resolve the bit branch commit
         run: |
-          SHA=$(git ls-remote https://github.com/luvkapur/bit refs/heads/fix/ci-pr-keep-lane-bitmap-pointer | cut -f1)
+          SHA=$(git ls-remote https://github.com/luvkapur/bit refs/heads/feat/ci-sync-partial-lane | cut -f1)
           test -n "$SHA"
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
       - id: bit-src-restore
@@ -62,7 +62,7 @@ jobs:
           npx @teambit/bvm install 2.0.69
           export PATH="$HOME/bin:$HOME/.bvm/bin:$PATH"
           bit --version
-          git clone --depth 1 -b fix/ci-pr-keep-lane-bitmap-pointer https://github.com/luvkapur/bit "$HOME/bit-src"
+          git clone --depth 1 -b feat/ci-sync-partial-lane https://github.com/luvkapur/bit "$HOME/bit-src"
           cd "$HOME/bit-src"
           bit install
           bit compile
