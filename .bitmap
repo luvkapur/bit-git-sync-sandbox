@@ -12,7 +12,7 @@
     "notifications/toast": {
         "name": "notifications/toast",
         "scope": "luvktest.test",
-        "version": "0.0.2",
+        "version": "130c0c0ee7d7663e5f77086f075d5a6418c5c40e",
         "mainFile": "index.ts",
         "rootDir": "test/notifications/toast"
     },
@@ -23,5 +23,12 @@
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
     },
-    "$schema-version": "17.0.0"
+    "$schema-version": "17.0.0",
+    "_bit_lane": {
+        "id": {
+            "name": "partial-mirror-demo",
+            "scope": "luvktest.test"
+        },
+        "exported": true
+    }
 }
