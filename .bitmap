@@ -19,7 +19,7 @@
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
-        "version": "6c072fa29eb6e7df2f498e16bea194e942991d18",
+        "version": "ea64e231ea1c34c1f2d04eea0845233e3acd6cd7",
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
     },
