@@ -1,2 +1,2 @@
 export { syncProbe } from './sync-probe.js';
-export const beat2 = 'this-line-was-born-in-git';
+export const beat3 = 'cross-scope-partial-mirror-test';
