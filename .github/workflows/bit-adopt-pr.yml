@@ -34,6 +34,14 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
+      # Pin the job's node: the node 22.22+ that bvm bundles (and the runner
+      # ships) breaks the pnpm ESM graph inside the bit bundle with a
+      # "npm-run-path named export not found" crash during bit install of the
+      # branch workspace. 22.14 is known good.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+
       # ---------------------------------------------------------------------
       # Branch-built bit. This is the ONLY difference from the stock example:
       # bit comes from the branch feat/ci-sync-partial-lane of
@@ -64,6 +72,12 @@ jobs:
           bvm config set RELEASE_TYPE nightly
           bvm upgrade
           export PATH="$HOME/bin:$HOME/.bvm/bin:$PATH"
+          # Run the bvm-installed bit under THIS job's pinned node, not the
+          # node the bundle downloaded (see the setup-node comment above).
+          BIT_APP=$(ls -d "$HOME"/.bvm/versions/*/bit-*/node_modules/@teambit/bit/dist/app.js | tail -1)
+          printf '#!/bin/sh\nexec node "%s" "$@"\n' "$BIT_APP" > "$HOME/bin/bit"
+          chmod +x "$HOME/bin/bit"
+          node --version
           bit --version
           git clone --depth 1 -b feat/ci-sync-partial-lane https://github.com/luvkapur/bit "$HOME/bit-src"
           cd "$HOME/bit-src"
