@@ -9,6 +9,34 @@
  */
 
 {
+    "crm-service": {
+        "name": "crm-service",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/crm-service"
+    },
+    "crm-ui": {
+        "name": "crm-ui",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/crm-ui"
+    },
+    "customer": {
+        "name": "customer",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/customer"
+    },
+    "hope-crm": {
+        "name": "hope-crm",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/hope-crm"
+    },
     "notifications/toast": {
         "name": "notifications/toast",
         "scope": "luvktest.test",
