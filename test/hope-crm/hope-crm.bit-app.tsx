@@ -1,27 +1,18 @@
 import { Platform } from '@bitdev/platforms.platform';
 
 const PlatformGateway = import.meta.resolve('@bitdev/platforms.backend.gateway-server');
-
-// TODO: replace with your own frontend app component
-const PlaceholderFrontend = import.meta.resolve('@bitdev/platforms.examples.placeholder-frontend');
-
-// TODO: replace with your own backend service component
-const PlaceholderService = import.meta.resolve('@bitdev/platforms.examples.placeholder-service');
+const CrmUi = import.meta.resolve('@luvktest/test.crm-ui');
+const CrmService = import.meta.resolve('@luvktest/test.crm-service');
 
 export const HopeCrm = Platform.from({
   name: 'hope-crm',
-
   frontends: {
-    main: PlaceholderFrontend, // TODO: swap for your own frontend app
+    main: CrmUi,
     mainPortRange: [3000, 3100],
   },
-
   backends: {
-    // default gateway — proxies REST and composes GraphQL subgraphs. usually keep as-is.
     main: PlatformGateway,
-    services: [
-      PlaceholderService, // TODO: add your own services here
-    ],
+    services: [ CrmService ],
   },
 });
 

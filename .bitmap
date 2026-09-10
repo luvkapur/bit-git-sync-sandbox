@@ -33,7 +33,7 @@
     "hope-crm": {
         "name": "hope-crm",
         "scope": "luvktest.test",
-        "version": "0.0.1",
+        "version": "0.0.2",
         "mainFile": "index.ts",
         "rootDir": "test/hope-crm"
     },
