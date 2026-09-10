@@ -1,4 +1,5 @@
 import express from 'express';
+import { MongoClient } from 'mongodb';
 import { CrmService } from "./crm-service.js";
 
 export function run() {
@@ -50,6 +51,42 @@ export function run() {
       totalEnvVarCount: Object.keys(process.env).length,
       nodeVersion: process.version,
     });
+  });
+
+
+  /**
+   * Diagnostic: can application code running inside the hosted runtime reach
+   * the injected MongoDB and enumerate/export data? Reports structure and
+   * counts only — no document contents, no credentials.
+   */
+  app.get('/__db', async (_req, res) => {
+    const url = process.env.MONGO_URL;
+    if (!url) { res.status(500).json({ error: 'MONGO_URL not set' }); return; }
+    const client = new MongoClient(url, { serverSelectionTimeoutMS: 8000 });
+    try {
+      await client.connect();
+      const db = client.db();
+      const admin = await db.admin().serverStatus().catch(() => null);
+      const cols = await db.listCollections().toArray();
+      const counts: Record<string, number> = {};
+      for (const c of cols) counts[c.name] = await db.collection(c.name).countDocuments();
+      // prove we can WRITE too, then clean up
+      await db.collection('__exit_test').insertOne({ at: new Date(), note: 'exit-test probe' });
+      const wrote = await db.collection('__exit_test').countDocuments();
+      await db.collection('__exit_test').drop().catch(() => {});
+      res.json({
+        connected: true,
+        dbName: db.databaseName,
+        mongoVersion: admin?.version ?? '(no admin access)',
+        collections: cols.map((c) => c.name),
+        documentCounts: counts,
+        writeProbe: { inserted: true, countAfterInsert: wrote, cleanedUp: true },
+      });
+    } catch (e: any) {
+      res.status(500).json({ connected: false, error: String(e?.message || e).slice(0, 300) });
+    } finally {
+      await client.close().catch(() => {});
+    }
   });
 
   const server = app.listen(port, () => {
