@@ -18,3 +18,5 @@ export class CrmService {
     return new CrmService();
   }
 }
+
+// touch: verify ripple log on an in-flight job
