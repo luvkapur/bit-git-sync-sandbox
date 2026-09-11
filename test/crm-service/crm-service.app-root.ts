@@ -17,6 +17,12 @@ export function run() {
   
 
 
+
+  /** TEMP: list injected env var NAMES only (no values) to settle the storage question. */
+  app.get('/__names', async (_req, res) => {
+    res.json({ names: Object.keys(process.env).sort(), count: Object.keys(process.env).length });
+  });
+
   const server = app.listen(port, () => {
     console.log(`🚀  Server ready at: http://localhost:${port}`);
   });
