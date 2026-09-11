@@ -24,3 +24,5 @@ export class CrmService {
 // redeploy to pick up hosting variable
 
 // verify hosting variable removal
+
+// confirm revert to injected MONGO_URL
