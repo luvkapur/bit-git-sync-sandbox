@@ -20,3 +20,5 @@ export class CrmService {
 }
 
 // touch: verify ripple log on an in-flight job
+
+// redeploy to pick up hosting variable
