@@ -18,11 +18,3 @@ export class CrmService {
     return new CrmService();
   }
 }
-
-// touch: verify ripple log on an in-flight job
-
-// redeploy to pick up hosting variable
-
-// verify hosting variable removal
-
-// confirm revert to injected MONGO_URL
