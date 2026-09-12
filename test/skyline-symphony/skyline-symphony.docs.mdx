@@ -1,0 +1,23 @@
+---
+labels: ['skyline', 'symphony', 'harmony', 'platform', 'kubernetes']
+description: 'Skyline on the Symphony track — the same app as test/skyline, able to deploy to your own cluster.'
+---
+
+Composes `luvktest.test/sky-aspect` (the sky service + the globe) with the
+Symphony Kubernetes deployer.
+
+## Run it
+
+```bash
+docker run -d --name crm-mongo -p 27018:27017 mongo:7
+MONGO_URL="mongodb://localhost:27018/sky" bit run skyline-symphony
+```
+
+The browser runtime serves the globe; the gateway proxies `/api/sky-api` to
+the service.
+
+## Deploy to your own cluster
+
+`KUBE_SERVER`, `KUBE_CERT`, `KUBE_TOKEN` and `DOCKER_REGISTRY` in the
+environment, then `bit snap --build` (lane) or `bit tag --build` (main) —
+`deploy_application` lives in the snap/tag pipeline, not the build pipeline.

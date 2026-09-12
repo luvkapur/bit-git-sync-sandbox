@@ -54,9 +54,16 @@
     "sky-api": {
         "name": "sky-api",
         "scope": "luvktest.test",
-        "version": "0.0.2",
+        "version": "0.0.3",
         "mainFile": "index.ts",
         "rootDir": "test/sky-api"
+    },
+    "sky-aspect": {
+        "name": "sky-aspect",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/sky-aspect"
     },
     "sky-ui": {
         "name": "sky-ui",
@@ -68,9 +75,16 @@
     "skyline": {
         "name": "skyline",
         "scope": "luvktest.test",
-        "version": "0.0.2",
+        "version": "0.0.3",
         "mainFile": "index.ts",
         "rootDir": "test/skyline"
+    },
+    "skyline-symphony": {
+        "name": "skyline-symphony",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/skyline-symphony"
     },
     "sync-probe": {
         "name": "sync-probe",

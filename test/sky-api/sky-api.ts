@@ -42,6 +42,10 @@ export class SkyApi {
   private flights: Flight[] = [];
   private at = 0;
   private failures = 0;
+  /** set when upstream answered 429 — the daily budget, not the network, said no */
+  private limited = false;
+  private source = 'cache';
+  private token?: { value: string; expires: number };
   private timer?: ReturnType<typeof setTimeout>;
 
   constructor(
@@ -67,15 +71,51 @@ export class SkyApi {
 
   // ---------- the live feed
 
+  /** Whether an OpenSky account is configured. Anonymous callers get a small
+   *  daily credit budget; an account raises it by roughly an order of magnitude. */
+  private get authenticated() {
+    return Boolean(process.env.OPENSKY_CLIENT_ID && process.env.OPENSKY_CLIENT_SECRET);
+  }
+
+  /** OAuth2 client credentials, cached until just before the token expires. */
+  private async accessToken(): Promise<string | undefined> {
+    if (!this.authenticated) return undefined;
+    if (this.token && this.token.expires > Date.now()) return this.token.value;
+    const res = await fetch(
+      'https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: process.env.OPENSKY_CLIENT_ID as string,
+          client_secret: process.env.OPENSKY_CLIENT_SECRET as string,
+        }),
+        signal: AbortSignal.timeout(15_000),
+      }
+    );
+    if (!res.ok) throw new Error(`auth ${res.status}`);
+    const body = (await res.json()) as { access_token: string; expires_in: number };
+    this.token = { value: body.access_token, expires: Date.now() + (body.expires_in - 30) * 1000 };
+    return this.token.value;
+  }
+
   /**
    * One upstream request serves every connected browser. A thousand viewers
-   * cost exactly as much as one, which is what makes an anonymous rate limit
-   * survivable in public.
+   * cost exactly as much as one, which is what makes a rate limit survivable
+   * in public.
    */
   async poll(): Promise<void> {
     const url = 'https://opensky-network.org/api/states/all';
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+      const token = await this.accessToken();
+      const res = await fetch(url, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        signal: AbortSignal.timeout(20_000),
+      });
+      // 429 is the daily credit budget, not congestion. Retrying sooner cannot
+      // succeed, so record it and let start() wait out a long window instead.
+      if (res.status === 429) { this.limited = true; throw new Error('429 — upstream credit budget spent'); }
       if (!res.ok) throw new Error(`upstream ${res.status}`);
       const body = (await res.json()) as { time: number; states: unknown[][] | null };
       const flights = (body.states ?? [])
@@ -85,6 +125,8 @@ export class SkyApi {
         this.flights = flights;
         this.at = body.time ?? Math.floor(Date.now() / 1000);
         this.failures = 0;
+        this.limited = false;
+        this.source = token ? 'opensky:account' : 'opensky:anonymous';
         await this.snapshots.updateOne(
           { key: 'global' },
           { key: 'global', at: this.at, flights: flights.map((f) => f.toRow()) },
@@ -92,16 +134,26 @@ export class SkyApi {
         );
         this.broadcast();
       }
-    } catch {
+    } catch (e) {
       this.failures += 1;   // keep serving the last good snapshot
+      // Swallowing this is how a globe froze for ninety minutes while still
+      // looking healthy. The snapshot is a fallback, not a success.
+      console.warn(`[sky-api] poll failed (${this.failures}): ${e instanceof Error ? e.message : String(e)}`);
     }
   }
 
-  /** poll on a schedule, backing off when upstream complains. */
-  start(baseMs = 45_000) {
+  /**
+   * Poll on a schedule the upstream budget can actually pay for, backing off
+   * when it complains. The browser dead-reckons between polls — Flight.project
+   * advances each aircraft along its own heading at its own velocity — so a
+   * longer interval costs the animation nothing, only positional truth.
+   */
+  start(baseMs = this.authenticated ? 90_000 : 15 * 60_000) {
     const tick = async () => {
       await this.poll();
-      const wait = baseMs * Math.min(8, 2 ** this.failures);
+      const wait = this.limited
+        ? 30 * 60_000                                   // budget spent: wait, do not double
+        : baseMs * Math.min(8, 2 ** this.failures);
       this.timer = setTimeout(tick, wait);
     };
     tick();
@@ -151,6 +203,8 @@ export class SkyApi {
       /** seconds since the positions were true — the client dead-reckons from here */
       age: this.at ? Math.max(0, Math.floor(Date.now() / 1000) - this.at) : 0,
       stale: this.failures > 0,
+      /** where the last good positions came from, so the UI never has to guess */
+      source: this.source,
       count: this.flights.length,
       ...this.highlights(),
       /** compact rows, not objects — see Flight.toRow */

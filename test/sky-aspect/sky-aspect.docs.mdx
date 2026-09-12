@@ -1,0 +1,26 @@
+---
+description: 'The Skyline sky service as a Symphony aspect — live feed, accounts and watchlist over SSE.'
+labels: ['aspect', 'symphony', 'sse']
+---
+
+Wraps `@luvktest/test.sky-api` (polling, caching, SSE fan-out, accounts,
+watchlist) as a Harmony aspect and mounts `@luvktest/test.sky-ui` at the
+platform root. No domain logic lives here — the aspect exists so the app can
+be composed into a Symphony platform, and therefore reach the Kubernetes and
+cloud-provider deployers, which the simple `Platform.from()` track cannot.
+
+## Get started
+
+```ts
+import { SkyAspectAspect } from '@luvktest/test.sky-aspect';
+
+export const SkylineSymphony = HarmonyPlatform.from({
+  name: 'skyline-symphony',
+  platform: [SymphonyPlatformAspect, { name: 'Skyline' }],
+  runtimes: [new BrowserRuntime(), new NodeJSRuntime()],
+  aspects: [SkyAspectAspect],
+});
+```
+
+Needs `MONGO_URL`. The service registers as `sky-api`, so the browser reaches
+it at `/api/sky-api`.
