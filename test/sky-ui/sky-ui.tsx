@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Flight, type AircraftInfo, type RouteInfo } from '@luvktest/test.flight';
-import world from './world.json';
+import { world } from './world.js';
 import './sky-ui.module.css';
 
 /** Where the sky service is mounted, as seen by the browser.
@@ -84,7 +84,7 @@ export function SkyUi({ apiBase = DEFAULT_API }: SkyUiProps = {}) {
     const el = cv.current; if (!el) return;
     const ctx = el.getContext('2d')!;
     let raf = 0;
-    const rings = world as [number, number][][];
+    const rings = world;
 
     const resize = () => {
       const dpr = Math.min(2, window.devicePixelRatio || 1);
