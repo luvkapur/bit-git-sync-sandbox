@@ -9,6 +9,41 @@
  */
 
 {
+    "crm-service": {
+        "name": "crm-service",
+        "scope": "luvktest.test",
+        "version": "0.0.12",
+        "mainFile": "index.ts",
+        "rootDir": "test/crm-service"
+    },
+    "crm-ui": {
+        "name": "crm-ui",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/crm-ui"
+    },
+    "customer": {
+        "name": "customer",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/customer"
+    },
+    "flight": {
+        "name": "flight",
+        "scope": "luvktest.test",
+        "version": "0.0.6",
+        "mainFile": "index.ts",
+        "rootDir": "test/flight"
+    },
+    "hope-crm": {
+        "name": "hope-crm",
+        "scope": "luvktest.test",
+        "version": "0.0.13",
+        "mainFile": "index.ts",
+        "rootDir": "test/hope-crm"
+    },
     "notifications/toast": {
         "name": "notifications/toast",
         "scope": "luvktest.test",
@@ -16,12 +51,54 @@
         "mainFile": "index.ts",
         "rootDir": "test/notifications/toast"
     },
+    "sky-api": {
+        "name": "sky-api",
+        "scope": "luvktest.test",
+        "version": "0.0.7",
+        "mainFile": "index.ts",
+        "rootDir": "test/sky-api"
+    },
+    "sky-aspect": {
+        "name": "sky-aspect",
+        "scope": "luvktest.test",
+        "version": "0.0.6",
+        "mainFile": "index.ts",
+        "rootDir": "test/sky-aspect"
+    },
+    "sky-ui": {
+        "name": "sky-ui",
+        "scope": "luvktest.test",
+        "version": "0.0.7",
+        "mainFile": "index.ts",
+        "rootDir": "test/sky-ui"
+    },
+    "skyline": {
+        "name": "skyline",
+        "scope": "luvktest.test",
+        "version": "0.0.8",
+        "mainFile": "index.ts",
+        "rootDir": "test/skyline"
+    },
+    "skyline-symphony": {
+        "name": "skyline-symphony",
+        "scope": "luvktest.test",
+        "version": "0.0.6",
+        "mainFile": "index.ts",
+        "rootDir": "test/skyline-symphony"
+    },
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
         "version": "0.0.7",
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
+    },
+    "user": {
+        "name": "user",
+        "scope": "luvktest.test",
+        "version": "0.0.6",
+        "mainFile": "index.ts",
+        "rootDir": "test/user"
     },
     "$schema-version": "17.0.0"
 }
