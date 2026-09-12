@@ -28,6 +28,16 @@ const watchSchema = new Schema({
 const aircraftSchema = new Schema({ icao: { type: String, required: true, unique: true }, info: { type: Object, default: {} }, at: Number });
 const routeSchema = new Schema({ callsign: { type: String, required: true, unique: true }, route: { type: Object, default: {} }, at: Number });
 
+/**
+ * Upstream timeouts. The global state vector is about a megabyte of JSON, and
+ * 20s was not enough for it from every host we deploy to — Bit hosting timed
+ * out on every single poll while looking, from the outside, merely stale.
+ * Generous is correct here: the poll interval is minutes, so a slow request
+ * costs nothing, while a premature abort costs the whole cycle.
+ */
+const AUTH_TIMEOUT_MS = 30_000;
+const STATES_TIMEOUT_MS = 90_000;
+
 /** the last good snapshot, so the map is never empty even if upstream is down */
 const snapshotSchema = new Schema({
   key: { type: String, required: true, unique: true },
@@ -93,9 +103,9 @@ export class SkyApi {
           client_id: process.env.OPENSKY_CLIENT_ID as string,
           client_secret: process.env.OPENSKY_CLIENT_SECRET as string,
         }),
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
       }
-    );
+    ).catch((e) => { throw new Error(`auth request: ${e instanceof Error ? e.message : String(e)}`); });
     if (!res.ok) throw new Error(`auth ${res.status}`);
     const body = (await res.json()) as { access_token: string; expires_in: number };
     this.token = { value: body.access_token, expires: Date.now() + (body.expires_in - 30) * 1000 };
@@ -113,8 +123,8 @@ export class SkyApi {
       const token = await this.accessToken();
       const res = await fetch(url, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-        signal: AbortSignal.timeout(20_000),
-      });
+        signal: AbortSignal.timeout(STATES_TIMEOUT_MS),
+      }).catch((e) => { throw new Error(`states request: ${e instanceof Error ? e.message : String(e)}`); });
       // 429 is the daily credit budget, not congestion. Retrying sooner cannot
       // succeed, so record it and let start() wait out a long window instead.
       if (res.status === 429) { this.limited = true; throw new Error('429 — upstream credit budget spent'); }
