@@ -30,6 +30,13 @@
         "mainFile": "index.ts",
         "rootDir": "test/customer"
     },
+    "flight": {
+        "name": "flight",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/flight"
+    },
     "hope-crm": {
         "name": "hope-crm",
         "scope": "luvktest.test",
@@ -44,12 +51,40 @@
         "mainFile": "index.ts",
         "rootDir": "test/notifications/toast"
     },
+    "sky-api": {
+        "name": "sky-api",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/sky-api"
+    },
+    "sky-ui": {
+        "name": "sky-ui",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/sky-ui"
+    },
+    "skyline": {
+        "name": "skyline",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/skyline"
+    },
     "sync-probe": {
         "name": "sync-probe",
         "scope": "luvktest.test",
         "version": "0.0.7",
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
+    },
+    "user": {
+        "name": "user",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/user"
     },
     "$schema-version": "17.0.0"
 }
