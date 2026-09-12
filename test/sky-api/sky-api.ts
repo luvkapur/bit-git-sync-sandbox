@@ -45,6 +45,8 @@ export class SkyApi {
   /** set when upstream answered 429 — the daily budget, not the network, said no */
   private limited = false;
   private source = 'cache';
+  /** why the last poll failed, if it did — a stale globe should be able to say so */
+  private lastError?: string;
   private token?: { value: string; expires: number };
   private timer?: ReturnType<typeof setTimeout>;
 
@@ -136,9 +138,10 @@ export class SkyApi {
       }
     } catch (e) {
       this.failures += 1;   // keep serving the last good snapshot
+      this.lastError = e instanceof Error ? e.message : String(e);
       // Swallowing this is how a globe froze for ninety minutes while still
       // looking healthy. The snapshot is a fallback, not a success.
-      console.warn(`[sky-api] poll failed (${this.failures}): ${e instanceof Error ? e.message : String(e)}`);
+      console.warn(`[sky-api] poll failed (${this.failures}): ${this.lastError}`);
     }
   }
 
@@ -205,6 +208,10 @@ export class SkyApi {
       stale: this.failures > 0,
       /** where the last good positions came from, so the UI never has to guess */
       source: this.source,
+      /** whether credentials reached this process — the id itself is never echoed */
+      auth: this.authenticated ? 'account' : 'anonymous',
+      /** why the feed is stale, when it is. never carries a credential. */
+      lastError: this.lastError,
       count: this.flights.length,
       ...this.highlights(),
       /** compact rows, not objects — see Flight.toRow */
