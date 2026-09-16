@@ -66,6 +66,9 @@ const ADSB_PER_TICK = 3;
 /** drop an aircraft the sweep has not seen for this long */
 const ADSB_TTL_S = 20 * 60;
 
+/** refresh on the next request once the map is older than this */
+const ADSB_REFRESH_S = 90;
+
 const AUTH_TIMEOUT_MS = 30_000;
 const STATES_TIMEOUT_MS = 90_000;
 
@@ -326,16 +329,21 @@ export class SkyApi {
   private refreshing?: Promise<void>;
 
   async ensureData(): Promise<void> {
-    if (this.flights.length || this.refreshing) return this.refreshing;
-    this.refreshing = (async () => {
+    const age = this.at ? Math.floor(Date.now() / 1000) - this.at : Infinity;
+    const empty = !this.flights.length;
+    if (!empty && age < ADSB_REFRESH_S) return;
+    this.refreshing ??= (async () => {
       try {
-        await this.warm();                       // a snapshot another instance left
-        if (!this.flights.length) await this.pollAdsb();
+        if (!this.flights.length) await this.warm();       // a snapshot another instance left
+        if (!this.flights.length || age >= ADSB_REFRESH_S) await this.pollAdsb();
       } finally {
         this.refreshing = undefined;
       }
     })();
-    return this.refreshing;
+    // Block only when there is nothing to show. A caller who already has a map
+    // gets it immediately and the refresh lands for whoever asks next — a stale
+    // globe that redraws is better than a fast one that makes people wait.
+    if (empty) await this.refreshing;
   }
 
   /** A good read from any source: keep it, persist it, tell the browsers. */
