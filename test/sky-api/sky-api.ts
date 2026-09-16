@@ -240,11 +240,14 @@ export class SkyApi {
 
   /**
    * Poll on a schedule the upstream budget can actually pay for, backing off
-   * when it complains. The browser dead-reckons between polls — Flight.project
+   * when it complains. 90s looked affordable on an account and was not: a global
+   * state vector costs several credits and ~960 calls a day exhausts the
+   * allowance by mid-morning, after which everything 429s. Five minutes leaves
+   * real headroom. The browser dead-reckons between polls — Flight.project
    * advances each aircraft along its own heading at its own velocity — so a
    * longer interval costs the animation nothing, only positional truth.
    */
-  start(baseMs = this.authenticated ? 90_000 : 15 * 60_000) {
+  start(baseMs = this.authenticated ? 5 * 60_000 : 15 * 60_000) {
     const tick = async () => {
       await this.poll();
       const wait = this.limited
