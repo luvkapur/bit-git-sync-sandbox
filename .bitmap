@@ -33,7 +33,7 @@
     "flight": {
         "name": "flight",
         "scope": "luvktest.test",
-        "version": "0.0.6",
+        "version": "0.0.7",
         "mainFile": "index.ts",
         "rootDir": "test/flight"
     },
@@ -54,35 +54,35 @@
     "sky-api": {
         "name": "sky-api",
         "scope": "luvktest.test",
-        "version": "0.0.7",
+        "version": "0.0.8",
         "mainFile": "index.ts",
         "rootDir": "test/sky-api"
     },
     "sky-aspect": {
         "name": "sky-aspect",
         "scope": "luvktest.test",
-        "version": "0.0.6",
+        "version": "0.0.7",
         "mainFile": "index.ts",
         "rootDir": "test/sky-aspect"
     },
     "sky-ui": {
         "name": "sky-ui",
         "scope": "luvktest.test",
-        "version": "0.0.7",
+        "version": "0.0.8",
         "mainFile": "index.ts",
         "rootDir": "test/sky-ui"
     },
     "skyline": {
         "name": "skyline",
         "scope": "luvktest.test",
-        "version": "0.0.8",
+        "version": "0.0.9",
         "mainFile": "index.ts",
         "rootDir": "test/skyline"
     },
     "skyline-symphony": {
         "name": "skyline-symphony",
         "scope": "luvktest.test",
-        "version": "0.0.6",
+        "version": "0.0.7",
         "mainFile": "index.ts",
         "rootDir": "test/skyline-symphony"
     },
@@ -96,7 +96,7 @@
     "user": {
         "name": "user",
         "scope": "luvktest.test",
-        "version": "0.0.6",
+        "version": "0.0.7",
         "mainFile": "index.ts",
         "rootDir": "test/user"
     },

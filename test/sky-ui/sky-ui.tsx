@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Flight, type AircraftInfo, type RouteInfo } from '@luvktest/test.flight';
 import { world } from './world.js';
-import './sky-ui.module.css';
+// A global stylesheet, deliberately not a CSS Module. It sets :root variables,
+// html/body/#root and the .fadeUp/.softPulse animation classes the JSX names as
+// plain strings. Named *.module.css, Vite treated it as a CSS Module: the class
+// names were hashed so the string literals never matched, and — because nothing
+// imported a hashed name — the side-effect-only import was tree-shaken out, so
+// the build emitted no CSS at all and the app rendered on a white background.
+import './sky-ui.css';
 
 /** Where the sky service is mounted, as seen by the browser.
  *  The simple platform's gateway routes to a service by its component name at

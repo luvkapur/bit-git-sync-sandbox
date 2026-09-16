@@ -1,5 +1,6 @@
 import mongoose, { Schema, Model } from 'mongoose';
 import { randomUUID } from 'node:crypto';
+import { promises as dns } from 'node:dns';
 import { Flight, PlainFlight } from '@luvktest/test.flight';
 import { User, PlainUser } from '@luvktest/test.user';
 
@@ -38,6 +39,23 @@ const routeSchema = new Schema({ callsign: { type: String, required: true, uniqu
 const AUTH_TIMEOUT_MS = 30_000;
 const STATES_TIMEOUT_MS = 90_000;
 
+/**
+ * Node's fetch throws a bare "fetch failed" and hides the real reason one level
+ * down in `error.cause`. That distinction is the whole diagnosis: ENETUNREACH or
+ * EHOSTUNREACH means this host has no route to that address family, ENOTFOUND is
+ * DNS, ECONNREFUSED is someone actively saying no, and ETIMEDOUT is a silent drop
+ * — which is what an upstream IP-range block usually looks like.
+ */
+function explain(e: unknown): string {
+  const err = e as any;
+  const cause = err?.cause ?? err;
+  const detail = [cause?.code, cause?.syscall, cause?.address, cause?.port]
+    .filter(Boolean)
+    .join(' ');
+  const msg = cause?.message ?? err?.message ?? String(e);
+  return detail ? `${msg} [${detail}]` : msg;
+}
+
 /** the last good snapshot, so the map is never empty even if upstream is down */
 const snapshotSchema = new Schema({
   key: { type: String, required: true, unique: true },
@@ -54,6 +72,8 @@ export class SkyApi {
   private failures = 0;
   /** set when upstream answered 429 — the daily budget, not the network, said no */
   private limited = false;
+  /** filled once, the first time a poll fails, so a failure explains itself */
+  private diag?: Record<string, string>;
   private source = 'cache';
   /** why the last poll failed, if it did — a stale globe should be able to say so */
   private lastError?: string;
@@ -105,11 +125,48 @@ export class SkyApi {
         }),
         signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
       }
-    ).catch((e) => { throw new Error(`auth request: ${e instanceof Error ? e.message : String(e)}`); });
+    ).catch((e) => { throw new Error(`auth request: ${explain(e)}`); });
     if (!res.ok) throw new Error(`auth ${res.status}`);
     const body = (await res.json()) as { access_token: string; expires_in: number };
     this.token = { value: body.access_token, expires: Date.now() + (body.expires_in - 30) * 1000 };
     return this.token.value;
+  }
+
+  /**
+   * Run once, the first time a poll fails. It answers the only question that
+   * matters when a host is unreachable: is it us or is it them?
+   *
+   * `ipv4.icanhazip.com` has an A record and no AAAA, so reaching it proves this
+   * runtime has a working IPv4 route — and it echoes back the egress IP, which is
+   * the address an upstream would have blocked. `api.adsbdb.com` is dual-stack and
+   * acts as the control. If the IPv4-only probe fails the same way the upstream
+   * did while the dual-stack control succeeds, the problem is the route, not the
+   * destination.
+   */
+  private async probeEgress(target: string): Promise<Record<string, string>> {
+    const out: Record<string, string> = {};
+    await Promise.all([
+      dns.resolve4(target).then(
+        (a) => { out.dnsA = a.join(','); },
+        (e) => { out.dnsA = `fail ${e.code ?? e.message}`; }
+      ),
+      dns.resolve6(target).then(
+        (a) => { out.dnsAAAA = a.join(','); },
+        (e) => { out.dnsAAAA = `none (${e.code ?? e.message})`; }
+      ),
+      fetch('https://ipv4.icanhazip.com', { signal: AbortSignal.timeout(20_000) })
+        .then((r) => r.text())
+        .then(
+          (t) => { out.ipv4Only = `ok, egress ${t.trim()}`; },
+          (e) => { out.ipv4Only = `fail: ${explain(e)}`; }
+        ),
+      fetch('https://api.adsbdb.com/v0/aircraft/a5307f', { signal: AbortSignal.timeout(20_000) })
+        .then(
+          (r) => { out.dualStack = `ok ${r.status}`; },
+          (e) => { out.dualStack = `fail: ${explain(e)}`; }
+        ),
+    ]);
+    return out;
   }
 
   /**
@@ -124,7 +181,7 @@ export class SkyApi {
       const res = await fetch(url, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         signal: AbortSignal.timeout(STATES_TIMEOUT_MS),
-      }).catch((e) => { throw new Error(`states request: ${e instanceof Error ? e.message : String(e)}`); });
+      }).catch((e) => { throw new Error(`states request: ${explain(e)}`); });
       // 429 is the daily credit budget, not congestion. Retrying sooner cannot
       // succeed, so record it and let start() wait out a long window instead.
       if (res.status === 429) { this.limited = true; throw new Error('429 — upstream credit budget spent'); }
@@ -148,6 +205,10 @@ export class SkyApi {
       }
     } catch (e) {
       this.failures += 1;   // keep serving the last good snapshot
+      if (!this.diag) {
+        this.diag = await this.probeEgress('auth.opensky-network.org').catch(() => undefined);
+        if (this.diag) console.warn(`[sky-api] egress probe: ${JSON.stringify(this.diag)}`);
+      }
       this.lastError = e instanceof Error ? e.message : String(e);
       // Swallowing this is how a globe froze for ninety minutes while still
       // looking healthy. The snapshot is a fallback, not a success.
@@ -218,6 +279,8 @@ export class SkyApi {
       stale: this.failures > 0,
       /** where the last good positions came from, so the UI never has to guess */
       source: this.source,
+      /** only present once something has failed — see probeEgress */
+      diag: this.diag,
       /** whether credentials reached this process — the id itself is never echoed */
       auth: this.authenticated ? 'account' : 'anonymous',
       /** why the feed is stale, when it is. never carries a credential. */

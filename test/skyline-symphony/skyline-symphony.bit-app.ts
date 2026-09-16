@@ -20,7 +20,7 @@ export const SkylineSymphony = HarmonyPlatform.from({
     slogan: 'every aircraft on Earth',
     inSecure: true,
     // the globe is full-bleed and ships its own theme in
-    // `sky-ui.module.css`; Sparks' theme provider would fight it.
+    // `sky-ui.css`; Sparks' theme provider would fight it.
     skipDefaultProviders: true,
     logo: 'https://static.bit.dev/brands/bit-logo-min.png',
   }],
