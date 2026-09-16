@@ -13,12 +13,16 @@ export async function run() {
   const fail = (res: any, e: unknown) =>
     res.status(400).json({ error: e instanceof Error ? e.message : 'something went wrong' });
 
-  app.get('/', (_req, res) => {
+  app.get('/', async (_req, res) => {
+    await sky.ensureData();
     const { rows, ...meta } = sky.state();
     res.json(meta);
   });
 
-  app.get('/flights', (_req, res) => res.json(sky.state()));
+  app.get('/flights', async (_req, res) => {
+    await sky.ensureData();
+    res.json(sky.state());
+  });
 
   app.get('/aircraft/:icao', async (req, res) => res.json(await sky.aircraft(req.params.icao)));
   app.get('/route/:callsign', async (req, res) => res.json(await sky.route(req.params.callsign)));

@@ -312,6 +312,32 @@ export class SkyApi {
     return true;
   }
 
+  /**
+   * Fill the map on demand when it is empty.
+   *
+   * `start()` assumes a process that keeps running between requests. That holds
+   * on a cluster and in a plain node process; it does not hold everywhere this
+   * app is meant to run, and where it fails the background timer never completes
+   * a cycle and the globe stays empty forever while every endpoint answers 200.
+   * So the first request that finds no data pays for a little of it, and the
+   * result is persisted for everyone after. Requests arriving meanwhile wait on
+   * the same promise rather than each starting their own sweep.
+   */
+  private refreshing?: Promise<void>;
+
+  async ensureData(): Promise<void> {
+    if (this.flights.length || this.refreshing) return this.refreshing;
+    this.refreshing = (async () => {
+      try {
+        await this.warm();                       // a snapshot another instance left
+        if (!this.flights.length) await this.pollAdsb();
+      } finally {
+        this.refreshing = undefined;
+      }
+    })();
+    return this.refreshing;
+  }
+
   /** A good read from any source: keep it, persist it, tell the browsers. */
   private async accept(flights: Flight[], at: number, source: string): Promise<void> {
     this.flights = flights;
@@ -339,10 +365,11 @@ export class SkyApi {
     // initial version of this measured boot contention and called it a network
     // verdict. Later polls run on a warm container, which is the state worth
     // reporting, so the newest result wins.
-    // Diagnose the first few failures and then stop. Once a host has told us
-    // three times that it cannot reach the upstream, further probes are four
-    // more outbound calls per poll that teach us nothing.
-    if (this.failures > 3) return;
+    // Diagnose failures two through four. The first happens during container
+    // start, when outbound calls time out wholesale, so probing it measures boot
+    // contention and costs the first tick twenty seconds it should be spending on
+    // data. After the fourth, a host has told us enough.
+    if (this.failures < 2 || this.failures > 4) return;
     this.diag = await this.probeEgress('auth.opensky-network.org').catch(() => undefined);
     if (this.diag) {
       this.diagAt = this.failures;
