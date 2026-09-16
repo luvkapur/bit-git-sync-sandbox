@@ -295,6 +295,7 @@ export class SkyApi {
     this.at = at;
     this.failures = 0;
     this.limited = false;
+    this.lastError = undefined;
     this.source = source;
     await this.snapshots.updateOne(
       { key: 'global' },
@@ -306,9 +307,10 @@ export class SkyApi {
 
   private async noteFailure(e: unknown): Promise<void> {
     this.failures += 1;   // keep serving the last good snapshot
+    this.lastError = e instanceof Error ? e.message : String(e);
     // Swallowing this is how a globe froze for ninety minutes while still
     // looking healthy. The snapshot is a fallback, not a success.
-    console.warn(`[sky-api] poll failed (${this.failures}): ${e instanceof Error ? e.message : String(e)}`);
+    console.warn(`[sky-api] poll failed (${this.failures}): ${this.lastError}`);
     // Re-probe on every failure, not just the first. The first failure happens
     // during container start, when outbound requests time out wholesale — the
     // initial version of this measured boot contention and called it a network
