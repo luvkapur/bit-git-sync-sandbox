@@ -74,6 +74,8 @@ export class SkyApi {
   private limited = false;
   /** filled once, the first time a poll fails, so a failure explains itself */
   private diag?: Record<string, string>;
+  /** which poll attempt produced `diag` — a probe from attempt 1 is boot noise */
+  private diagAt = 0;
   private source = 'cache';
   /** why the last poll failed, if it did — a stale globe should be able to say so */
   private lastError?: string;
@@ -219,9 +221,15 @@ export class SkyApi {
       }
     } catch (e) {
       this.failures += 1;   // keep serving the last good snapshot
-      if (!this.diag) {
-        this.diag = await this.probeEgress('auth.opensky-network.org').catch(() => undefined);
-        if (this.diag) console.warn(`[sky-api] egress probe: ${JSON.stringify(this.diag)}`);
+      // Re-probe on every failure, not just the first. The first failure happens
+      // during container start, when outbound requests time out wholesale — the
+      // initial version of this measured boot contention and called it a network
+      // verdict. Later polls run on a warm container, which is the state worth
+      // reporting, so the newest result wins.
+      this.diag = await this.probeEgress('auth.opensky-network.org').catch(() => undefined);
+      if (this.diag) {
+        this.diagAt = this.failures;
+        console.warn(`[sky-api] egress probe (failure ${this.failures}): ${JSON.stringify(this.diag)}`);
       }
       this.lastError = e instanceof Error ? e.message : String(e);
       // Swallowing this is how a globe froze for ninety minutes while still
@@ -294,7 +302,7 @@ export class SkyApi {
       /** where the last good positions came from, so the UI never has to guess */
       source: this.source,
       /** only present once something has failed — see probeEgress */
-      diag: this.diag,
+      diag: this.diag && { ...this.diag, onAttempt: String(this.diagAt) },
       /** whether credentials reached this process — the id itself is never echoed */
       auth: this.authenticated ? 'account' : 'anonymous',
       /** why the feed is stale, when it is. never carries a credential. */
