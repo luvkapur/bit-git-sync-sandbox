@@ -51,3 +51,49 @@ describe('flight', () => {
     expect(Math.abs(back.d.lat - base.lat)).toBeLessThan(0.001);
   });
 });
+
+describe('fromAdsb', () => {
+  const sample = {
+    hex: 'a47a8f', flight: 'N388RX  ', lat: 39.996185, lon: -74.444092,
+    alt_baro: 35000, gs: 450, track: 312.92, baro_rate: -256,
+    squawk: '0577', seen_pos: 2,
+  };
+
+  it('converts the pilot units the community feeds speak into SI', () => {
+    const f = Flight.fromAdsb(sample)!;
+    // 35,000 ft and 450 kt are what the feed says; the model stores metres and m/s
+    expect(f.altitudeFt).toBe(35000);
+    expect(f.knots).toBe(450);
+    expect(f.climbFpm).toBe(-256);
+  });
+
+  it('recovers the registration country the feed omits', () => {
+    expect(Flight.fromAdsb(sample)!.d.country).toBe('United States');
+  });
+
+  it('says Unknown rather than guessing at an unallocated block', () => {
+    expect(Flight.fromAdsb({ ...sample, hex: '000001' })!.d.country).toBe('Unknown');
+  });
+
+  it('treats a grounded aircraft as grounded, not as sea level flight', () => {
+    const f = Flight.fromAdsb({ ...sample, alt_baro: 'ground' })!;
+    expect(f.d.onGround).toBe(true);
+    expect(f.isCruising).toBe(false);
+  });
+
+  it('drops a record with no position', () => {
+    expect(Flight.fromAdsb({ ...sample, lat: null })).toBeUndefined();
+  });
+
+  it('agrees with the OpenSky adapter on the same aircraft', () => {
+    const viaAdsb = Flight.fromAdsb(sample)!;
+    const viaOpenSky = Flight.fromStateVector([
+      'a47a8f', 'N388RX  ', 'United States', 0, 1700000000,
+      -74.444092, 39.996185, 35000 * 0.3048, false, 450 * 0.514444,
+      312.92, -256 * 0.00508, null, null, '0577',
+    ])!;
+    expect(viaAdsb.altitudeFt).toBe(viaOpenSky.altitudeFt);
+    expect(viaAdsb.knots).toBe(viaOpenSky.knots);
+    expect(viaAdsb.d.country).toBe(viaOpenSky.d.country);
+  });
+});

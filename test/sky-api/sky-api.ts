@@ -36,6 +36,23 @@ const routeSchema = new Schema({ callsign: { type: String, required: true, uniqu
  * Generous is correct here: the poll interval is minutes, so a slow request
  * costs nothing, while a premature abort costs the whole cycle.
  */
+/**
+ * Circles for the community-feed sweep, placed over the airspace that actually
+ * carries traffic rather than evenly over a sphere that is mostly water. Each
+ * call answers a 250nm radius, so this is a partial map by construction — it
+ * exists to keep a host alive that cannot reach the global feed, not to match it.
+ */
+const ADSB_CIRCLES: [number, number][] = [
+  [42, -74], [33, -84], [41, -88], [31, -97], [36, -119],  // north america
+  [52, -1], [40, -4], [47, 3], [51, 10], [42, 12],          // western europe
+  [39, 33], [25, 52],                                        // turkey, the gulf
+  [28, 77], [13, 101], [31, 118], [36, 139],                 // india, se asia, china, japan
+  [-23, -46], [-33, 151],                                    // brazil, australia
+];
+
+/** the feed refuses bursts; spaced calls are answered, parallel ones are not */
+const ADSB_SPACING_MS = 1_200;
+
 const AUTH_TIMEOUT_MS = 30_000;
 const STATES_TIMEOUT_MS = 90_000;
 
@@ -190,7 +207,25 @@ export class SkyApi {
    * cost exactly as much as one, which is what makes a rate limit survivable
    * in public.
    */
+  /**
+   * One upstream request serves every connected browser. A thousand viewers
+   * cost exactly as much as one, which is what makes a rate limit survivable
+   * in public.
+   *
+   * Two sources, tried in order of coverage. OpenSky answers for the whole
+   * planet in a single call and is the one worth having; the community ADS-B
+   * feeds answer a radius at a time, so a sweep is many calls for a partial
+   * map. The fallback exists because the good source is not reachable from
+   * everywhere — a host whose egress OpenSky refuses would otherwise show an
+   * empty globe forever, which is a worse answer than a partial one.
+   */
   async poll(): Promise<void> {
+    if (await this.pollOpenSky()) return;
+    await this.pollAdsb();
+  }
+
+  /** The whole planet in one request. Returns false if it could not be had. */
+  private async pollOpenSky(): Promise<boolean> {
     const url = 'https://opensky-network.org/api/states/all';
     try {
       const token = await this.accessToken();
@@ -206,35 +241,87 @@ export class SkyApi {
       const flights = (body.states ?? [])
         .map((s) => Flight.fromStateVector(s as any))
         .filter((f): f is Flight => Boolean(f) && f!.isCruising);
-      if (flights.length) {
-        this.flights = flights;
-        this.at = body.time ?? Math.floor(Date.now() / 1000);
-        this.failures = 0;
-        this.limited = false;
-        this.source = token ? 'opensky:account' : 'opensky:anonymous';
-        await this.snapshots.updateOne(
-          { key: 'global' },
-          { key: 'global', at: this.at, flights: flights.map((f) => f.toRow()) },
-          { upsert: true }
-        );
-        this.broadcast();
-      }
+      if (!flights.length) throw new Error('upstream returned no usable states');
+      await this.accept(flights, body.time ?? Math.floor(Date.now() / 1000),
+        token ? 'opensky:account' : 'opensky:anonymous');
+      return true;
     } catch (e) {
-      this.failures += 1;   // keep serving the last good snapshot
-      // Re-probe on every failure, not just the first. The first failure happens
-      // during container start, when outbound requests time out wholesale — the
-      // initial version of this measured boot contention and called it a network
-      // verdict. Later polls run on a warm container, which is the state worth
-      // reporting, so the newest result wins.
-      this.diag = await this.probeEgress('auth.opensky-network.org').catch(() => undefined);
-      if (this.diag) {
-        this.diagAt = this.failures;
-        console.warn(`[sky-api] egress probe (failure ${this.failures}): ${JSON.stringify(this.diag)}`);
+      await this.noteFailure(e);
+      return false;
+    }
+  }
+
+  /**
+   * A sweep of the community feed, one circle at a time. Deliberately serial
+   * with a pause between calls: firing the whole sweep at once had forty-five
+   * of fifty-one circles refused, while the same circles spaced out were all
+   * answered. A free service that answers politely deserves to be asked
+   * politely, and one dead circle must not abort the rest of the sweep.
+   */
+  private async pollAdsb(): Promise<boolean> {
+    const byIcao = new Map<string, Flight>();
+    let answered = 0;
+    for (const [lat, lon] of ADSB_CIRCLES) {
+      try {
+        const res = await fetch(
+          `https://opendata.adsb.fi/api/v2/lat/${lat}/lon/${lon}/dist/250`,
+          { signal: AbortSignal.timeout(20_000) }
+        );
+        if (res.ok) {
+          answered += 1;
+          const body = (await res.json()) as { aircraft?: Record<string, any>[] };
+          for (const a of body.aircraft ?? []) {
+            const f = Flight.fromAdsb(a);
+            if (f?.isCruising) byIcao.set(f.icao, f);
+          }
+        }
+      } catch {
+        // a circle that times out costs us its aircraft, nothing more
       }
-      this.lastError = e instanceof Error ? e.message : String(e);
-      // Swallowing this is how a globe froze for ninety minutes while still
-      // looking healthy. The snapshot is a fallback, not a success.
-      console.warn(`[sky-api] poll failed (${this.failures}): ${this.lastError}`);
+      await new Promise((r) => { setTimeout(r, ADSB_SPACING_MS); });
+    }
+    if (!byIcao.size) {
+      await this.noteFailure(new Error(`adsb sweep: no aircraft from ${ADSB_CIRCLES.length} circles`));
+      return false;
+    }
+    await this.accept([...byIcao.values()], Math.floor(Date.now() / 1000),
+      `adsb.fi (${answered}/${ADSB_CIRCLES.length} circles)`);
+    return true;
+  }
+
+  /** A good read from any source: keep it, persist it, tell the browsers. */
+  private async accept(flights: Flight[], at: number, source: string): Promise<void> {
+    this.flights = flights;
+    this.at = at;
+    this.failures = 0;
+    this.limited = false;
+    this.source = source;
+    await this.snapshots.updateOne(
+      { key: 'global' },
+      { key: 'global', at: this.at, flights: flights.map((f) => f.toRow()) },
+      { upsert: true }
+    );
+    this.broadcast();
+  }
+
+  private async noteFailure(e: unknown): Promise<void> {
+    this.failures += 1;   // keep serving the last good snapshot
+    // Swallowing this is how a globe froze for ninety minutes while still
+    // looking healthy. The snapshot is a fallback, not a success.
+    console.warn(`[sky-api] poll failed (${this.failures}): ${e instanceof Error ? e.message : String(e)}`);
+    // Re-probe on every failure, not just the first. The first failure happens
+    // during container start, when outbound requests time out wholesale — the
+    // initial version of this measured boot contention and called it a network
+    // verdict. Later polls run on a warm container, which is the state worth
+    // reporting, so the newest result wins.
+    // Diagnose the first few failures and then stop. Once a host has told us
+    // three times that it cannot reach the upstream, further probes are four
+    // more outbound calls per poll that teach us nothing.
+    if (this.failures > 3) return;
+    this.diag = await this.probeEgress('auth.opensky-network.org').catch(() => undefined);
+    if (this.diag) {
+      this.diagAt = this.failures;
+      console.warn(`[sky-api] egress probe (failure ${this.failures}): ${JSON.stringify(this.diag)}`);
     }
   }
 
@@ -243,20 +330,23 @@ export class SkyApi {
    * when it complains. 90s looked affordable on an account and was not: a global
    * state vector costs several credits and ~960 calls a day exhausts the
    * allowance by mid-morning, after which everything 429s. Five minutes leaves
-   * real headroom. The browser dead-reckons between polls — Flight.project
-   * advances each aircraft along its own heading at its own velocity — so a
-   * longer interval costs the animation nothing, only positional truth.
+   * real headroom. A sweep of the community feed costs a dozen calls rather than
+   * one, so when we are living on the fallback we ask half as often.
    */
   start(baseMs = this.authenticated ? 5 * 60_000 : 15 * 60_000) {
     const tick = async () => {
       await this.poll();
+      const onFallback = this.source.startsWith('adsb');
       const wait = this.limited
         ? 30 * 60_000                                   // budget spent: wait, do not double
-        : baseMs * Math.min(8, 2 ** this.failures);
+        : onFallback
+          ? 10 * 60_000
+          : baseMs * Math.min(8, 2 ** this.failures);
       this.timer = setTimeout(tick, wait);
     };
     tick();
   }
+
 
   stop() { if (this.timer) clearTimeout(this.timer); }
 

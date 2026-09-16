@@ -1,3 +1,4 @@
+import { countryForIcao } from './icao-country.js';
 export type PlainFlight = {
   /** unique 24-bit ICAO transponder address */
   icao: string;
@@ -99,6 +100,34 @@ export class Flight {
   }
 
   /** parse one row of OpenSky's positional array format. */
+  /**
+   * One aircraft as the ADS-B community feeds report it.
+   *
+   * These feeds speak the units a pilot reads — feet, knots, feet per minute —
+   * where OpenSky speaks SI, so everything is converted on the way in and the
+   * rest of the app never learns which feed it came from. They also report no
+   * country of registration, so it is recovered from the ICAO address.
+   */
+  static fromAdsb(a: Record<string, any>): Flight | undefined {
+    const { hex, lat, lon } = a;
+    if (typeof lat !== 'number' || typeof lon !== 'number' || !hex) return undefined;
+    const onGround = a.alt_baro === 'ground';
+    const feet = typeof a.alt_baro === 'number' ? a.alt_baro : 0;
+    return new Flight({
+      icao: String(hex).toLowerCase(),
+      callsign: typeof a.flight === 'string' ? a.flight.trim() : '',
+      country: countryForIcao(String(hex)) ?? 'Unknown',
+      lon, lat,
+      altitude: onGround ? 0 : feet * 0.3048,
+      velocity: typeof a.gs === 'number' ? a.gs * 0.514444 : 0,
+      heading: typeof a.track === 'number' ? a.track : 0,
+      onGround,
+      verticalRate: typeof a.baro_rate === 'number' ? a.baro_rate * 0.00508 : 0,
+      squawk: typeof a.squawk === 'string' ? a.squawk : '',
+      seen: Math.floor(Date.now() / 1000) - Math.round(typeof a.seen_pos === 'number' ? a.seen_pos : 0),
+    });
+  }
+
   static fromStateVector(s: (string | number | boolean | null)[]): Flight | undefined {
     const [icao, callsign, country, , lastContact, lon, lat, baroAlt, onGround, vel, track, vRate, , , squawk] = s;
     if (typeof lon !== 'number' || typeof lat !== 'number') return undefined;
