@@ -53,6 +53,19 @@ const ADSB_CIRCLES: [number, number][] = [
 /** the feed refuses bursts; spaced calls are answered, parallel ones are not */
 const ADSB_SPACING_MS = 1_200;
 
+/**
+ * Circles per tick. The first version swept all eighteen in one pass, which is
+ * up to six minutes of awaiting inside a single poll — long enough that a hosted
+ * container never finished one, and every restart began again from nothing. A
+ * few circles per tick bounds the work to seconds, persists what it found, and
+ * covers the whole list over several minutes instead of risking all of it at
+ * once.
+ */
+const ADSB_PER_TICK = 3;
+
+/** drop an aircraft the sweep has not seen for this long */
+const ADSB_TTL_S = 20 * 60;
+
 const AUTH_TIMEOUT_MS = 30_000;
 const STATES_TIMEOUT_MS = 90_000;
 
@@ -93,6 +106,8 @@ export class SkyApi {
   private diag?: Record<string, string>;
   /** which poll attempt produced `diag` — a probe from attempt 1 is boot noise */
   private diagAt = 0;
+  /** where the next partial sweep picks up */
+  private circle = 0;
   private source = 'cache';
   /** why the last poll failed, if it did — a stale globe should be able to say so */
   private lastError?: string;
@@ -259,20 +274,28 @@ export class SkyApi {
    * politely, and one dead circle must not abort the rest of the sweep.
    */
   private async pollAdsb(): Promise<boolean> {
-    const byIcao = new Map<string, Flight>();
+    const kept = new Map<string, Flight>();
+    // carry forward what earlier ticks found, so partial sweeps accumulate
+    const cutoff = Math.floor(Date.now() / 1000) - ADSB_TTL_S;
+    if (this.source.startsWith('adsb')) {
+      for (const f of this.flights) if (f.d.seen > cutoff) kept.set(f.icao, f);
+    }
+
     let answered = 0;
-    for (const [lat, lon] of ADSB_CIRCLES) {
+    for (let n = 0; n < ADSB_PER_TICK; n += 1) {
+      const [lat, lon] = ADSB_CIRCLES[this.circle % ADSB_CIRCLES.length];
+      this.circle = (this.circle + 1) % ADSB_CIRCLES.length;
       try {
         const res = await fetch(
           `https://opendata.adsb.fi/api/v2/lat/${lat}/lon/${lon}/dist/250`,
-          { signal: AbortSignal.timeout(20_000) }
+          { signal: AbortSignal.timeout(10_000) }
         );
         if (res.ok) {
           answered += 1;
           const body = (await res.json()) as { aircraft?: Record<string, any>[] };
           for (const a of body.aircraft ?? []) {
             const f = Flight.fromAdsb(a);
-            if (f?.isCruising) byIcao.set(f.icao, f);
+            if (f?.isCruising) kept.set(f.icao, f);
           }
         }
       } catch {
@@ -280,12 +303,12 @@ export class SkyApi {
       }
       await new Promise((r) => { setTimeout(r, ADSB_SPACING_MS); });
     }
-    if (!byIcao.size) {
-      await this.noteFailure(new Error(`adsb sweep: no aircraft from ${ADSB_CIRCLES.length} circles`));
+
+    if (!kept.size) {
+      await this.noteFailure(new Error(`adsb sweep: nothing from ${ADSB_PER_TICK} circles (answered ${answered})`));
       return false;
     }
-    await this.accept([...byIcao.values()], Math.floor(Date.now() / 1000),
-      `adsb.fi (${answered}/${ADSB_CIRCLES.length} circles)`);
+    await this.accept([...kept.values()], Math.floor(Date.now() / 1000), 'adsb.fi');
     return true;
   }
 
@@ -332,8 +355,9 @@ export class SkyApi {
    * when it complains. 90s looked affordable on an account and was not: a global
    * state vector costs several credits and ~960 calls a day exhausts the
    * allowance by mid-morning, after which everything 429s. Five minutes leaves
-   * real headroom. A sweep of the community feed costs a dozen calls rather than
-   * one, so when we are living on the fallback we ask half as often.
+   * real headroom. The fallback ticks more often but does less each time: three
+   * circles every two minutes covers the list in about twelve, and never risks
+   * a long await that a restart would throw away.
    */
   start(baseMs = this.authenticated ? 5 * 60_000 : 15 * 60_000) {
     const tick = async () => {
@@ -342,7 +366,7 @@ export class SkyApi {
       const wait = this.limited
         ? 30 * 60_000                                   // budget spent: wait, do not double
         : onFallback
-          ? 10 * 60_000
+          ? 2 * 60_000
           : baseMs * Math.min(8, 2 ** this.failures);
       this.timer = setTimeout(tick, wait);
     };
