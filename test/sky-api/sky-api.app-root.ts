@@ -7,6 +7,7 @@ export async function run() {
   const port = process.env.PORT || 3000;
 
   const sky = await SkyApi.connect();
+  await sky.purgeProbeAccounts();
   await sky.warm();
   sky.start();
 

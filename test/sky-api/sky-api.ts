@@ -138,6 +138,23 @@ export class SkyApi {
     );
   }
 
+  /**
+   * Remove accounts created against reserved test domains.
+   *
+   * RFC 2606 sets aside example.com, example.net and example.org precisely so
+   * that documentation and probes cannot collide with a real address, so an
+   * account on one is by definition not a person. This app gets prodded — by me,
+   * to prove the hosted database really persists — and the leavings should not
+   * outlive the proof.
+   */
+  async purgeProbeAccounts(): Promise<number> {
+    const { deletedCount } = await this.users.deleteMany({
+      email: { $regex: /@example\.(com|net|org)$/i },
+    });
+    if (deletedCount) console.warn(`[sky-api] removed ${deletedCount} probe account(s)`);
+    return deletedCount ?? 0;
+  }
+
   // ---------- the live feed
 
   /** Whether an OpenSky account is configured. Anonymous callers get a small
@@ -194,7 +211,14 @@ export class SkyApi {
       fetch('https://ipv4.icanhazip.com', { signal: AbortSignal.timeout(20_000) })
         .then((r) => r.text())
         .then(
-          (t) => { out.ipv4Only = `ok, egress ${t.trim()}`; },
+          (t) => {
+            // The echoed address is this host's egress IP. It answers the
+            // question completely, and `diag` is served on a public endpoint,
+            // so the verdict goes in the response and the address goes to the
+            // log where an operator can read it and a stranger cannot.
+            console.warn(`[sky-api] ipv4 egress address: ${t.trim()}`);
+            out.ipv4Only = 'ok';
+          },
           (e) => { out.ipv4Only = `fail: ${explain(e)}`; }
         ),
       fetch('https://api.adsbdb.com/v0/aircraft/a5307f', { signal: AbortSignal.timeout(20_000) })
