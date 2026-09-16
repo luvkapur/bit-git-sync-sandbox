@@ -165,6 +165,20 @@ export class SkyApi {
           (r) => { out.dualStack = `ok ${r.status}`; },
           (e) => { out.dualStack = `fail: ${explain(e)}`; }
         ),
+      // Candidate replacement feeds. If the upstream is refusing this host's
+      // egress rather than being unreachable, another provider on the same
+      // network will answer — which tells us the fix is the data source, not
+      // the infrastructure.
+      fetch('https://opendata.adsb.fi/api/v2/lat/40/lon/-74/dist/25', { signal: AbortSignal.timeout(20_000) })
+        .then(
+          (r) => { out.adsbFi = `ok ${r.status}`; },
+          (e) => { out.adsbFi = `fail: ${explain(e)}`; }
+        ),
+      fetch('https://api.adsb.lol/v2/lat/40/lon/-74/dist/25', { signal: AbortSignal.timeout(20_000) })
+        .then(
+          (r) => { out.adsbLol = `ok ${r.status}`; },
+          (e) => { out.adsbLol = `fail: ${explain(e)}`; }
+        ),
     ]);
     return out;
   }
