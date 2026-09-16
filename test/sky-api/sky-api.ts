@@ -66,8 +66,8 @@ const ADSB_PER_TICK = 3;
 /** drop an aircraft the sweep has not seen for this long */
 const ADSB_TTL_S = 20 * 60;
 
-/** refresh on the next request once the map is older than this */
-const ADSB_REFRESH_S = 90;
+/** the least time between two request-driven fetches, so traffic cannot stampede the feed */
+const REQUEST_FETCH_GAP_MS = 3_000;
 
 const AUTH_TIMEOUT_MS = 30_000;
 const STATES_TIMEOUT_MS = 90_000;
@@ -276,7 +276,7 @@ export class SkyApi {
    * answered. A free service that answers politely deserves to be asked
    * politely, and one dead circle must not abort the rest of the sweep.
    */
-  private async pollAdsb(): Promise<boolean> {
+  private async pollAdsb(circles = ADSB_PER_TICK): Promise<boolean> {
     const kept = new Map<string, Flight>();
     // carry forward what earlier ticks found, so partial sweeps accumulate
     const cutoff = Math.floor(Date.now() / 1000) - ADSB_TTL_S;
@@ -285,7 +285,7 @@ export class SkyApi {
     }
 
     let answered = 0;
-    for (let n = 0; n < ADSB_PER_TICK; n += 1) {
+    for (let n = 0; n < circles; n += 1) {
       const [lat, lon] = ADSB_CIRCLES[this.circle % ADSB_CIRCLES.length];
       this.circle = (this.circle + 1) % ADSB_CIRCLES.length;
       try {
@@ -304,11 +304,13 @@ export class SkyApi {
       } catch {
         // a circle that times out costs us its aircraft, nothing more
       }
-      await new Promise((r) => { setTimeout(r, ADSB_SPACING_MS); });
+      // pause between circles, but never after the last one — a request is
+      // waiting on this and the pause would be pure added latency
+      if (n < circles - 1) await new Promise((r) => { setTimeout(r, ADSB_SPACING_MS); });
     }
 
     if (!kept.size) {
-      await this.noteFailure(new Error(`adsb sweep: nothing from ${ADSB_PER_TICK} circles (answered ${answered})`));
+      await this.noteFailure(new Error(`adsb sweep: nothing from ${circles} circles (answered ${answered})`));
       return false;
     }
     await this.accept([...kept.values()], Math.floor(Date.now() / 1000), 'adsb.fi');
@@ -327,23 +329,28 @@ export class SkyApi {
    * the same promise rather than each starting their own sweep.
    */
   private refreshing?: Promise<void>;
+  private lastFetch = 0;
 
   async ensureData(): Promise<void> {
-    const age = this.at ? Math.floor(Date.now() / 1000) - this.at : Infinity;
-    const empty = !this.flights.length;
-    if (!empty && age < ADSB_REFRESH_S) return;
+    const now = Date.now();
+    if (now - this.lastFetch < REQUEST_FETCH_GAP_MS) return this.refreshing;
+    this.lastFetch = now;
     this.refreshing ??= (async () => {
       try {
-        if (!this.flights.length) await this.warm();       // a snapshot another instance left
-        if (!this.flights.length || age >= ADSB_REFRESH_S) await this.pollAdsb();
+        const empty = !this.flights.length;
+        if (empty) await this.warm();                    // a snapshot another instance left
+        // One circle is about a second; three only when there is nothing at all
+        // to show. Every request advances the cursor, so the list is walked by
+        // traffic rather than by a clock, and each pass refreshes what it finds.
+        await this.pollAdsb(this.flights.length ? 1 : ADSB_PER_TICK);
       } finally {
         this.refreshing = undefined;
       }
     })();
-    // Block only when there is nothing to show. A caller who already has a map
-    // gets it immediately and the refresh lands for whoever asks next — a stale
-    // globe that redraws is better than a fast one that makes people wait.
-    if (empty) await this.refreshing;
+    // Awaited, always. Work left running after the response is sent does not
+    // survive on a host that suspends the process between requests — that is
+    // exactly how the background timer came to do nothing at all.
+    return this.refreshing;
   }
 
   /** A good read from any source: keep it, persist it, tell the browsers. */
