@@ -1,0 +1,128 @@
+---
+labels: ['auth', 'interface', 'provider', 'module']
+description: 'The six-operation authentication interface everything else depends on.'
+---
+
+The seam. Six operations, no vendor, no database, no JWT, no cookie — which is
+what makes moving between a managed provider and your own infrastructure a
+change in configuration rather than a rewrite.
+
+```ts
+export interface AuthProvider {
+  readonly name: string;
+  signUp(input: { email: string; name: string; password: string }): Promise<SignupResult>;
+  confirmEmail(token: string): Promise<ConfirmResult>;
+  resendConfirmation(email: string): Promise<ResendResult>;
+  signIn(input: { email: string; password: string }): Promise<SessionResult>;
+  refresh(refreshToken: string): Promise<SessionResult>;
+  signOut(refreshToken: string): Promise<SignOutResult>;
+  currentUser(accessToken: string): Promise<CurrentUserResult>;
+}
+```
+
+Every string crossing this boundary is either something a person typed or an
+opaque token the caller may only store and hand back. Callers never learn how
+a session is represented.
+
+## Choosing one
+
+```ts
+import { selectAuthProvider } from '@luvktest/test.auth-provider';
+
+const auth = selectAuthProvider({
+  local: () => new LocalAuthProvider(deps),
+  clerk: () => new ClerkAuthProvider(clerkDeps),
+});
+```
+
+`SKYLINE_AUTH_PROVIDER` picks one; unset means `local`. A name nobody
+registered throws rather than falling back — a deployment that meant to use a
+hosted provider and quietly used the local one instead would be storing
+passwords nobody expected it to store.
+
+Factories, not instances, so choosing one never constructs the other's
+machinery.
+
+## Refusals
+
+```ts
+if (isAuthFailure(result)) {
+  res.status(statusForAuthError(result.code)).json({ error: result.message, code: result.code });
+}
+```
+
+`code` is for the client to branch on, `message` is for a person, and neither
+ever says whether an address is registered. `statusForAuthError` keeps the HTTP
+mapping in one place so every transport answers alike.
+
+| code                        | status | what the client does           |
+| --------------------------- | ------ | ------------------------------ |
+| `expired-access-token`      | 401    | refresh, retry once            |
+| `invalid-token`, `revoked`  | 401    | drop tokens, show sign-in      |
+| `token-reused`              | 401    | drop tokens, show sign-in      |
+| `invalid-credentials`       | 401    | "wrong email or password"      |
+| `email-not-confirmed`       | 403    | "check your inbox", offer resend |
+| `invalid-confirmation`      | 400    | "that link is not valid"       |
+| `expired-confirmation`      | 410    | offer resend                   |
+| `confirmation-already-used` | 410    | "already confirmed — sign in"  |
+| `rate-limited`              | 429    | back off, `retryAfterSeconds`  |
+| `not-supported`             | 501    | the provider owns this step    |
+| `unavailable`               | 503    | auth is misconfigured          |
+
+## Two deliberate silences
+
+`signUp` answers identically whether or not the address is already registered,
+and `resendConfirmation` does the same. An implementation that returns "email
+already taken" has turned the signup form into a list of its users. Refusals
+from these two may only ever be about the *input*: malformed address, weak
+password, too many attempts.
+
+## The one operation that does not travel well
+
+`confirmEmail` assumes the confirmation link comes back to us. A managed
+provider that sends its own verification mail and hosts its own landing page
+owns that step end to end — so for such a provider `signUp` answers
+`confirmation-handled-by-provider` and `confirmEmail` answers `not-supported`.
+Callers must handle both, which is why `SignupResult` says where the user goes
+next rather than assuming.
+
+## Writing a hosted implementation — the Clerk case, honestly
+
+What a `ClerkAuthProvider` would have to provide, and where the fit is
+genuinely poor. (Endpoint names are from Clerk's Backend API as of writing;
+check them against current docs before building.)
+
+**What it needs**: `CLERK_SECRET_KEY`, the instance's JWKS URL or issuer for
+token verification, and the Clerk user/session ids it keeps privately.
+
+| operation | how it would map | fit |
+| --------- | ---------------- | --- |
+| `currentUser` | verify the session JWT against the instance JWKS, then read the user | good — this is what Clerk is for |
+| `signOut` | revoke the session by id (`POST /sessions/{id}/revoke`) | good |
+| `signIn` | find the user by email, `POST /users/{id}/verify_password`, then obtain a session | works, but against the grain: Clerk expects sign-in to happen in the browser through its Frontend API, and server-side session creation is the restricted path |
+| `signUp` | `POST /users` with `email_address` and `password`; Clerk sends its own verification mail | **the anti-enumeration guarantee is lost** — Clerk answers a duplicate address with `form_identifier_exists`, so an implementation either leaks it or swallows it and diverges from Clerk's own hosted UI |
+| `confirmEmail` | nothing to map to — Clerk owns the link and the landing page | `not-supported`, and `signUp` answers `confirmation-handled-by-provider` |
+| `resendConfirmation` | Clerk's resend lives on the Frontend API | `not-supported` in practice |
+| `refresh` | no refresh token exists; the closest thing is minting a new session token from a session id | **degraded** — see below |
+
+### The one that genuinely does not fit: `refresh`
+
+Clerk has no refresh token. A browser holds a session cookie and mints
+short-lived session JWTs from it. Server-side, the nearest equivalent is "given
+a session id, mint a token", so an implementation would have to return the
+Clerk **session id** in the `refreshToken` field. That is a workable shape and
+a worse credential: a session id is an identifier, not a 256-bit secret, and
+Clerk does not retire it on use — so **rotation and reuse detection cannot be
+implemented**. A Clerk-backed deployment would silently lose the property that
+a replayed refresh token kills the session.
+
+This is worth knowing before the move rather than after it. The interface can
+carry it — `refresh` stays honest, it simply never returns `token-reused` —
+but the security posture is not identical, and the video should not claim it is.
+
+### The shape of the swap
+
+Everything else holds. `AuthProvider` never mentions a database, a JWT, a
+cookie or a mailer, so routes, middleware and UI are untouched; the mailer
+components simply go unused because the provider owns its own mail. What
+changes is one entry in the registry and one environment variable.

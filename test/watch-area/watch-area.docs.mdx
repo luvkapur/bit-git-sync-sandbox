@@ -1,0 +1,45 @@
+---
+labels: ['watch-area', 'geo', 'entity']
+description: 'A named region of the globe — a centre, a radius, and who may see it.'
+---
+
+A watch area is a circle a user drew on the globe and named: "Heathrow approach",
+"my street", "the North Atlantic track". It answers one question — is this
+aircraft in it — and it answers it correctly at the date line and at the poles.
+
+Pure geometry and ownership. No storage, no map, no aircraft feed.
+
+## Why a cap and not a box
+
+A cap is `distance(centre, point) <= radius` on a sphere, which is already right
+everywhere. A lat/lon box needs a `west > east` branch at the antimeridian, and
+near a pole the box is not the shape the user drew — its north edge is far wider
+in longitude than its south edge. A circle is also what a drag gesture on an
+orthographic globe produces.
+
+What this costs: there is no way to say "the rectangle between these corners".
+That should be a second shape when the product asks for it, not a bent cap.
+
+## Get started
+
+```ts
+const area = WatchArea.create({
+  id: 'wa_1',
+  ownerId: 'u_42',
+  name: 'Fiji',
+  centre: { lat: 0, lon: 179.9 },
+  radiusKm: 100,
+});
+
+area.contains(0, -179.9); // true — 22 km away, across the date line
+area.filter(flights);     // the aircraft inside, in whatever shape you passed
+area.visibleTo('u_99');   // false until withVisibility('shared')
+```
+
+## Prefiltering a store
+
+`bounds()` returns the smallest lat/lon window around the cap, for an index or a
+`WHERE` clause that narrows candidates before `contains` decides. Read the flags
+before you use it: `crossesAntimeridian` means the longitude range is two spans,
+and `coversPole` means no longitude range excludes anything. `lonInBounds` applies
+both rules if you would rather not write them again.

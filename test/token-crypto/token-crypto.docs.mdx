@@ -1,0 +1,55 @@
+---
+labels: ['auth', 'crypto', 'tokens', 'module']
+description: 'Minting, fingerprinting and comparing opaque auth tokens, and reading the signing secret.'
+---
+
+The small pile of cryptography that the Skyline session layer sits on. It knows
+nothing about users, sessions or HTTP — it mints random tokens, fingerprints
+them for storage, and reads the one secret the system needs.
+
+## The secret
+
+There is exactly one: `SKYLINE_AUTH_SECRET`. It is never defaulted and never
+committed. `readAuthSecret` throws `MissingAuthSecretError` if it is unset,
+blank or shorter than 32 characters, and callers are expected to let that
+failure disable authentication rather than paper over it.
+
+```ts
+import { readAuthSecret, MissingAuthSecretError } from '@luvktest/test.token-crypto';
+
+try {
+  const secret = readAuthSecret();
+  // build the session layer
+} catch (e) {
+  if (e instanceof MissingAuthSecretError) console.error(e.message); // auth stays off
+}
+```
+
+Generate one with:
+
+```bash
+openssl rand -base64 48
+```
+
+Every replica must share the same value. A per-pod secret would sign people
+out whenever a load balancer moved them.
+
+## Minting and storing a token
+
+The raw token is handed to the client once. Only its HMAC ever touches the
+database, so a stolen database dump contains nothing that can be replayed.
+
+```ts
+import { mintRawToken, hashToken } from '@luvktest/test.token-crypto';
+
+const raw = mintRawToken();                 // give this to the client
+const stored = hashToken(raw, secret);      // put this in the collection
+```
+
+## Comparing fingerprints
+
+```ts
+import { hashesMatch } from '@luvktest/test.token-crypto';
+
+hashesMatch(hashToken(incoming, secret), stored); // constant time
+```

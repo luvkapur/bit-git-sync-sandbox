@@ -1,0 +1,51 @@
+---
+labels: ['spotting', 'http', 'express', 'routes', 'module']
+description: 'The HTTP surface of the spot log: take a spot, read the feed, score an airframe.'
+---
+
+Express routes over `@luvktest/test.spot`. The domain component decides; these
+only carry. Storage is behind the `SpotStore` port, so the rules and the
+transport are both testable without a database.
+
+## Wiring it up
+
+```ts
+import { registerSpotRoutes } from '@luvktest/test.spot-routes';
+import { MongoSpotStore } from '@luvktest/test.mongo-spot-store';
+
+const spots = MongoSpotStore.usingDefaultConnection();
+await spots.ensureIndexes();
+registerSpotRoutes(app, { auth, spots, feed: sky, spotters: sky });
+```
+
+`feed` and `spotters` are ports, not the service: the routes can reach the live
+sky and a table of display names, and nothing else — no route that only needed
+to say who took a spot can reach an address or a password hash.
+
+## The routes
+
+| Method | Path | Auth |
+|---|---|---|
+| POST | `/spots` | Bearer |
+| GET | `/spots/recent` | — |
+| GET | `/me/spots` | Bearer |
+| GET | `/spots/rarity/top` | — |
+| GET | `/spots/rarity/:icao` | — |
+
+`top` is registered before `:icao`, or it would be read as a transponder
+address and 404 for ever.
+
+## What the request is allowed to say
+
+The aircraft, and a note. That is all. The spotter comes from the token, and
+the position, type and altitude come from the server's own feed snapshot — so a
+crafted client cannot log an An-124 over its own house.
+
+## Two ways to be a duplicate
+
+`SpotLog` refuses a second spot of the same airframe inside the cooldown. That
+check is a read followed by a write, and two requests that arrive together both
+read "none" and both pass it. The store's unique key on
+`(spotterId, icao, timeBucket)` catches the pair that the rule cannot see, and a
+lost race answers 409 — the same answer the rule would have given a moment
+later. See `timeBucketOf` for why the bucket is a backstop and not the rule.

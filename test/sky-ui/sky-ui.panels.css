@@ -1,0 +1,93 @@
+/* Motion and chrome for the account, spotting and watch-area panels.
+ *
+ * A third plain global stylesheet, for the reason the other two carry in their
+ * own headers: a *.module.css name in this directory hashes the class names out
+ * from under the string literals the JSX uses, and the side-effect import then
+ * gets tree-shaken because nothing references a hashed name. Plain sheet, class
+ * names spelled as written.
+ *
+ * Every animation below is switched off under prefers-reduced-motion at the
+ * bottom of the file. The globe honours the same setting in JavaScript, because
+ * a canvas cannot be reached by a media query. */
+
+/* A thing arriving under its own weight: the confirmation tick, a kept spot. */
+@keyframes skyPop {
+  0%   { opacity: 0; transform: scale(0.72); }
+  62%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.skyPop { animation: skyPop 420ms cubic-bezier(.16,1,.3,1) both; }
+
+/* The envelope's motion lines, drifting a couple of pixels. */
+@keyframes skyLift {
+  0%,100% { transform: translateY(0); opacity: .75; }
+  50%     { transform: translateY(-2.5px); opacity: 1; }
+}
+.skyLift { animation: skyLift 3.4s ease-in-out infinite; }
+
+@keyframes skySpin { to { transform: rotate(360deg); } }
+.skySpin { animation: skySpin 9s linear infinite; transform-origin: 50% 50%; }
+
+/* The radar sweep in the empty feed: slow enough to read as ambient, not busy. */
+@keyframes skySweep { to { transform: rotate(360deg); } }
+.skySweep { animation: skySweep 6s linear infinite; }
+
+/* A tick that draws itself rather than appearing. */
+@keyframes skyDraw { from { stroke-dashoffset: 34; } to { stroke-dashoffset: 0; } }
+.skyDraw { stroke-dasharray: 34; animation: skyDraw 420ms 140ms cubic-bezier(.16,1,.3,1) both; }
+
+/* Loading rows. A shimmer that stays inside the row's own footprint, so the
+ * list does not change height when the real content lands — nothing pops in
+ * because nothing moves. */
+@keyframes skyShimmer {
+  0%   { background-position: -180px 0; }
+  100% { background-position: 260px 0; }
+}
+.skyShimmer {
+  background-color: rgba(255,255,255,0.045);
+  background-image: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0) 100%);
+  background-size: 180px 100%;
+  background-repeat: no-repeat;
+  animation: skyShimmer 1.5s ease-in-out infinite;
+}
+
+/* Enrichment arriving into the flight panel.
+ *
+ * Opacity only, and only opacity: every slot in that panel is already the size
+ * it will end up, so there is nothing to slide and nothing to grow. A fade is
+ * what "it is here now" looks like when the layout was decided a frame ago. */
+@keyframes skyReveal { from { opacity: 0; } to { opacity: 1; } }
+.skyReveal { animation: skyReveal 280ms cubic-bezier(.16,1,.3,1) both; }
+
+/* The photograph, once it has actually decoded. Slower than the text: it is a
+ * bigger thing arriving, and it is arriving over its own backdrop rather than
+ * over a hole, so it can afford the extra beat. */
+@keyframes skyPhotoIn { from { opacity: 0; } to { opacity: 1; } }
+.skyPhotoIn { animation: skyPhotoIn 340ms cubic-bezier(.16,1,.3,1) both; }
+
+/* The left rail: a column that scrolls without announcing a scrollbar. */
+.skyRailBody {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2f3c transparent;
+}
+.skyRailBody::-webkit-scrollbar { width: 6px; }
+.skyRailBody::-webkit-scrollbar-thumb { background: #2a2f3c; border-radius: 999px; }
+.skyRailBody::-webkit-scrollbar-track { background: transparent; }
+
+/* Rows in the rail light up on hover. Background only — no transform, so a
+ * pointer moving down a list never shifts what is under it. */
+.skyRow { transition: background-color 140ms ease; }
+.skyRow:hover { background-color: rgba(255,255,255,0.045); }
+
+/* The globe's cursor says which mode it is in. */
+.skyCanvas.skyDrawing { cursor: crosshair; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skyPop, .skyLift, .skySpin, .skySweep, .skyDraw, .skyShimmer,
+  .skyReveal, .skyPhotoIn { animation: none; }
+  .skyDraw { stroke-dasharray: none; }
+  .skyShimmer { background-image: none; }
+  .skyRow { transition: none; }
+}

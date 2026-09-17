@@ -1,0 +1,40 @@
+---
+labels: ['watch-area', 'http', 'express', 'routes', 'authorization', 'module']
+description: 'The HTTP surface of watch areas — and the ownership check that makes them private.'
+---
+
+Express routes over `@luvktest/test.watch-area`. Every one of them requires a
+token.
+
+## Wiring it up
+
+```ts
+import { registerAreaRoutes } from '@luvktest/test.area-routes';
+import { MongoAreaStore } from '@luvktest/test.mongo-area-store';
+
+registerAreaRoutes(app, { auth, areas: MongoAreaStore.usingDefaultConnection() });
+```
+
+## The routes
+
+`GET /me/areas` · `POST /me/areas` · `PATCH /me/areas/:id` · `DELETE /me/areas/:id`
+
+## Two rules, deliberately not the same rule
+
+Reading is `areasVisibleTo`: your own, plus anything shared. The store narrows
+to that set with an indexed `$or`, and the entity's own predicate is still
+applied on top — the query is an optimisation of the rule, never a second copy
+of it.
+
+Writing is stricter. A shared area is readable by anyone and editable by nobody
+but its owner, so `PATCH` and `DELETE` check `ownerId` against the token and
+answer 403 otherwise. An id that does not exist gets the same 403, so the
+endpoint cannot be used to ask whether an id is real.
+
+## Building an area
+
+Always through `WatchArea.create`, which folds the longitude a drag across the
+date line produces, clamps a radius larger than the planet, and refuses a
+nameless one. Its `RangeError` becomes a 400 that says which field was wrong.
+`PATCH` re-runs the constructor too, so no patch can reach a state `create`
+would have refused.

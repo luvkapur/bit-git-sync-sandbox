@@ -1,0 +1,43 @@
+---
+labels: ['auth', 'email', 'templates', 'module']
+description: 'The three messages the signup flow sends. No vendor, anywhere.'
+---
+
+Templates, not transport. Each function returns a `MailMessage` — subject, text
+body, HTML body — and knows nothing about who delivers it.
+
+```ts
+import { confirmationEmail } from '@luvktest/test.auth-emails';
+
+await mailer.send(
+  confirmationEmail({ to, name, appName: 'Skyline', confirmUrl: links.confirmUrl(token) })
+);
+```
+
+## Three messages
+
+| function                   | when                                          |
+| -------------------------- | --------------------------------------------- |
+| `confirmationEmail`        | a new account, or a resend                    |
+| `accountAlreadyExistsEmail`| somebody signed up with an address that exists |
+| `noAccountEmail`           | somebody asked to resend for an address that does not |
+
+The last two are why the signup endpoint can answer identically in every case.
+The response gives nothing away, and neither does the inbox: an address always
+receives *something*, so silence is not a signal either. They share a subject
+line for the same reason.
+
+## Both bodies, always
+
+Every link appears unshortened in the plain-text body as well as the HTML one.
+A user whose client refuses HTML still has to be able to copy the link out, and
+a confirmation link they cannot reach is a dead account.
+
+## Escaping
+
+A name comes from a signup form, and a signup form is the internet:
+
+```ts
+confirmationEmail({ to, name: '<script>alert(1)</script>', confirmUrl }).html;
+// → &lt;script&gt;alert(1)&lt;/script&gt;
+```

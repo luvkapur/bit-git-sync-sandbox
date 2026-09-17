@@ -9,6 +9,41 @@
  */
 
 {
+    "area-routes": {
+        "name": "area-routes",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/area-routes"
+    },
+    "auth-emails": {
+        "name": "auth-emails",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/auth-emails"
+    },
+    "auth-middleware": {
+        "name": "auth-middleware",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/auth-middleware"
+    },
+    "auth-provider": {
+        "name": "auth-provider",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/auth-provider"
+    },
+    "auth-routes": {
+        "name": "auth-routes",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/auth-routes"
+    },
     "crm-service": {
         "name": "crm-service",
         "scope": "luvktest.test",
@@ -30,10 +65,17 @@
         "mainFile": "index.ts",
         "rootDir": "test/customer"
     },
+    "email-confirmation": {
+        "name": "email-confirmation",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/email-confirmation"
+    },
     "flight": {
         "name": "flight",
         "scope": "luvktest.test",
-        "version": "0.0.18",
+        "version": "0.0.19",
         "mainFile": "index.ts",
         "rootDir": "test/flight"
     },
@@ -44,6 +86,48 @@
         "mainFile": "index.ts",
         "rootDir": "test/hope-crm"
     },
+    "local-auth-provider": {
+        "name": "local-auth-provider",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/local-auth-provider"
+    },
+    "mailer": {
+        "name": "mailer",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/mailer"
+    },
+    "mongo-area-store": {
+        "name": "mongo-area-store",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/mongo-area-store"
+    },
+    "mongo-confirmation-store": {
+        "name": "mongo-confirmation-store",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/mongo-confirmation-store"
+    },
+    "mongo-session-store": {
+        "name": "mongo-session-store",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/mongo-session-store"
+    },
+    "mongo-spot-store": {
+        "name": "mongo-spot-store",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/mongo-spot-store"
+    },
     "notifications/toast": {
         "name": "notifications/toast",
         "scope": "luvktest.test",
@@ -51,40 +135,75 @@
         "mainFile": "index.ts",
         "rootDir": "test/notifications/toast"
     },
+    "resend-mailer": {
+        "name": "resend-mailer",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/resend-mailer"
+    },
+    "session": {
+        "name": "session",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/session"
+    },
+    "session-manager": {
+        "name": "session-manager",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/session-manager"
+    },
     "sky-api": {
         "name": "sky-api",
         "scope": "luvktest.test",
-        "version": "0.0.19",
+        "version": "0.0.20",
         "mainFile": "index.ts",
         "rootDir": "test/sky-api"
     },
     "sky-aspect": {
         "name": "sky-aspect",
         "scope": "luvktest.test",
-        "version": "0.0.18",
+        "version": "0.0.19",
         "mainFile": "index.ts",
         "rootDir": "test/sky-aspect"
     },
     "sky-ui": {
         "name": "sky-ui",
         "scope": "luvktest.test",
-        "version": "0.0.19",
+        "version": "0.0.20",
         "mainFile": "index.ts",
         "rootDir": "test/sky-ui"
     },
     "skyline": {
         "name": "skyline",
         "scope": "luvktest.test",
-        "version": "0.0.20",
+        "version": "0.0.21",
         "mainFile": "index.ts",
         "rootDir": "test/skyline"
     },
     "skyline-symphony": {
         "name": "skyline-symphony",
         "scope": "luvktest.test",
-        "version": "0.0.18",
+        "version": "0.0.19",
         "mainFile": "index.ts",
         "rootDir": "test/skyline-symphony"
+    },
+    "spot": {
+        "name": "spot",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/spot"
+    },
+    "spot-routes": {
+        "name": "spot-routes",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/spot-routes"
     },
     "sync-probe": {
         "name": "sync-probe",
@@ -93,12 +212,26 @@
         "mainFile": "index.ts",
         "rootDir": "test/sync-probe"
     },
+    "token-crypto": {
+        "name": "token-crypto",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/token-crypto"
+    },
     "user": {
         "name": "user",
         "scope": "luvktest.test",
-        "version": "0.0.18",
+        "version": "0.0.19",
         "mainFile": "index.ts",
         "rootDir": "test/user"
+    },
+    "watch-area": {
+        "name": "watch-area",
+        "scope": "luvktest.test",
+        "version": "0.0.1",
+        "mainFile": "index.ts",
+        "rootDir": "test/watch-area"
     },
     "$schema-version": "17.0.0"
 }

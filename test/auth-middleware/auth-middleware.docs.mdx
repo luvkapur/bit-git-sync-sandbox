@@ -1,0 +1,65 @@
+---
+labels: ['auth', 'express', 'middleware', 'authorization', 'module']
+description: 'Bearer-token middleware and the self-only authorisation check.'
+---
+
+The HTTP edge of the session layer: turn an `Authorization` header into a
+proved user id, or refuse the request. It has no Express dependency — the
+request and response types are structural, so it drops into an Express app and
+unit-tests against an object literal.
+
+## Authentication
+
+```ts
+import { requireAuth } from '@luvktest/test.auth-middleware';
+
+app.get('/me/watchlist', requireAuth(sessions), async (req, res) => {
+  res.json({ watching: await sky.watchlist(req.auth.userId) });
+});
+```
+
+On success, `req.auth` is `{ userId, sessionId, expiresInSeconds }`. On
+failure, the request is answered with 401 and the handler never runs:
+
+```json
+{ "error": "your session needs refreshing", "code": "expired-access-token" }
+```
+
+with `WWW-Authenticate: Bearer error="expired-access-token"`. `code` is the
+field a client branches on — `expired-access-token` means refresh and retry
+once; anything else means sign in again.
+
+## Authorisation
+
+Authentication says *who is calling*. It does not say *whose data they may
+touch*, and conflating the two is precisely how a route that trusts a path
+parameter ends up serving anyone's watchlist to anyone.
+
+```ts
+import { requireAuth, requireSelf } from '@luvktest/test.auth-middleware';
+
+app.get('/watchlist/:userId', requireAuth(sessions), async (req, res) => {
+  if (!requireSelf(req, res, req.params.userId)) return; // already answered 403
+  res.json({ watching: await sky.watchlist(req.auth.userId) });
+});
+```
+
+`requireSelf` has already sent 403 when it returns false, so the guard must
+`return` immediately.
+
+Better still, do not accept the id at all: take it from `req.auth.userId` and
+let the path say `/me`. An id a client can type is an id a client can change.
+
+## Reading the header
+
+```ts
+import { bearerTokenFrom } from '@luvktest/test.auth-middleware';
+
+bearerTokenFrom({ authorization: 'bearer abc' }); // 'abc'
+bearerTokenFrom({ authorization: 'Basic ...' });  // undefined
+bearerTokenFrom({ authorization: 'abc' });        // undefined — no scheme, no token
+```
+
+Tolerant about header casing, scheme casing and stray whitespace; strict about
+everything else, so a malformed credential reads as absent rather than as a
+token that fails verification later.

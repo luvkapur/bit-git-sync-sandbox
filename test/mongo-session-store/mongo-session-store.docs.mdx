@@ -1,0 +1,51 @@
+---
+labels: ['auth', 'session', 'mongodb', 'mongoose', 'module']
+description: 'The sessions collection behind the SessionStore port.'
+---
+
+The MongoDB half of the session layer. It stores records and answers two
+indexed lookups; every rule lives in `@luvktest/test.session-manager`.
+
+## Wiring it up
+
+```ts
+import { MongoSessionStore } from '@luvktest/test.mongo-session-store';
+import { SessionManager } from '@luvktest/test.session-manager';
+import { readAuthSecret } from '@luvktest/test.token-crypto';
+
+await mongoose.connect(process.env.MONGO_URL);
+const sessions = new SessionManager(MongoSessionStore.usingDefaultConnection(), readAuthSecret());
+```
+
+`usingDefaultConnection` reuses an already-registered `Session` model, because
+registering the same model twice is fatal in mongoose.
+
+## What is in the collection
+
+Fingerprints, never tokens. A dump of this collection tells an attacker that
+sessions exist and when they end — nothing that can be replayed, because the
+HMAC key lives in the environment.
+
+Both fingerprints are unique indexes, so the hot paths (one lookup per
+authenticated request, one per refresh) are single-key hits.
+
+## The one query that matters
+
+```ts
+updateOne({ id, rotatedAt: { $exists: false } }, { $set: { rotatedAt } });
+```
+
+Rotation has to be a compare-and-set. Two requests arriving with the same
+refresh token must not both succeed, and a read followed by a write would let
+them. Mongo matches at most one document, so exactly one caller sees
+`modifiedCount === 1` and the other is told it lost — which the manager treats
+as replay and answers by revoking the family.
+
+## Housekeeping
+
+```ts
+await sessions.purgeExpired(); // drops records past their 90-day ceiling
+```
+
+Not a security control — expired records are already refused. It only stops
+the collection growing forever.

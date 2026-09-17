@@ -1,37 +1,81 @@
 ---
-labels: ['sky-api', 'express', 'server', 'microservice']
-description: 'sky api'
+labels: ['sky-api', 'express', 'server', 'microservice', 'auth']
+description: 'The Skyline backend: the live flight feed, and authentication wired to interfaces.'
 ---
 
-A sky-api component. Provides a RESTful API for the platform.
+The Skyline service. Two halves: a public flight feed, and an authenticated
+account and watchlist API.
 
-## Run the server 
-
-Import the platform and use the it in your workspace:
-
-```bash
-bit use sky-api
-```
-
-Run the server:
 ```bash
 bit run sky-api
 ```
 
-## Compose to your platform
+## Environment
 
-You can compose the server to a Platform app. Use the platform application type in a Bit app `my-platform.bit-app.ts` and include your server:
-```ts
-import { Platform } from '@bitdev/platforms.platform';
+| Variable                | Required | What happens without it                                   |
+| ----------------------- | -------- | --------------------------------------------------------- |
+| `MONGO_URL`             | yes      | the service does not start                                 |
+| `SKYLINE_AUTH_SECRET`   | yes      | **auth disabled**: every auth route answers 503, map still works |
+| `SKYLINE_PUBLIC_URL`    | no       | confirmation links point at `http://localhost:<port>`      |
+| `SKYLINE_AUTH_PROVIDER` | no       | `local` — your own sessions on your own infrastructure     |
+| `RESEND_API_KEY`        | no       | the dev mailer prints emails to this log instead of sending |
+| `SKYLINE_MAIL_FROM`     | no       | as above; setting one of the two without the other is an error |
+| `OPENSKY_CLIENT_ID` / `OPENSKY_CLIENT_SECRET` | no | anonymous feed budget |
 
-export const MyPlatform = Platform.from({
-  name: 'my-platform',
-
-  backends: {
-    main: new AcmeGateway(),
-    services: [
-      SkyApi,
-    ]
-  },
-});
+```bash
+export SKYLINE_AUTH_SECRET="$(openssl rand -base64 48)"
 ```
+
+The same value on every replica. A per-pod secret signs people out whenever a
+load balancer moves them.
+
+## Public routes
+
+| Method | Path                | Answers                                   |
+| ------ | ------------------- | ----------------------------------------- |
+| GET    | `/`                 | feed metadata, no rows                    |
+| GET    | `/flights`          | the full state, compact rows              |
+| GET    | `/live`             | SSE stream of the same                    |
+| GET    | `/aircraft/:icao`   | type, registration, operator, photo       |
+| GET    | `/route/:callsign`  | origin and destination                    |
+
+## Authenticated routes
+
+Mounted by `@luvktest/test.auth-routes`, which takes an `AuthProvider` rather
+than an implementation. See that component for request and response shapes.
+
+```
+POST /auth/signup             → 202, a confirmation email, and no session
+GET|POST /auth/confirm        → 200, the account is now usable
+POST /auth/resend-confirmation→ 200 (or 429 with Retry-After)
+POST /auth/login              → 200 with an access + refresh token pair
+POST /auth/refresh            → 200 with a new pair; the old refresh token dies
+POST /auth/logout             → 200; both tokens die immediately
+GET  /auth/me                 → 200 with the account behind the access token
+GET  /me/watchlist            → the caller's watchlist, never anyone else's
+POST /me/watch, /me/unwatch   → same
+```
+
+## How it is wired
+
+```
+routes → AuthProvider (interface)
+              └── LocalAuthProvider
+                      ├── AccountStore      ← SkyApi, over MongoDB
+                      ├── SessionManager    ← MongoSessionStore
+                      ├── ConfirmationManager ← MongoConfirmationStore
+                      └── Mailer            ← ResendMailer, else ConsoleMailer
+```
+
+`SkyApi` is an `AccountStore` and a watchlist store and nothing else as far as
+authentication is concerned: it stores and retrieves, and every rule about who
+may sign in lives above it. Swapping `SKYLINE_AUTH_PROVIDER` changes which
+implementation sits behind the interface; the route table above does not move.
+
+## Failing closed
+
+If the signing secret is missing, the mail provider is half-configured, or
+`SKYLINE_AUTH_PROVIDER` names something nobody registered, the service logs the
+reason and mounts every auth route as a 503. The flight map keeps working and
+nobody can sign in. An app that appears to authenticate people and does not is
+worse than one that says it cannot.

@@ -2,6 +2,8 @@ import mongoose, { Schema, Model } from 'mongoose';
 import { randomUUID } from 'node:crypto';
 import { promises as dns } from 'node:dns';
 import { Flight, PlainFlight } from '@luvktest/test.flight';
+import { FeedSnapshot, RarityIndex } from '@luvktest/test.spot';
+import type { FeedAircraft } from '@luvktest/test.spot';
 import { User, PlainUser } from '@luvktest/test.user';
 
 /**
@@ -15,6 +17,14 @@ const userSchema = new Schema<PlainUser>({
   name: { type: String, required: true },
   passwordHash: { type: String, required: true },
   createdAt: { type: String, required: true },
+  /**
+   * when the address was proved.
+   *
+   * Optional, and absent means unconfirmed — which is also how rows written
+   * before confirmation existed read. That is the safe reading: such an
+   * account cannot sign in until its owner asks for a link and clicks it.
+   */
+  confirmedAt: { type: String, required: false },
 });
 
 const watchSchema = new Schema({
@@ -41,13 +51,20 @@ const routeSchema = new Schema({ callsign: { type: String, required: true, uniqu
  * carries traffic rather than evenly over a sphere that is mostly water. Each
  * call answers a 250nm radius, so this is a partial map by construction — it
  * exists to keep a host alive that cannot reach the global feed, not to match it.
+ *
+ * Deliberately round-robined across continents rather than grouped by them.
+ * Grouped, the sweep spent its first two ticks entirely over North America and
+ * the globe showed traffic there and nowhere else for minutes — which reads as a
+ * broken map, not a filling one. Interleaved, any three consecutive circles span
+ * three continents, so the first tick already looks like a planet.
  */
 const ADSB_CIRCLES: [number, number][] = [
-  [42, -74], [33, -84], [41, -88], [31, -97], [36, -119],  // north america
-  [52, -1], [40, -4], [47, 3], [51, 10], [42, 12],          // western europe
-  [39, 33], [25, 52],                                        // turkey, the gulf
-  [28, 77], [13, 101], [31, 118], [36, 139],                 // india, se asia, china, japan
-  [-23, -46], [-33, 151],                                    // brazil, australia
+  [42, -74], [52, -1], [28, 77],   // north america, europe, asia
+  [39, 33], [-23, -46], [33, -84],   // middle east, south, north america
+  [40, -4], [13, 101], [25, 52],   // europe, asia, middle east
+  [-33, 151], [41, -88], [47, 3],   // south, north america, europe
+  [31, 118], [31, -97], [51, 10],   // asia, north america, europe
+  [36, 139], [36, -119], [42, 12],   // asia, north america, europe
 ];
 
 /** the feed refuses bursts; spaced calls are answered, parallel ones are not */
@@ -96,6 +113,32 @@ const snapshotSchema = new Schema({
   flights: { type: Array, default: [] },
 });
 
+/**
+ * The accumulated rarity index — one row, rewritten on every good poll.
+ *
+ * This is where rarity survives a restart, and it has to live somewhere
+ * because a single snapshot is not a sample. `RarityIndex` needs 250
+ * observations before it will put a band on anything and 2,500 before it calls
+ * its own confidence high, and a snapshot only counts the airframes whose
+ * *type* enrichment has already resolved — a few dozen here, not three
+ * thousand. Rebuilt from the current feed at every boot, the index would spend
+ * hours answering `unknown` to every question the UI asks it, and every
+ * restart would reset the clock.
+ *
+ * Counts are stored as pairs rather than as an object keyed by designator.
+ * ICAO type designators happen to be safe Mongo keys today, and a schema that
+ * is only correct because of a fact about the data is a schema waiting for the
+ * one designator that has a dot in it.
+ */
+const raritySchema = new Schema({
+  key: { type: String, required: true, unique: true },
+  /** unix ms of the last fold */
+  at: { type: Number, required: true },
+  /** how many snapshots are behind these counts, for the log */
+  snapshots: { type: Number, default: 0 },
+  counts: { type: [{ _id: false, t: String, n: Number }], default: [] },
+});
+
 
 
 export class SkyApi {
@@ -116,13 +159,26 @@ export class SkyApi {
   private lastError?: string;
   private token?: { value: string; expires: number };
   private timer?: ReturnType<typeof setTimeout>;
+  /**
+   * ICAO type designator per airframe, mirrored from the enrichment cache.
+   *
+   * The feed says where an aircraft is; it never says what it is. Rarity is
+   * measured on the type, so the join has to happen somewhere, and doing it in
+   * memory keeps it at map-lookup cost per aircraft instead of a query per
+   * poll over three thousand rows.
+   */
+  private types = new Map<string, string>();
+  /** the running index. See raritySchema for why it is not rebuilt each boot. */
+  private rarityIndex = new RarityIndex();
+  private rarityFolds = 0;
 
   constructor(
     private users: Model<PlainUser>,
     private watches: Model<any>,
     private snapshots: Model<any>,
     private aircraftCache: Model<any>,
-    private routeCache: Model<any>
+    private routeCache: Model<any>,
+    private rarityStore?: Model<any>
   ) {}
 
   static async connect(mongoUrl = process.env.MONGO_URL) {
@@ -134,7 +190,8 @@ export class SkyApi {
       m.Watch || mongoose.model('Watch', watchSchema),
       m.Snapshot || mongoose.model('Snapshot', snapshotSchema),
       m.Aircraft || mongoose.model('Aircraft', aircraftSchema),
-      m.Route || mongoose.model('Route', routeSchema)
+      m.Route || mongoose.model('Route', routeSchema),
+      m.Rarity || mongoose.model('Rarity', raritySchema)
     );
   }
 
@@ -390,7 +447,36 @@ export class SkyApi {
       { key: 'global', at: this.at, flights: flights.map((f) => f.toRow()) },
       { upsert: true }
     );
+    await this.foldRarity();
     this.broadcast();
+  }
+
+  /**
+   * Fold this snapshot into the running rarity index and persist it.
+   *
+   * Once per good poll, which is minutes apart, so the write is free. `plus`
+   * counts airframes, so a type accumulates by the airborne-hours it is
+   * actually visible for — which is the right measure: the question a spotter
+   * asks is how often they see one, not how many exist.
+   *
+   * Failing to persist is not allowed to fail the poll. The map is the product
+   * and the index is a scoreboard; losing one fold costs the scoreboard a few
+   * counts and nothing else.
+   */
+  private async foldRarity(): Promise<void> {
+    this.rarityIndex = this.rarityIndex.plus(this.feedAircraft());
+    this.rarityFolds += 1;
+    if (!this.rarityStore) return;
+    try {
+      const counts = Object.entries(this.rarityIndex.toObject().counts).map(([t, n]) => ({ t, n }));
+      await this.rarityStore.updateOne(
+        { key: 'global' },
+        { key: 'global', at: Date.now(), snapshots: this.rarityFolds, counts },
+        { upsert: true }
+      );
+    } catch (e) {
+      console.warn(`[sky-api] rarity index not persisted: ${e instanceof Error ? e.message : String(e)}`);
+    }
   }
 
   private async noteFailure(e: unknown): Promise<void> {
@@ -449,6 +535,116 @@ export class SkyApi {
       this.flights = (snap.flights as any[][]).map((r) => Flight.fromRow(r));
       this.at = snap.at;
     }
+    await this.warmTypes();
+    await this.warmRarity();
+  }
+
+  /**
+   * Mirror the enrichment cache into memory.
+   *
+   * Once at boot and then kept current by `aircraft()`, because this process is
+   * the only thing that writes that collection. The cache is one row per
+   * airframe anyone has ever looked at — tens of thousands at the very worst,
+   * two strings each — so holding it is cheaper than the per-poll query that
+   * would replace it.
+   */
+  private async warmTypes(): Promise<void> {
+    const docs = await this.aircraftCache.find({}, { icao: 1, info: 1 }).lean();
+    for (const doc of (docs as any[]) ?? []) {
+      this.rememberType(doc?.icao, doc?.info);
+    }
+  }
+
+  /**
+   * The ICAO designator, not the marketing name.
+   *
+   * `icaoType` is `A320` / `B78X` / `A124`, which is what the index counts.
+   * `type` is `A320 214`, a different string for every variant of the same
+   * aircraft — counting those would split one common type into a dozen rare
+   * ones and make an A320 look like a find.
+   */
+  private rememberType(icao: unknown, info: unknown): void {
+    if (typeof icao !== 'string' || !icao) return;
+    const i = (info ?? {}) as { icaoType?: unknown; type?: unknown };
+    const designator = typeof i.icaoType === 'string' && i.icaoType.trim() ? i.icaoType : i.type;
+    if (typeof designator === 'string' && designator.trim()) this.types.set(icao.toLowerCase(), designator.trim().toUpperCase());
+  }
+
+  /** Restore the accumulated index, so a restart does not reset every band to `unknown`. */
+  private async warmRarity(): Promise<void> {
+    if (!this.rarityStore) return;
+    const doc = await this.rarityStore.findOne({ key: 'global' }).lean();
+    const rows = (doc?.counts as { t?: unknown; n?: unknown }[]) ?? [];
+    const counts: Record<string, number> = {};
+    for (const row of rows) {
+      if (typeof row?.t === 'string' && typeof row?.n === 'number' && row.n > 0) counts[row.t] = row.n;
+    }
+    this.rarityIndex = RarityIndex.from({ counts });
+    this.rarityFolds = typeof doc?.snapshots === 'number' ? doc.snapshots : 0;
+    if (this.rarityIndex.sampleSize) {
+      console.log(`[sky-api] rarity index restored: ${this.rarityIndex.sampleSize} observations of ${this.rarityIndex.distinctTypes} types over ${this.rarityFolds} snapshots`);
+    }
+  }
+
+  // ---------- the spotting ports
+  //
+  // Three small methods, and what they have in common is the point: the
+  // spotting routes are handed the feed and a directory of names, never this
+  // class. Nothing above them can reach a password hash or an email address
+  // through a route that only ever needed to say who took a spot.
+
+  /**
+   * The feed as the spot rules want it: position from the transponder, type
+   * from the enrichment cache, and an airframe with no resolved type left
+   * without one rather than given a guess.
+   */
+  feedAircraft(): FeedAircraft[] {
+    return this.flights.map((f) => ({
+      icao: f.d.icao,
+      callsign: f.callsign,
+      type: this.types.get(f.d.icao.toLowerCase()),
+      lat: f.d.lat,
+      lon: f.d.lon,
+      altitude: f.d.altitude,
+      onGround: f.d.onGround,
+      seen: f.d.seen,
+    }));
+  }
+
+  /**
+   * The current feed, indexed.
+   *
+   * Deliberately does **not** call `ensureData()`. That method falls back to
+   * sweeping a single 250 nm circle, which on a process whose last good read
+   * was the global feed would replace three thousand aircraft with a few
+   * hundred over one city — and every spot attempt in the world would answer
+   * `not-in-feed` for a minute. The poller keeps this current; a spot reads
+   * what is there.
+   */
+  async snapshot(): Promise<FeedSnapshot> {
+    return new FeedSnapshot(this.feedAircraft());
+  }
+
+  /** The accumulated index, not this snapshot's. See raritySchema. */
+  async rarity(): Promise<RarityIndex> {
+    return this.rarityIndex;
+  }
+
+  /**
+   * Display names for a set of accounts.
+   *
+   * Projected to `id` and `name` — the address never leaves this method, and
+   * the feed a stranger can read is built from what this returns.
+   */
+  async namesOf(ids: readonly string[]): Promise<Record<string, string>> {
+    const wanted = [...new Set(ids)].filter(Boolean);
+    if (!wanted.length) return {};
+    const docs = await this.users.find({ id: { $in: wanted } }, { id: 1, name: 1, _id: 0 }).lean();
+    const names: Record<string, string> = {};
+    for (const doc of (docs as any[]) ?? []) {
+      if (typeof doc?.id === 'string' && typeof doc?.name === 'string') names[doc.id] = doc.name;
+    }
+    return names;
   }
 
   /** live superlatives, straight off the feed. free, and genuinely interesting. */
@@ -505,7 +701,10 @@ export class SkyApi {
   async aircraft(icao: string) {
     const key = icao.toLowerCase();
     const hit = await this.aircraftCache.findOne({ icao: key }).lean();
-    if (hit) return hit.info;
+    if (hit) {
+      this.rememberType(key, hit.info);
+      return hit.info;
+    }
     let info = {};
     try {
       const res = await fetch(`https://api.adsbdb.com/v0/aircraft/${key}`, { signal: AbortSignal.timeout(8000) });
@@ -519,6 +718,9 @@ export class SkyApi {
       }
     } catch { /* cache the miss so we don't hammer a free API */ }
     await this.aircraftCache.updateOne({ icao: key }, { icao: key, info, at: Date.now() }, { upsert: true });
+    // A newly resolved type is worth counting from the next poll on, so the
+    // mirror is updated here rather than waiting for a restart to notice.
+    this.rememberType(key, info);
     return info;
   }
 
@@ -557,24 +759,46 @@ export class SkyApi {
 
   // ---------- accounts + watchlist
 
-  async signup(email: string, name: string, rawPassword: string): Promise<User> {
-    const clean = email.trim().toLowerCase();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(clean)) throw new Error('that email does not look right');
-    if (rawPassword.length < 8) throw new Error('password must be at least 8 characters');
-    if (await this.users.findOne({ email: clean })) throw new Error('an account with that email already exists');
-    const doc: PlainUser = {
-      id: randomUUID(), email: clean, name: name.trim().slice(0, 60) || 'Anonymous',
-      passwordHash: User.hashPassword(rawPassword), createdAt: new Date().toISOString(),
-    };
-    await this.users.create(doc);
-    return User.from(doc);
+  // ---------- accounts: the AccountStore port, and nothing more
+  //
+  // Every rule about who may sign up, how a password is checked and when an
+  // address counts as proved lives in the auth provider. This class only
+  // stores and retrieves, which is why swapping the provider does not touch it.
+
+  /** find an account by its normalised address. */
+  async findByEmail(email: string): Promise<User | undefined> {
+    const doc = await this.users.findOne({ email: email.trim().toLowerCase() }).lean();
+    return doc ? User.from(doc as PlainUser) : undefined;
   }
 
-  async login(email: string, rawPassword: string): Promise<User | undefined> {
-    const doc = await this.users.findOne({ email: email.trim().toLowerCase() }).lean();
-    if (!doc) return undefined;
-    const user = User.from(doc as PlainUser);
-    return (await user.verifyPassword(rawPassword)) ? user : undefined;
+  /**
+   * Find an account by id.
+   *
+   * Called on every authenticated request and every refresh, so that a session
+   * cannot outlive the account it belongs to.
+   */
+  async findById(id: string): Promise<User | undefined> {
+    const doc = await this.users.findOne({ id }).lean();
+    return doc ? User.from(doc as PlainUser) : undefined;
+  }
+
+  /** persist a new account. The caller has already hashed the password. */
+  async create(user: PlainUser): Promise<void> {
+    await this.users.create(user);
+  }
+
+  /**
+   * Mark an address proved, atomically.
+   *
+   * The `$exists: false` makes a second confirmation a no-op rather than a
+   * second write, so the timestamp records the first click.
+   */
+  async markEmailConfirmed(userId: string, confirmedAt: string): Promise<boolean> {
+    const result = await this.users.updateOne(
+      { id: userId, confirmedAt: { $exists: false } },
+      { $set: { confirmedAt } }
+    );
+    return result.modifiedCount === 1;
   }
 
   async watch(userId: string, icao: string, callsign: string) {

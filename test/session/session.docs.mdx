@@ -1,0 +1,46 @@
+---
+labels: ['auth', 'session', 'entity']
+description: 'One generation of a signed-in session — fingerprints and timestamps, never tokens.'
+---
+
+A `Session` is one *generation* of a signed-in session: the pair of tokens that
+were handed out at one moment, their expiries, and the family they belong to.
+
+Signing in creates generation 0. Every refresh writes a new record with the
+same `familyId` and `generation + 1`, and stamps the old one `rotatedAt`. That
+history is what makes replay detectable — see `@luvktest/test.session-manager`.
+
+## What it holds
+
+Fingerprints, not tokens. `accessTokenHash` and `refreshTokenHash` are HMACs;
+the tokens themselves exist only in the response that created them and in the
+client. An instance of this class is safe to log.
+
+```ts
+import { Session } from '@luvktest/test.session';
+
+const session = Session.from(record);
+
+session.isAccessValidAt(new Date()); // honour this request?
+session.isRefreshValidAt(new Date()); // allow an exchange?
+session.isRotated();                  // already spent — treat a hit as replay
+```
+
+## Three clocks, not one
+
+```ts
+session.accessExpiresAt;    // minutes  — the blast radius of a leaked access token
+session.refreshExpiresAt;   // weeks    — how long "stay signed in" lasts
+session.absoluteExpiresAt;  // months   — the ceiling, carried across every rotation
+```
+
+The ceiling is the one people forget. Without it a session that keeps
+refreshing never ends, so a stolen refresh token lives forever.
+
+## Sending one to a client
+
+```ts
+session.toPublic(); // { id, issuedAt, accessExpiresAt, refreshExpiresAt }
+```
+
+No hashes, no user id, nothing the client did not already know.
