@@ -55,7 +55,25 @@ export function SkyUi({ apiBase = DEFAULT_API }: SkyUiProps = {}) {
   const [sel, setSel] = useState<Flight | null>(null);
   const [info, setInfo] = useState<AircraftInfo | null>(null);
   const [route, setRoute] = useState<RouteInfo | null>(null);
-  const [me, setMe] = useState<Me | null>(null);
+  /** The signed-in user, restored from the last visit.
+   *
+   *  Without this the session lived in React state alone: sign in, reload, and
+   *  you are a stranger again with your watchlist apparently gone. There is no
+   *  token to protect here — the id is what the watchlist endpoints already take
+   *  — so the only thing being remembered is who you said you were. */
+  const [me, setMe] = useState<Me | null>(() => {
+    try {
+      const raw = localStorage.getItem('skyline.me');
+      return raw ? (JSON.parse(raw) as Me) : null;
+    } catch { return null; }   // private mode, or someone edited it by hand
+  });
+
+  useEffect(() => {
+    try {
+      if (me) localStorage.setItem('skyline.me', JSON.stringify(me));
+      else localStorage.removeItem('skyline.me');
+    } catch { /* storage unavailable — the session is simply not remembered */ }
+  }, [me]);
   const [watching, setWatching] = useState<{ icao: string; callsign: string }[]>([]);
   const [authOpen, setAuthOpen] = useState(false);
   const rx = useRef({ lon: 10, lat: 22, spin: true });
@@ -337,15 +355,31 @@ function Auth({ api, onDone }: { api: string; onDone: (u: Me) => void }) {
   const [mode, setMode] = useState<'signup' | 'login'>('signup');
   const [name, setName] = useState(''); const [email, setEmail] = useState(''); const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
   const go = async (e: React.FormEvent) => {
     e.preventDefault(); setErr('');
-    const res = await fetch(`${api}/${mode}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(mode === 'signup' ? { name, email, password } : { email, password }),
-    });
-    const d = await res.json();
-    if (!res.ok) { setErr(d.error ?? 'that did not work'); return; }
-    onDone(d.user);
+    // Every failure here used to reject unhandled inside a submit handler, which
+    // React swallows: the form did nothing at all and said nothing either, which
+    // is indistinguishable from a broken button. A dead upstream and a wrong
+    // password are different problems and should read differently.
+    setBusy(true);
+    try {
+      const res = await fetch(`${api}/${mode}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mode === 'signup' ? { name, email, password } : { email, password }),
+      });
+      const body = await res.text();
+      let d: any;
+      try { d = JSON.parse(body); }
+      catch { setErr(`the server answered with ${res.status}, not an account`); return; }
+      if (!res.ok) { setErr(d?.error ?? 'that did not work'); return; }
+      if (!d?.user?.id) { setErr('the server answered, but without an account'); return; }
+      onDone(d.user);
+    } catch (e) {
+      setErr(e instanceof Error ? `could not reach the server: ${e.message}` : 'could not reach the server');
+    } finally {
+      setBusy(false);
+    }
   };
   return (
     <form onSubmit={go}>
@@ -355,7 +389,9 @@ function Auth({ api, onDone }: { api: string; onDone: (u: Me) => void }) {
       <input style={S.input} placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
       <input style={S.input} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
       {err && <div style={S.err}>{err}</div>}
-      <button style={S.primaryWide} type="submit">{mode === 'signup' ? 'Create account' : 'Sign in'}</button>
+      <button style={S.primaryWide} type="submit" disabled={busy}>
+        {busy ? 'One moment…' : mode === 'signup' ? 'Create account' : 'Sign in'}
+      </button>
       <button type="button" style={S.link} onClick={() => { setMode(mode === 'signup' ? 'login' : 'signup'); setErr(''); }}>
         {mode === 'signup' ? 'I already have an account' : 'I need an account'}
       </button>
