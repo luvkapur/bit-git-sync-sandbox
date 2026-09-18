@@ -1,0 +1,45 @@
+---
+labels: ['mail', 'email', 'resend', 'transport', 'module']
+description: 'The whole vendor integration: one POST behind the Mailer interface.'
+---
+
+A `Mailer` that delivers through an HTTP email API. It is one file and one
+request, which is the point — swapping providers is editing this, and nothing
+else in the system knows who delivers its mail.
+
+## Configuration
+
+Two environment variables, no defaults:
+
+| Variable            | Example                          |
+| ------------------- | -------------------------------- |
+| `RESEND_API_KEY`    | `re_…`                           |
+| `SKYLINE_MAIL_FROM` | `Skyline <hello@skyline.example>` |
+
+```ts
+import { resendMailerFromEnv } from '@luvktest/test.resend-mailer';
+import { ConsoleMailer } from '@luvktest/test.mailer';
+
+const mailer = resendMailerFromEnv() ?? new ConsoleMailer();
+```
+
+Neither set → `undefined`, and the caller falls back to the dev mailer that
+prints to stdout. **One** set → it throws. A key with no sender is a typo, and
+a production box quietly printing confirmation emails into its own logs
+because of a typo is the exact failure this arrangement exists to prevent.
+
+## Swapping it
+
+```ts
+class MyMailer implements Mailer {
+  readonly name = 'my-provider';
+  isConfigured() { return Boolean(this.apiKey); }
+  async send({ to, subject, text, html }: MailMessage) {
+    const res = await fetch(MY_ENDPOINT, { /* … */ });
+    if (!res.ok) throw new Error(`refused (${res.status})`);
+  }
+}
+```
+
+Then change the one line that builds the mailer. Templates, flow, routes and
+tests are untouched — none of them import this component.

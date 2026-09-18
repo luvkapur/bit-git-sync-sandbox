@@ -1,0 +1,45 @@
+---
+labels: ['auth', 'email', 'confirmation', 'mongodb', 'mongoose', 'module']
+description: 'Confirmation links and attempt counters in MongoDB.'
+---
+
+The MongoDB half of the confirmation flow. It stores rows and answers lookups;
+every rule lives in `@luvktest/test.email-confirmation`.
+
+```ts
+import { MongoConfirmationStore } from '@luvktest/test.mongo-confirmation-store';
+import { ConfirmationManager } from '@luvktest/test.email-confirmation';
+
+await mongoose.connect(process.env.MONGO_URL);
+const confirmations = new ConfirmationManager(
+  MongoConfirmationStore.usingDefaultConnection(),
+  readAuthSecret()
+);
+```
+
+## Two collections
+
+**`confirmations`** — one row per issued link, holding the HMAC of the token
+and never the token. A dump of it cannot confirm anybody's address, because the
+key lives in the environment.
+
+**`authattempts`** — one row per signup or resend request, keyed on a
+fingerprint of the address rather than the address itself. It exists to
+throttle requests, not to become a list of every address anybody has typed into
+the signup form.
+
+## The query that matters
+
+```ts
+updateOne({ id, usedAt: { $exists: false } }, { $set: { usedAt } });
+```
+
+A single-use link that can be used twice is not single use. Mongo matches at
+most one document, so of two clicks arriving together exactly one sees
+`modifiedCount === 1`.
+
+## Housekeeping
+
+`deleteExpiredBefore` drops expired links and stale attempt rows together. Not
+a security control — both are already refused by the rules — it only stops the
+collections growing forever.

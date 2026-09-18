@@ -1,0 +1,31 @@
+---
+labels: ['watch-area', 'mongodb', 'mongoose', 'store', 'module']
+description: 'The watch-areas collection behind the AreaStore port.'
+---
+
+Storage and five queries. Who may see an area, who may change one, and what a
+legal area is all live elsewhere — which is why all three are tested without a
+database and this class has no opinion about any of them.
+
+## Wiring it up
+
+```ts
+const areas = MongoAreaStore.usingDefaultConnection();
+```
+
+## What is in the collection
+
+A cap — a centre and a radius, in degrees and kilometres, as the entity holds
+it. Not GeoJSON and no `2dsphere`: nothing here queries by geography.
+Containment is `WatchArea.contains`, run in the process against a feed that is
+already in memory, so a geospatial index would be a capability paid for at the
+point it is least useful.
+
+`(ownerId, createdAt)` and `visibility` are indexed, because the one read this
+collection serves is "mine, plus everything shared".
+
+## Reading rows back
+
+`toPlainArea` fails closed on the one field that decides who may read an area:
+an unrecognised `visibility` reads as `private`, never as shared. A typo in a
+database must not publish somebody's home.

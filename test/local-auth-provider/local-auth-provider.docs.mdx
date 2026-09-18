@@ -1,0 +1,66 @@
+---
+labels: ['auth', 'provider', 'local', 'module']
+description: 'Authentication on your own infrastructure — one implementation of AuthProvider.'
+---
+
+Your database, your password hashes, your sessions, your mail. One
+implementation of `@luvktest/test.auth-provider`; everything downstream depends
+on the interface, not on this.
+
+```ts
+import { LocalAuthProvider, MemoryAccountStore, authLinksFrom } from '@luvktest/test.local-auth-provider';
+
+const auth = new LocalAuthProvider({
+  accounts,      // AccountStore — four methods, no query language
+  sessions,      // SessionManager
+  confirmations, // ConfirmationManager
+  mailer,        // Mailer
+  links: authLinksFrom(process.env.SKYLINE_PUBLIC_URL ?? 'http://localhost:3000'),
+});
+```
+
+## The signup flow
+
+```
+signUp  → account created, unconfirmed → confirmation link emailed → 202
+confirm → account activated                                        → 200
+signIn  → access token (15 min) + refresh token (14 days)          → 200
+```
+
+An unconfirmed account cannot sign in, and is told `email-not-confirmed` rather
+than `invalid-credentials` — otherwise a legitimate user is told their correct
+password is wrong and concludes that signup is broken.
+
+## Not leaking who exists
+
+This is the part that is usually got wrong, so it is worth being explicit about
+what the implementation does:
+
+- **Signing up with an address that already exists** creates nothing and
+  answers exactly as a new address does. The owner of the address receives a
+  "somebody tried to sign up as you, nothing has changed" note instead of a
+  confirmation link.
+- **The password is hashed on both paths**, before the existence check, because
+  bcrypt is the expensive part of the request and doing it on only one path
+  would make the response *time* the answer.
+- **Resending for an unknown address** still sends a message — "there is no
+  account here" — because silence in the inbox is observable too.
+- **Rate limits are keyed on the address as typed**, not on an account. A
+  limiter that only counted real accounts would answer the question with a 429.
+- **Signing in with an unknown address** is compared against a decoy bcrypt
+  hash, so "no such account" costs what "wrong password" costs.
+
+What a refusal may say is therefore only ever about the input: `invalid-email`,
+`weak-password`, `rate-limited`.
+
+## Confirming does not sign you in
+
+A link that sat in an inbox is weaker evidence than a password, and mail
+clients prefetch links. `confirmEmail` activates the account and returns the
+user; the person then signs in.
+
+## Storage
+
+`AccountStore` is four methods — find by email, find by id, create, mark
+confirmed. `MemoryAccountStore` implements it for tests and demos; `SkyApi`
+implements it against MongoDB. Nothing in this component knows which.

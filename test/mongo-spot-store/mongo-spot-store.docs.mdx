@@ -1,0 +1,33 @@
+---
+labels: ['spotting', 'mongodb', 'mongoose', 'store', 'module']
+description: 'The spots collection behind the SpotStore port, with the unique key that makes the cooldown safe.'
+---
+
+Rows and three indexed reads. Every rule about what counts as a spot lives in
+`@luvktest/test.spot` — except the one that cannot, which lives in this
+collection's unique index.
+
+## Wiring it up
+
+```ts
+const spots = MongoSpotStore.usingDefaultConnection();
+await spots.ensureIndexes();
+```
+
+Awaiting `ensureIndexes` matters. Mongoose builds indexes in the background
+after a model is first used, and a unique key that arrives a few seconds after
+the first write is not a constraint.
+
+## The index that is a rule
+
+`{ spotterId, icao, timeBucket }`, unique. `insert` reads Mongo's 11000 as
+"somebody else got there first" and answers false; every other error still
+throws, because a store that swallowed them would report a spot as a duplicate
+when the database was simply down.
+
+## Reading rows back
+
+`toPlainSpot` maps field by field and refuses a document that is missing what
+makes a spot a spot. A frozen rarity score that has rotted reads as an honest
+`unknown` rather than as `NaN`, which renders as a blank and looks to a user
+like a broken browser.

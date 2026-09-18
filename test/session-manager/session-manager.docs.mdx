@@ -1,0 +1,105 @@
+---
+labels: ['auth', 'session', 'tokens', 'rotation', 'module']
+description: 'Issuing, checking, rotating and revoking sessions — every rule, no storage.'
+---
+
+The rules of being signed in. Storage sits behind the `SessionStore` port, so
+everything documented here is exercised in memory by the spec and behaves
+identically against Mongo in production.
+
+## The shape of a session
+
+A session is a **family** of generations, not a single token.
+
+```
+signIn      → generation 0   (access A0, refresh R0)
+refresh R0  → generation 1   (access A1, refresh R1), generation 0 marked spent
+refresh R1  → generation 2   …
+refresh R0  → the family is revoked. Every generation. Immediately.
+```
+
+That last line is the whole design. A healthy client never presents a spent
+refresh token, so a hit on one means a copy is in circulation, and the only
+safe response is to end the session rather than to refuse one call and let the
+attacker try the newer token next.
+
+## Using it
+
+```ts
+import { SessionManager } from '@luvktest/test.session-manager';
+import { readAuthSecret } from '@luvktest/test.token-crypto';
+
+const sessions = new SessionManager(store, readAuthSecret());
+
+// after a password check, never before
+const issued = await sessions.signIn(user.id);
+// → { accessToken, refreshToken, expiresIn: 900, refreshExpiresAt, session }
+```
+
+```ts
+const who = await sessions.authenticate(bearerToken);
+if (who.ok) {
+  who.userId; // the only user this request may touch
+} else {
+  who.code;   // 'expired-access-token' means: refresh and retry
+}
+```
+
+```ts
+const next = await sessions.refresh(refreshToken);
+if (next.ok) {
+  // store the NEW refresh token — the old one is now a tripwire
+}
+```
+
+```ts
+await sessions.signOut(refreshToken);       // this device, both tokens dead now
+await sessions.signOutEverywhere(user.id);  // after a password change
+```
+
+## Refusal codes
+
+Every failure is `{ ok: false, code, message }`. The code is for your client;
+the message is for a human.
+
+| code                   | what the client should do                |
+| ---------------------- | ---------------------------------------- |
+| `no-token`             | show the sign-in form                    |
+| `invalid-token`        | drop local state, show the sign-in form  |
+| `expired-access-token` | **refresh, then retry the request once** |
+| `expired-session`      | sign in again                            |
+| `token-reused`         | sign in again — the session was killed   |
+| `revoked`              | sign in again                            |
+
+`expired-access-token` is the only one that means "retry". A client that
+cannot tell it from `invalid-token` ends up signing people out for no reason.
+
+## Lifetimes
+
+```ts
+import { DEFAULT_SESSION_LIFETIMES } from '@luvktest/test.session-manager';
+// access 15 minutes · refresh 14 days · absolute ceiling 90 days
+```
+
+Override per deployment:
+
+```ts
+new SessionManager(store, secret, {
+  lifetimes: { accessTtlMs: 5 * 60_000, refreshTtlMs: 7 * 864e5, absoluteTtlMs: 30 * 864e5 },
+});
+```
+
+## Testing against it
+
+`MemorySessionStore` is a complete implementation — it is what the spec runs
+on. Pair it with the `now` seam and you can fast-forward ninety days:
+
+```ts
+import { MemorySessionStore, SessionManager } from '@luvktest/test.session-manager';
+
+let now = new Date();
+const sessions = new SessionManager(new MemorySessionStore(), secret, { now: () => now });
+```
+
+It is not a production store: a restart signs everyone out, and two replicas
+would disagree about who is signed in.

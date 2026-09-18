@@ -1,0 +1,59 @@
+---
+labels: ['auth', 'email', 'confirmation', 'rate-limit', 'module']
+description: 'Single-use, expiring confirmation links, and the rate limit that does not leak.'
+---
+
+Issuing, rate limiting and spending email-confirmation links. It knows nothing
+about users beyond an id and an address, and nothing about email beyond handing
+back a token for somebody else to put in one.
+
+```ts
+import { ConfirmationManager, MemoryConfirmationStore } from '@luvktest/test.email-confirmation';
+
+const confirmations = new ConfirmationManager(store, readAuthSecret());
+
+const rate = await confirmations.recordAttempt(email);   // count it, always
+const link = await confirmations.issue(user.id, email);  // link.token goes in the email
+const result = await confirmations.confirm(token);       // single use
+```
+
+## Three refusals, not one
+
+```ts
+{ ok: false, code: 'invalid-confirmation' }       // not a link we issued
+{ ok: false, code: 'expired-confirmation' }       // it was, 24 hours ago
+{ ok: false, code: 'confirmation-already-used' }  // you have already clicked it
+```
+
+To the person holding the link these are three different problems with three
+different next steps. Collapsing them into "invalid link" is how a user who has
+already confirmed ends up convinced that signup is broken.
+
+## Rate limiting that does not answer the question
+
+`recordAttempt` is called for **every** signup and resend, before the address
+is looked up, including for addresses that do not exist. A limiter that only
+counted real accounts would let an attacker enumerate your users by watching
+for the 429.
+
+The address is fingerprinted with the same HMAC secret before it is stored, so
+the attempt table does not become a list of every address anyone has typed
+into your signup form.
+
+Defaults: **3 requests per 15 minutes**, **24-hour** links.
+
+```ts
+const rate = await confirmations.recordAttempt(email);
+if (isRateLimited(rate)) return { code: 'rate-limited', retryAfterSeconds: rate.retryAfterSeconds };
+```
+
+## Issuing retires the last one
+
+Every `issue` expires the user's outstanding links. Without that, each resend
+leaves another working key in another inbox and a mailbox slowly becomes a set
+of credentials.
+
+## Single use means single use
+
+`markUsed` is a compare-and-set in the store, not a read followed by a write,
+so two clicks arriving together cannot both confirm.

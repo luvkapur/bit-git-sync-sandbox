@@ -1,0 +1,50 @@
+---
+labels: ['spot', 'social', 'entity']
+description: 'Spotting: who caught which aircraft, how unusual it was, and whose spots you see.'
+---
+
+You see an aircraft on the globe and you spot it. It goes on your public log with
+a rarity score, and it appears in the feed of everyone who follows you.
+
+Pure domain. No store, no socket, no HTTP — the rules live here so they can be
+tested without any of that, and `SpotLog` is the definition a persistent
+implementation has to match.
+
+## Rarity is measured, not decreed
+
+`RarityIndex` counts ICAO type designators in the feed and scores a type by its
+information content, `-log2(p)`. The scale is pinned to the sample: the commonest
+type in the sky scores 0, a type never seen scores 100. Nothing is hardcoded, so
+the day 747s stop flying they become worth points on their own.
+
+Thin data is reported as thin. Below 250 observations the band is `unknown` and
+`confidence` says `none` or `low` — the UI should hedge rather than call a
+Cessna legendary because it was the first thing the index ever saw. Feed the
+index snapshot by snapshot with `plus` and it converges.
+
+An aircraft whose type has not been resolved scores 0, not 100. Otherwise the
+cheapest rarity in the game would be an aircraft the enrichment lookup missed.
+
+## The rules
+
+A spot is rejected, with a reason, when the aircraft is not in the feed, is on
+the ground, has not reported a position in five minutes, or when the same person
+already spotted that airframe in the last six hours. Everything recorded — type,
+position, altitude — comes from the feed row, never from the request.
+
+```ts
+const log = new SpotLog();
+const result = log.attempt({ spotterId: 'u_42', icao: 'a1b2c3' }, feed);
+if (!result.ok) console.log(result.reason, result.message);
+
+const graph = new FollowGraph();
+graph.follow('u_42', 'u_7');
+
+log.recent();                       // the global column
+log.fromFollowing('u_42', graph);   // the people I follow, plus me
+log.bySpotter('u_7');               // one public log
+log.since(lastSeenAt);              // what a reconnecting socket missed
+```
+
+`recentSpots`, `spotsBySpotter`, `spotsFromFollowing` and `spotsSince` are the
+same functions over a plain array, for a store that keeps its own index.

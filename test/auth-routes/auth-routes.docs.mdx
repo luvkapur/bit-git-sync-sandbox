@@ -1,0 +1,71 @@
+---
+labels: ['auth', 'express', 'routes', 'api', 'module']
+description: 'The HTTP surface of Skyline authentication: signup, login, refresh, logout, and the self-only watchlist.'
+---
+
+Every authenticated route in one place, mounted onto an Express app.
+
+```ts
+import { registerAuthRoutes, registerAuthDisabledRoutes } from '@luvktest/test.auth-routes';
+import { MongoSessionStore } from '@luvktest/test.mongo-session-store';
+import { SessionManager } from '@luvktest/test.session-manager';
+import { readAuthSecret, MissingAuthSecretError } from '@luvktest/test.token-crypto';
+
+try {
+  const sessions = new SessionManager(MongoSessionStore.usingDefaultConnection(), readAuthSecret());
+  registerAuthRoutes(app, { sessions, accounts: sky, watchlists: sky });
+} catch (e) {
+  if (!(e instanceof MissingAuthSecretError)) throw e;
+  registerAuthDisabledRoutes(app, e.message); // every auth path answers 503
+}
+```
+
+## The surface
+
+| Method | Path                | Auth | Body                | Answers                    |
+| ------ | ------------------- | ---- | ------------------- | -------------------------- |
+| POST   | `/auth/signup`      | —    | email, name, password | 201 session                |
+| POST   | `/auth/login`       | —    | email, password     | 200 session                |
+| POST   | `/auth/refresh`     | —    | refreshToken        | 200 session                |
+| POST   | `/auth/logout`      | —    | refreshToken        | 200 `{ ok: true }`         |
+| POST   | `/auth/logout-all`  | ✔    | —                   | 200 `{ ok, ended }`        |
+| GET    | `/auth/me`          | ✔    | —                   | 200 `{ user }`             |
+| GET    | `/me/watchlist`     | ✔    | —                   | 200 `{ watching }`         |
+| POST   | `/me/watch`         | ✔    | icao, callsign      | 201 `{ watching }`         |
+| POST   | `/me/unwatch`       | ✔    | icao                | 200 `{ watching }`         |
+
+`/signup`, `/login`, `/watch`, `/unwatch` and `/watchlist/:userId` are aliases
+kept for older clients. They are **not** shortcuts around the rules:
+`/watchlist/:userId` now answers 403 unless the id in the path is the caller's
+own, and `/watch` ignores any `userId` in the body entirely.
+
+## A session response
+
+```json
+{
+  "user": { "id": "u1", "email": "pilot@skyline.test", "name": "Pilot" },
+  "accessToken": "…", "refreshToken": "…",
+  "tokenType": "Bearer", "expiresIn": 900,
+  "accessExpiresAt": "2026-09-17T12:15:00.000Z",
+  "refreshExpiresAt": "2026-10-01T12:00:00.000Z",
+  "session": { "id": "…", "issuedAt": "…", "accessExpiresAt": "…", "refreshExpiresAt": "…" }
+}
+```
+
+Send the access token as `Authorization: Bearer <accessToken>`. Keep the
+refresh token somewhere a stray script cannot read it, and replace it on every
+refresh — the previous one becomes a tripwire the moment it is exchanged.
+
+## The client loop
+
+1. Call something under `/me`.
+2. On `401` with `code: "expired-access-token"`, POST `/auth/refresh` with the
+   stored refresh token, store the new pair, and retry the request **once**.
+3. On any other 401, drop the stored tokens and show the sign-in form.
+
+## Two deliberate silences
+
+A wrong password and an unknown email produce a byte-identical 401, so the
+form cannot be used to enumerate who has an account. And `/auth/logout`
+answers 200 whether or not the token existed — "am I signed out?" has one
+honest answer and it is yes.

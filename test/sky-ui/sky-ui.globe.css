@@ -1,0 +1,110 @@
+/* Chrome and accessibility styles that belong to the globe view.
+ *
+ * A second plain stylesheet rather than additions to sky-ui.css: that file is
+ * shared with the other surfaces, and — as its sibling comment records — this
+ * directory learned the hard way that a *.module.css name hashes the classes
+ * out from under the string literals the JSX uses. Same rule here: a plain
+ * global sheet, imported for its side effect, class names spelled as written. */
+
+/* Reachable by a screen reader and by the keyboard, invisible to the eye.
+ * Not `display:none` and not `visibility:hidden`, both of which take the
+ * element out of the accessibility tree along with the pixels. */
+.srOnly {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+/* …until it is focused, when it becomes a real, visible control. */
+.srOnly:focus-within {
+  position: fixed;
+  top: 12px; left: 12px;
+  width: auto; height: auto;
+  margin: 0; padding: 14px 16px;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
+  max-width: 420px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: #101218;
+  border: 1px solid #3a4050;
+  border-radius: 12px;
+  z-index: 40;
+}
+
+/* A visible focus ring everywhere, on the canvas included. The globe is a
+ * keyboard-operable control, so it has to be able to say when it has focus. */
+.skyFocus:focus-visible,
+.srOnly button:focus-visible {
+  outline: 2px solid #cfd6e4;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.skyCanvas:focus-visible {
+  outline: 2px solid #cfd6e4;
+  outline-offset: -3px;
+}
+
+/* Chrome that recedes when the globe is left alone, and comes back on any
+ * input. Opacity only — never `display` and never `visibility`, so nothing
+ * moves, nothing reflows, and nothing leaves the accessibility tree. The value
+ * itself is set inline by the component; this only says how it travels. */
+.skyFade { transition: opacity 560ms cubic-bezier(.22,1,.36,1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .skyFade { transition-duration: 1ms; }
+}
+
+/* ------------------------------------------------------------------ *
+ *  The keep bar: what a finished circle gets instead of a modal.
+ *
+ *  It used to be a dialog in a full-screen scrim, so the reward for drawing a
+ *  circle on the globe was a panel sitting on top of it. This is a bar, it is
+ *  positioned rather than layered, and which edge it takes is decided by where
+ *  the circle actually landed — `isTop` and `isBottom` are set from the ring's
+ *  screen position each frame. Whichever edge it takes, it stands clear of the
+ *  drawn area and of the two corner blocks that were already there.
+ * ------------------------------------------------------------------ */
+.skyKeepBar {
+  position: absolute;
+  left: 50%;
+  z-index: 7;
+  width: min(760px, calc(100vw - 44px));
+  transform: translateX(-50%);
+}
+.skyKeepBar.isBottom { bottom: 24px; animation: skyKeepUp 260ms cubic-bezier(.16,1,.3,1) both; }
+.skyKeepBar.isTop    { top: 66px;    animation: skyKeepDown 260ms cubic-bezier(.16,1,.3,1) both; }
+
+/* Two corner blocks were already at the bottom of this screen — the aircraft
+   count on the left, the altitude legend on the right. Wide enough and the bar
+   simply narrows to sit between them, which is why the width is clamped
+   against the viewport rather than fixed. Below that there is no gap left to
+   sit in, so it takes the full width and stands clear above them instead. */
+@media (min-width: 1160px) {
+  .skyKeepBar { width: min(760px, calc(100vw - 600px)); }
+}
+@media (max-width: 1159px) {
+  .skyKeepBar.isBottom { bottom: 152px; }
+}
+
+/* The centring lives in the transform, so the entrance has to carry it too —
+   a plain translateY keyframe would drop the element half its width to the
+   right for the length of the animation. */
+@keyframes skyKeepUp {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes skyKeepDown {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skyKeepBar.isBottom, .skyKeepBar.isTop { animation: none; }
+}

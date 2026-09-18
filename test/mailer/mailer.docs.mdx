@@ -1,0 +1,60 @@
+---
+labels: ['mail', 'email', 'transport', 'module']
+description: 'A one-method mail transport interface, and the dev mailer that prints instead of sending.'
+---
+
+The seam between "we need to email this person" and "some company delivers it".
+One method, one message type, no vendor anywhere.
+
+```ts
+export interface Mailer {
+  readonly name: string;
+  isConfigured(): boolean;
+  send(message: MailMessage): Promise<void>;
+}
+```
+
+A transport does not know what a confirmation email is; the templates that do
+live in `@luvktest/test.auth-emails` and mention no vendor either.
+
+## The dev mailer
+
+`ConsoleMailer` writes the message — including the confirmation URL — to
+stdout. It is the default when nothing else is configured, which is what makes
+the entire signup and confirmation flow runnable with zero credentials and no
+network.
+
+```ts
+import { ConsoleMailer } from '@luvktest/test.mailer';
+
+const mailer = resendMailerFromEnv() ?? new ConsoleMailer();
+await mailer.send({ to, subject, text, html });
+```
+
+```
+[mailer] DEV MAILER — nothing was sent. This message was printed, not delivered.
+  ┌─────────────────────────────────────────────────────────
+  │ to:      pilot@skyline.test
+  │ subject: Confirm your email
+  ├─────────────────────────────────────────────────────────
+  │ Confirm: https://skyline.test/auth/confirm?token=…
+  └─────────────────────────────────────────────────────────
+```
+
+It says `DEV MAILER` on every single send, on purpose. A dev mailer that looks
+like a real one is exactly how a production deployment ends up silently
+dropping every confirmation email: the account is created, the user waits, and
+nothing in the log suggests anything is wrong.
+
+## Writing another one
+
+```ts
+class MyMailer implements Mailer {
+  readonly name = 'my-provider';
+  isConfigured() { return Boolean(this.apiKey); }
+  async send(message: MailMessage) { /* one HTTP call */ }
+}
+```
+
+`isConfigured` is checked at boot so a missing API key is a loud line in the
+log rather than a signup that never arrives.
