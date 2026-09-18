@@ -2,7 +2,14 @@ import type { DefaultRESTRoute } from '@bitdev/symphony.backends.backend-server'
 import type { SkyApi } from '@luvktest/test.sky-api';
 
 /**
- * The HTTP surface of the sky service, as Symphony route objects.
+ * The flight-data HTTP surface of the sky service, as Symphony route objects.
+ *
+ * Signup and login used to live here as a second implementation, and drifted
+ * until they called `SkyApi` methods that no longer exist — authentication moved
+ * into its own components. Ripple caught it; a local type-check did not, because
+ * it only re-checks what changed and this component had not. Auth, spotting and
+ * watch areas now register through `collectRoutes`, so there is one
+ * implementation and this file cannot drift from it again.
  *
  * This is glue only. Every line of behaviour — polling, the last-good
  * snapshot, the enrichment caches, accounts, the watchlist — lives in
@@ -60,28 +67,7 @@ export function createSkyRoutes(sky: SkyApi): DefaultRESTRoute[] {
       },
     },
 
-    {
-      method: 'post',
-      path: '/signup',
-      route: async (req, res) => {
-        const { email, name, password } = req.body ?? {};
-        try {
-          const u = await sky.signup(String(email ?? ''), String(name ?? ''), String(password ?? ''));
-          res.status(201).json({ user: u.toPublic() });
-        } catch (e) { fail(res, e); }
-      },
-    },
 
-    {
-      method: 'post',
-      path: '/login',
-      route: async (req, res) => {
-        const { email, password } = req.body ?? {};
-        const u = await sky.login(String(email ?? ''), String(password ?? ''));
-        if (!u) { res.status(401).json({ error: 'invalid email or password' }); return; }
-        res.json({ user: u.toPublic() });
-      },
-    },
 
     {
       method: 'get',
